@@ -1,0 +1,813 @@
+diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
+index 0a2cc03d7..a6e511611 100644
+--- a/app/Http/Requests/Base/LocaleRequest.php
++++ b/app/Http/Requests/Base/LocaleRequest.php
+@@ -2,14 +2,18 @@
+ 
+ namespace Pterodactyl\Http\Requests\Base;
+ 
++use Illuminate\Validation\Rule;
+ use Illuminate\Foundation\Http\FormRequest;
++use Pterodactyl\Traits\Helpers\AvailableLanguages;
+ 
+ class LocaleRequest extends FormRequest
+ {
++    use AvailableLanguages;
++
+     public function rules(): array
+     {
+         return [
+-            'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
++            'locale' => ['required', 'string', Rule::in(array_keys($this->getAvailableLanguages()))],
+             'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
+         ];
+     }
+diff --git a/app/Traits/Helpers/AvailableLanguages.php b/app/Traits/Helpers/AvailableLanguages.php
+index d487e8ecc..be53917ab 100644
+--- a/app/Traits/Helpers/AvailableLanguages.php
++++ b/app/Traits/Helpers/AvailableLanguages.php
+@@ -3,6 +3,7 @@
+ namespace Pterodactyl\Traits\Helpers;
+ 
+ use Matriphe\ISO639\ISO639;
++use Illuminate\Support\Str;
+ use Illuminate\Filesystem\Filesystem;
+ 
+ trait AvailableLanguages
+@@ -19,12 +20,27 @@ trait AvailableLanguages
+     {
+         return collect($this->getFilesystemInstance()->directories(resource_path('lang')))->mapWithKeys(function ($path) use ($localize) {
+             $code = basename($path);
+-            $value = $localize ? $this->getIsoInstance()->nativeByCode1($code) : $this->getIsoInstance()->languageByCode1($code);
++            $regionalKey = str_replace('-', '_', $code);
++            $regionalName = $this->regionalLanguageName($regionalKey, $localize);
++            if (!is_null($regionalName)) {
++                return [$code => $regionalName];
++            }
+ 
+-            return [$code => title_case($value)];
++            $lookup = Str::lower(explode('_', $regionalKey, 2)[0]);
++            $value = $localize ? $this->getIsoInstance()->nativeByCode1($lookup) : $this->getIsoInstance()->languageByCode1($lookup);
++
++            return [$code => Str::title((string) ($value ?: $code))];
+         })->toArray();
+     }
+ 
++    private function regionalLanguageName(string $code, bool $localize): ?string
++    {
++        return match ($code) {
++            'zh_TW' => $localize ? '繁體中文（台灣）' : 'Chinese (Traditional, Taiwan)',
++            default => null,
++        };
++    }
++
+     /**
+      * Return an instance of the filesystem for getting a folder listing.
+      */
+diff --git a/resources/lang/zh_TW/activity.php b/resources/lang/zh_TW/activity.php
+new file mode 100644
+index 000000000..86bfda189
+--- /dev/null
++++ b/resources/lang/zh_TW/activity.php
+@@ -0,0 +1,127 @@
++<?php
++
++/**
++ * 包含各種活動紀錄事件的翻譯字串。
++ */
++return [
++    'auth' => [
++        'fail' => '登入失敗',
++        'success' => '已登入',
++        'password-reset' => '已重設密碼',
++        'reset-password' => '已請求重設密碼',
++        'checkpoint' => '已請求兩步驟驗證',
++        'recovery-token' => '已使用兩步驟復原碼',
++        'token' => '已完成兩步驟驗證挑戰',
++        'ip-blocked' => '已封鎖來自未列入白名單 IP 的 :identifier 請求',
++        'sftp' => [
++            'fail' => 'SFTP 登入失敗',
++        ],
++    ],
++    'user' => [
++        'account' => [
++            'email-changed' => '已將電子郵件從 :old 變更為 :new',
++            'password-changed' => '已變更密碼',
++        ],
++        'api-key' => [
++            'create' => '已建立新的 API 金鑰 :identifier',
++            'delete' => '已刪除 API 金鑰 :identifier',
++        ],
++        'ssh-key' => [
++            'create' => '已將 SSH 金鑰 :fingerprint 新增到帳號',
++            'delete' => '已從帳號移除 SSH 金鑰 :fingerprint',
++        ],
++        'two-factor' => [
++            'create' => '已啟用兩步驟驗證',
++            'delete' => '已停用兩步驟驗證',
++        ],
++    ],
++    'server' => [
++        'reinstall' => '已重新安裝伺服器',
++        'console' => [
++            'command' => '已在伺服器上執行「:command」',
++        ],
++        'power' => [
++            'start' => '已啟動伺服器',
++            'stop' => '已停止伺服器',
++            'restart' => '已重新啟動伺服器',
++            'kill' => '已強制終止伺服器程序',
++        ],
++        'backup' => [
++            'download' => '已下載備份 :name',
++            'delete' => '已刪除備份 :name',
++            'restore' => '已還原備份 :name（刪除檔案：:truncate）',
++            'restore-complete' => '已完成備份 :name 的還原',
++            'restore-failed' => '備份 :name 還原失敗',
++            'start' => '已開始新的備份 :name',
++            'complete' => '已將備份 :name 標記為完成',
++            'fail' => '已將備份 :name 標記為失敗',
++            'lock' => '已鎖定備份 :name',
++            'unlock' => '已解除鎖定備份 :name',
++        ],
++        'database' => [
++            'create' => '已建立新資料庫 :name',
++            'rotate-password' => '已輪替資料庫 :name 的密碼',
++            'delete' => '已刪除資料庫 :name',
++        ],
++        'file' => [
++            'compress_one' => '已壓縮 :directory:file',
++            'compress_other' => '已在 :directory 壓縮 :count 個檔案',
++            'read' => '已檢視 :file 的內容',
++            'copy' => '已建立 :file 的副本',
++            'create-directory' => '已建立目錄 :directory:name',
++            'decompress' => '已在 :directory 解壓縮 :files',
++            'delete_one' => '已刪除 :directory:files.0',
++            'delete_other' => '已在 :directory 刪除 :count 個檔案',
++            'download' => '已下載 :file',
++            'pull' => '已從 :url 下載遠端檔案到 :directory',
++            'rename_one' => '已將 :directory:files.0.from 重新命名為 :directory:files.0.to',
++            'rename_other' => '已在 :directory 重新命名 :count 個檔案',
++            'write' => '已將新內容寫入 :file',
++            'upload' => '已開始上傳檔案',
++            'uploaded' => '已上傳 :directory:file',
++        ],
++        'sftp' => [
++            'denied' => '因權限不足而封鎖 SFTP 存取',
++            'create_one' => '已建立 :files.0',
++            'create_other' => '已建立 :count 個新檔案',
++            'write_one' => '已修改 :files.0 的內容',
++            'write_other' => '已修改 :count 個檔案的內容',
++            'delete_one' => '已刪除 :files.0',
++            'delete_other' => '已刪除 :count 個檔案',
++            'create-directory_one' => '已建立目錄 :files.0',
++            'create-directory_other' => '已建立 :count 個目錄',
++            'rename_one' => '已將 :files.0.from 重新命名為 :files.0.to',
++            'rename_other' => '已重新命名或移動 :count 個檔案',
++        ],
++        'allocation' => [
++            'create' => '已將 :allocation 新增到伺服器',
++            'notes' => '已將 :allocation 的備註從「:old」更新為「:new」',
++            'primary' => '已將 :allocation 設為伺服器主要配置',
++            'delete' => '已刪除配置 :allocation',
++        ],
++        'schedule' => [
++            'create' => '已建立排程 :name',
++            'update' => '已更新排程 :name',
++            'execute' => '已手動執行排程 :name',
++            'delete' => '已刪除排程 :name',
++        ],
++        'task' => [
++            'create' => '已為排程 :name 建立新的「:action」任務',
++            'update' => '已更新排程 :name 的「:action」任務',
++            'delete' => '已刪除排程 :name 的任務',
++        ],
++        'settings' => [
++            'rename' => '已將伺服器名稱從 :old 變更為 :new',
++            'description' => '已將伺服器說明從 :old 變更為 :new',
++        ],
++        'startup' => [
++            'edit' => '已將變數 :variable 從「:old」變更為「:new」',
++            'image' => '已將伺服器 Docker 映像從 :old 更新為 :new',
++        ],
++        'subuser' => [
++            'create' => '已將 :email 新增為子使用者',
++            'update' => '已更新 :email 的子使用者權限',
++            'delete' => '已移除子使用者 :email',
++        ],
++    ],
++];
+diff --git a/resources/lang/zh_TW/admin/nests.php b/resources/lang/zh_TW/admin/nests.php
+new file mode 100644
+index 000000000..ffb27291c
+--- /dev/null
++++ b/resources/lang/zh_TW/admin/nests.php
+@@ -0,0 +1,26 @@
++<?php
++
++return [
++    'notices' => [
++        'created' => '已成功建立新的 Nest：:name。',
++        'deleted' => '已成功從控制面板刪除指定的 Nest。',
++        'updated' => '已成功更新 Nest 設定選項。',
++    ],
++    'eggs' => [
++        'notices' => [
++            'imported' => '已成功匯入此 Egg 及其關聯變數。',
++            'updated_via_import' => '此 Egg 已透過提供的檔案完成更新。',
++            'deleted' => '已成功從控制面板刪除指定的 Egg。',
++            'updated' => 'Egg 設定已成功更新。',
++            'script_updated' => 'Egg 安裝腳本已更新，伺服器安裝時將使用新腳本。',
++            'egg_created' => '已成功建立新的 Egg。你需要重新啟動所有執行中的 Daemon 才會套用此 Egg。',
++        ],
++    ],
++    'variables' => [
++        'notices' => [
++            'variable_deleted' => '變數「:variable」已刪除，重建後將不再提供給伺服器使用。',
++            'variable_updated' => '變數「:variable」已更新。你需要重建使用此變數的伺服器以套用變更。',
++            'variable_created' => '已成功建立新變數並指派到此 Egg。',
++        ],
++    ],
++];
+diff --git a/resources/lang/zh_TW/admin/node.php b/resources/lang/zh_TW/admin/node.php
+new file mode 100644
+index 000000000..c32f3366f
+--- /dev/null
++++ b/resources/lang/zh_TW/admin/node.php
+@@ -0,0 +1,16 @@
++<?php
++
++return [
++    'validation' => [
++        'fqdn_not_resolvable' => '提供的 FQDN 或 IP 位址無法解析為有效 IP 位址。',
++        'fqdn_required_for_ssl' => '若要在此節點使用 SSL，必須提供可解析到公開 IP 的完整網域名稱（FQDN）。',
++    ],
++    'notices' => [
++        'allocations_added' => '已成功將配置新增到此節點。',
++        'node_deleted' => '節點已成功從控制面板移除。',
++        'location_required' => '在此控制面板新增節點前，至少要先設定一個地區。',
++        'node_created' => '已成功建立新節點。你可以前往「設定」分頁自動設定此機器上的 Daemon。新增伺服器前，請先至少配置一組 IP 位址與連接埠。',
++        'node_updated' => '節點資訊已更新。若有變更 Daemon 設定，需重新啟動 Daemon 才會生效。',
++        'unallocated_deleted' => '已刪除 <code>:ip</code> 的所有未配置連接埠。',
++    ],
++];
+diff --git a/resources/lang/zh_TW/admin/server.php b/resources/lang/zh_TW/admin/server.php
+new file mode 100644
+index 000000000..cf528d90f
+--- /dev/null
++++ b/resources/lang/zh_TW/admin/server.php
+@@ -0,0 +1,27 @@
++<?php
++
++return [
++    'exceptions' => [
++        'no_new_default_allocation' => '你正在嘗試刪除此伺服器的預設配置，但沒有可用的替代配置。',
++        'marked_as_failed' => '此伺服器先前安裝失敗已被標記，目前狀態下無法切換狀態。',
++        'bad_variable' => '變數 :name 的驗證失敗。',
++        'daemon_exception' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。（請求 ID：:request_id）',
++        'default_allocation_not_found' => '在此伺服器配置中找不到請求的預設配置。',
++    ],
++    'alerts' => [
++        'startup_changed' => '此伺服器的啟動設定已更新。若 Nest 或 Egg 有變更，現在會進行重新安裝。',
++        'server_deleted' => '伺服器已成功從系統刪除。',
++        'server_created' => '伺服器已成功在控制面板建立。請稍候數分鐘讓 Daemon 完成安裝。',
++        'build_updated' => '此伺服器的建置資訊已更新。部分變更可能需要重新啟動才會生效。',
++        'suspension_toggled' => '伺服器停權狀態已變更為 :status。',
++        'rebuild_on_boot' => '此伺服器已標記為需重建 Docker 容器，將在下次啟動時執行。',
++        'install_toggled' => '此伺服器的安裝狀態已切換。',
++        'server_reinstalled' => '此伺服器已排入重新安裝佇列，將立即開始。',
++        'details_updated' => '伺服器詳細資料已成功更新。',
++        'docker_image_updated' => '已成功變更此伺服器預設使用的 Docker 映像。需重新啟動後才會套用變更。',
++        'node_required' => '在此控制面板新增伺服器前，至少要先設定一個節點。',
++        'transfer_nodes_required' => '在轉移伺服器前，至少要先設定兩個節點。',
++        'transfer_started' => '伺服器轉移已開始。',
++        'transfer_not_viable' => '你選擇的節點沒有足夠可用磁碟空間或記憶體來容納此伺服器。',
++    ],
++];
+diff --git a/resources/lang/zh_TW/admin/user.php b/resources/lang/zh_TW/admin/user.php
+new file mode 100644
+index 000000000..73ace686f
+--- /dev/null
++++ b/resources/lang/zh_TW/admin/user.php
+@@ -0,0 +1,12 @@
++<?php
++
++return [
++    'exceptions' => [
++        'delete_self' => '你不能刪除自己的帳號。',
++        'user_has_servers' => '無法刪除仍綁定啟用中伺服器的使用者。請先刪除該使用者的伺服器。',
++    ],
++    'notices' => [
++        'account_created' => '帳號已成功建立。',
++        'account_updated' => '帳號已成功更新。',
++    ],
++];
+diff --git a/resources/lang/zh_TW/auth.php b/resources/lang/zh_TW/auth.php
+new file mode 100644
+index 000000000..c24fe3c3d
+--- /dev/null
++++ b/resources/lang/zh_TW/auth.php
+@@ -0,0 +1,27 @@
++<?php
++
++return [
++    'sign_in' => '登入',
++    'go_to_login' => '前往登入',
++    'failed' => '找不到符合這組登入資訊的帳號。',
++
++    'forgot_password' => [
++        'label' => '忘記密碼？',
++        'label_help' => '請輸入帳號的電子郵件地址，我們會寄送重設密碼說明。',
++        'button' => '找回帳號',
++    ],
++
++    'reset_password' => [
++        'button' => '重設並登入',
++    ],
++
++    'two_factor' => [
++        'label' => '兩步驟驗證碼',
++        'label_help' => '此帳號需要第二層身分驗證才能繼續。請輸入裝置產生的驗證碼以完成登入。',
++        'checkpoint_failed' => '兩步驟驗證碼無效。',
++    ],
++
++    'throttle' => '登入嘗試次數過多，請在 :seconds 秒後再試。',
++    'password_requirements' => '密碼長度至少 8 個字元，且建議使用本網站專用且不重複的密碼。',
++    '2fa_must_be_enabled' => '管理員已要求你必須啟用兩步驟驗證後，才能使用控制面板。',
++];
+diff --git a/resources/lang/zh_TW/command/messages.php b/resources/lang/zh_TW/command/messages.php
+new file mode 100644
+index 000000000..8d9124e7e
+--- /dev/null
++++ b/resources/lang/zh_TW/command/messages.php
+@@ -0,0 +1,66 @@
++<?php
++
++return [
++    'location' => [
++        'no_location_found' => '找不到與提供短代碼相符的紀錄。',
++        'ask_short' => '地區短代碼',
++        'ask_long' => '地區說明',
++        'created' => '已成功建立新地區（:name），ID 為 :id。',
++        'deleted' => '已成功刪除指定地區。',
++    ],
++    'user' => [
++        'search_users' => '請輸入使用者名稱、使用者 ID 或電子郵件地址',
++        'select_search_user' => '要刪除的使用者 ID（輸入「0」可重新搜尋）',
++        'deleted' => '使用者已成功從控制面板刪除。',
++        'confirm_delete' => '你確定要從控制面板刪除此使用者嗎？',
++        'no_users_found' => '找不到符合搜尋條件的使用者。',
++        'multiple_found' => '找到多個符合條件的帳號，因為使用了 --no-interaction 旗標，無法刪除使用者。',
++        'ask_admin' => '此使用者是否為管理員？',
++        'ask_email' => '電子郵件地址',
++        'ask_username' => '使用者名稱',
++        'ask_name_first' => '名字',
++        'ask_name_last' => '姓氏',
++        'ask_password' => '密碼',
++        'ask_password_tip' => '若要建立隨機密碼並透過電子郵件通知使用者，請重新執行此指令（CTRL+C）並加上 `--no-password` 旗標。',
++        'ask_password_help' => '密碼長度至少需 8 個字元，且必須包含至少一個大寫字母與一個數字。',
++        '2fa_help_text' => [
++            '此指令會在使用者帳號啟用時停用兩步驟驗證。僅建議在使用者無法登入時，作為帳號復原用途使用。',
++            '如果你不是要做這件事，請按 CTRL+C 離開此流程。',
++        ],
++        '2fa_disabled' => '已為 :email 停用兩步驟驗證。',
++    ],
++    'schedule' => [
++        'output_line' => '正在派送 `:schedule`（:hash）的第一個任務。',
++    ],
++    'maintenance' => [
++        'deleting_service_backup' => '正在刪除服務備份檔案 :file。',
++    ],
++    'server' => [
++        'rebuild_failed' => '節點「:node」上「:name」（#:id）的重建請求失敗，錯誤：:message',
++        'reinstall' => [
++            'failed' => '節點「:node」上「:name」（#:id）的重新安裝請求失敗，錯誤：:message',
++            'confirm' => '你即將對一組伺服器執行重新安裝。要繼續嗎？',
++        ],
++        'power' => [
++            'confirm' => '你即將對 :count 台伺服器執行 :action。要繼續嗎？',
++            'action_failed' => '節點「:node」上「:name」（#:id）的電源操作請求失敗，錯誤：:message',
++        ],
++    ],
++    'environment' => [
++        'mail' => [
++            'ask_smtp_host' => 'SMTP 主機（例如 smtp.gmail.com）',
++            'ask_smtp_port' => 'SMTP 連接埠',
++            'ask_smtp_username' => 'SMTP 使用者名稱',
++            'ask_smtp_password' => 'SMTP 密碼',
++            'ask_mailgun_domain' => 'Mailgun 網域',
++            'ask_mailgun_endpoint' => 'Mailgun 端點',
++            'ask_mailgun_secret' => 'Mailgun 密鑰',
++            'ask_mandrill_secret' => 'Mandrill 密鑰',
++            'ask_postmark_username' => 'Postmark API 金鑰',
++            'ask_driver' => '要使用哪個寄信驅動程式？',
++            'ask_mail_from' => '寄件者電子郵件地址',
++            'ask_mail_name' => '寄件者名稱',
++            'ask_encryption' => '要使用的加密方式',
++        ],
++    ],
++];
+diff --git a/resources/lang/zh_TW/dashboard/account.php b/resources/lang/zh_TW/dashboard/account.php
+new file mode 100644
+index 000000000..3689d12d3
+--- /dev/null
++++ b/resources/lang/zh_TW/dashboard/account.php
+@@ -0,0 +1,28 @@
++<?php
++
++return [
++    'email' => [
++        'title' => '更新你的電子郵件',
++        'updated' => '你的電子郵件地址已更新。',
++    ],
++    'password' => [
++        'title' => '變更你的密碼',
++        'requirements' => '你的新密碼長度至少需 8 個字元。',
++        'updated' => '你的密碼已更新。',
++    ],
++    'two_factor' => [
++        'button' => '設定兩步驟驗證',
++        'disabled' => '你的帳號已停用兩步驟驗證。登入時將不再要求輸入驗證碼。',
++        'enabled' => '你的帳號已啟用兩步驟驗證！之後登入時將需要輸入裝置產生的驗證碼。',
++        'invalid' => '提供的驗證碼無效。',
++        'setup' => [
++            'title' => '設定兩步驟驗證',
++            'help' => '無法掃描條碼嗎？請將下方金鑰輸入到你的驗證器應用程式：',
++            'field' => '輸入驗證碼',
++        ],
++        'disable' => [
++            'title' => '停用兩步驟驗證',
++            'field' => '輸入驗證碼',
++        ],
++    ],
++];
+diff --git a/resources/lang/zh_TW/dashboard/index.php b/resources/lang/zh_TW/dashboard/index.php
+new file mode 100644
+index 000000000..d878e8c18
+--- /dev/null
++++ b/resources/lang/zh_TW/dashboard/index.php
+@@ -0,0 +1,8 @@
++<?php
++
++return [
++    'search' => '搜尋伺服器...',
++    'no_matches' => '找不到符合搜尋條件的伺服器。',
++    'cpu_title' => 'CPU',
++    'memory_title' => '記憶體',
++];
+diff --git a/resources/lang/zh_TW/exceptions.php b/resources/lang/zh_TW/exceptions.php
+new file mode 100644
+index 000000000..2806e01ce
+--- /dev/null
++++ b/resources/lang/zh_TW/exceptions.php
+@@ -0,0 +1,59 @@
++<?php
++
++return [
++    'daemon_connection_failed' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。',
++    'node' => [
++        'servers_attached' => '節點必須沒有綁定任何伺服器才能刪除。',
++        'daemon_off_config_updated' => 'Daemon 設定已更新，但在自動更新 Daemon 設定檔時發生錯誤。你需要手動更新 Daemon 的設定檔（config.yml）以套用變更。',
++    ],
++    'allocations' => [
++        'server_using' => '目前有伺服器正在使用此配置。僅在沒有伺服器使用時才能刪除。',
++        'too_many_ports' => '不支援一次在單一範圍中新增超過 1000 個連接埠。',
++        'invalid_mapping' => '提供給 :port 的映射無效，無法處理。',
++        'cidr_out_of_range' => 'CIDR 掩碼僅允許 /25 到 /32。',
++        'port_out_of_range' => '配置中的連接埠必須大於 1024 且小於或等於 65535。',
++    ],
++    'nest' => [
++        'delete_has_servers' => '有啟用中的伺服器綁定此 Nest，無法從控制面板刪除。',
++        'egg' => [
++            'delete_has_servers' => '有啟用中的伺服器綁定此 Egg，無法從控制面板刪除。',
++            'invalid_copy_id' => '選擇要複製安裝腳本的 Egg 不存在，或該 Egg 本身就是複製而來。',
++            'must_be_child' => '此 Egg 的「複製設定來源」必須是所選 Nest 的子選項。',
++            'has_children' => '此 Egg 為一個或多個其他 Egg 的父項。請先刪除其子 Egg 再刪除此 Egg。',
++        ],
++        'variables' => [
++            'env_not_unique' => '環境變數 :name 在此 Egg 中必須為唯一值。',
++            'reserved_name' => '環境變數 :name 為保留名稱，無法指派給變數。',
++            'bad_validation_rule' => '驗證規則「:rule」不是此應用程式可用的規則。',
++        ],
++        'importer' => [
++            'json_error' => '解析 JSON 檔案時發生錯誤：:error。',
++            'file_error' => '提供的 JSON 檔案無效。',
++            'invalid_json_provided' => '提供的 JSON 檔案格式無法辨識。',
++        ],
++    ],
++    'subusers' => [
++        'editing_self' => '不允許編輯自己的子使用者帳號。',
++        'user_is_owner' => '你不能將伺服器擁有者新增為此伺服器的子使用者。',
++        'subuser_exists' => '該電子郵件地址的使用者已是此伺服器的子使用者。',
++    ],
++    'databases' => [
++        'delete_has_databases' => '無法刪除仍有啟用中資料庫關聯的資料庫主機。',
++    ],
++    'tasks' => [
++        'chain_interval_too_long' => '鏈式任務的最長間隔時間為 15 分鐘。',
++    ],
++    'locations' => [
++        'has_nodes' => '無法刪除仍有啟用中節點的地區。',
++    ],
++    'users' => [
++        'node_revocation_failed' => '在 <a href=":link">節點 #:node</a> 上撤銷金鑰失敗。:error',
++    ],
++    'deployment' => [
++        'no_viable_nodes' => '找不到符合自動部署需求的節點。',
++        'no_viable_allocations' => '找不到符合自動部署需求的配置。',
++    ],
++    'api' => [
++        'resource_not_found' => '此伺服器上不存在請求的資源。',
++    ],
++];
+diff --git a/resources/lang/zh_TW/pagination.php b/resources/lang/zh_TW/pagination.php
+new file mode 100644
+index 000000000..57bebc000
+--- /dev/null
++++ b/resources/lang/zh_TW/pagination.php
+@@ -0,0 +1,6 @@
++<?php
++
++return [
++    'previous' => '&laquo; 上一頁',
++    'next' => '下一頁 &raquo;',
++];
+diff --git a/resources/lang/zh_TW/passwords.php b/resources/lang/zh_TW/passwords.php
+new file mode 100644
+index 000000000..060b76105
+--- /dev/null
++++ b/resources/lang/zh_TW/passwords.php
+@@ -0,0 +1,9 @@
++<?php
++
++return [
++    'password' => '密碼至少需要 6 個字元，且必須與確認密碼一致。',
++    'reset' => '你的密碼已重設！',
++    'sent' => '我們已將重設密碼連結寄到你的電子郵件。',
++    'token' => '此重設密碼權杖無效。',
++    'user' => '找不到使用該電子郵件地址的使用者。',
++];
+diff --git a/resources/lang/zh_TW/server/users.php b/resources/lang/zh_TW/server/users.php
+new file mode 100644
+index 000000000..5404e16bd
+--- /dev/null
++++ b/resources/lang/zh_TW/server/users.php
+@@ -0,0 +1,33 @@
++<?php
++
++return [
++    'permissions' => [
++        'websocket_*' => '允許存取此伺服器的 WebSocket。',
++        'control_console' => '允許使用者向伺服器主控台送出資料。',
++        'control_start' => '允許使用者啟動伺服器實例。',
++        'control_stop' => '允許使用者停止伺服器實例。',
++        'control_restart' => '允許使用者重新啟動伺服器實例。',
++        'control_kill' => '允許使用者強制終止伺服器實例。',
++        'user_create' => '允許使用者為此伺服器建立新的使用者帳號。',
++        'user_read' => '允許使用者檢視與此伺服器關聯的使用者。',
++        'user_update' => '允許使用者修改與此伺服器關聯的其他使用者。',
++        'user_delete' => '允許使用者刪除與此伺服器關聯的其他使用者。',
++        'file_create' => '允許使用者建立新的檔案與資料夾。',
++        'file_read' => '允許使用者查看此伺服器實例關聯的檔案與資料夾，以及檢視內容。',
++        'file_update' => '允許使用者更新與伺服器關聯的檔案與資料夾。',
++        'file_delete' => '允許使用者刪除檔案與資料夾。',
++        'file_archive' => '允許使用者建立檔案封存並解壓縮既有封存檔。',
++        'file_sftp' => '允許使用者透過 SFTP 用戶端執行上述檔案操作。',
++        'allocation_read' => '允許存取伺服器配置管理頁面。',
++        'allocation_update' => '允許使用者修改伺服器配置。',
++        'database_create' => '允許使用者為伺服器建立新資料庫。',
++        'database_read' => '允許使用者檢視伺服器資料庫。',
++        'database_update' => '允許使用者修改資料庫。若使用者同時沒有「檢視密碼」權限，將無法修改密碼。',
++        'database_delete' => '允許使用者刪除資料庫實例。',
++        'database_view_password' => '允許使用者檢視系統中的資料庫密碼。',
++        'schedule_create' => '允許使用者為伺服器建立新排程。',
++        'schedule_read' => '允許使用者檢視伺服器排程。',
++        'schedule_update' => '允許使用者修改既有伺服器排程。',
++        'schedule_delete' => '允許使用者刪除伺服器排程。',
++    ],
++];
+diff --git a/resources/lang/zh_TW/strings.php b/resources/lang/zh_TW/strings.php
+new file mode 100644
+index 000000000..75f0da181
+--- /dev/null
++++ b/resources/lang/zh_TW/strings.php
+@@ -0,0 +1,95 @@
++<?php
++
++return [
++    'email' => '電子郵件',
++    'email_address' => '電子郵件地址',
++    'user_identifier' => '使用者名稱或電子郵件',
++    'password' => '密碼',
++    'new_password' => '新密碼',
++    'confirm_password' => '確認新密碼',
++    'login' => '登入',
++    'home' => '首頁',
++    'servers' => '伺服器',
++    'id' => 'ID',
++    'name' => '名稱',
++    'node' => '節點',
++    'connection' => '連線',
++    'memory' => '記憶體',
++    'cpu' => 'CPU',
++    'disk' => '磁碟',
++    'status' => '狀態',
++    'search' => '搜尋',
++    'suspended' => '已停用',
++    'account' => '帳號',
++    'security' => '安全性',
++    'ip' => 'IP 位址',
++    'last_activity' => '最近活動',
++    'revoke' => '撤銷',
++    '2fa_token' => '驗證權杖',
++    'submit' => '送出',
++    'close' => '關閉',
++    'settings' => '設定',
++    'configuration' => '設定',
++    'sftp' => 'SFTP',
++    'databases' => '資料庫',
++    'memo' => '備註',
++    'created' => '已建立',
++    'expires' => '到期',
++    'public_key' => '權杖',
++    'api_access' => 'API 存取',
++    'never' => '從未',
++    'sign_out' => '登出',
++    'admin_control' => '管理控制',
++    'required' => '必填',
++    'port' => '連接埠',
++    'username' => '使用者名稱',
++    'database' => '資料庫',
++    'new' => '新增',
++    'danger' => '危險',
++    'create' => '建立',
++    'select_all' => '全選',
++    'select_none' => '取消全選',
++    'alias' => '別名',
++    'primary' => '主要',
++    'make_primary' => '設為主要',
++    'none' => '無',
++    'cancel' => '取消',
++    'created_at' => '建立時間',
++    'action' => '操作',
++    'data' => '資料',
++    'queued' => '已排入佇列',
++    'last_run' => '上次執行',
++    'next_run' => '下次執行',
++    'not_run_yet' => '尚未執行',
++    'yes' => '是',
++    'no' => '否',
++    'delete' => '刪除',
++    '2fa' => '2FA',
++    'logout' => '登出',
++    'admin_cp' => '管理控制台',
++    'optional' => '選填',
++    'read_only' => '唯讀',
++    'relation' => '關聯',
++    'owner' => '擁有者',
++    'admin' => '管理員',
++    'subuser' => '子使用者',
++    'captcha_invalid' => '提供的驗證碼無效。',
++    'tasks' => '任務',
++    'seconds' => '秒',
++    'minutes' => '分鐘',
++    'under_maintenance' => '維護中',
++    'days' => [
++        'sun' => '星期日',
++        'mon' => '星期一',
++        'tues' => '星期二',
++        'wed' => '星期三',
++        'thurs' => '星期四',
++        'fri' => '星期五',
++        'sat' => '星期六',
++    ],
++    'last_used' => '上次使用',
++    'enable' => '啟用',
++    'disable' => '停用',
++    'save' => '儲存',
++    'copyright' => '&copy; 2015 - :year Pterodactyl Software',
++];
+diff --git a/resources/lang/zh_TW/validation.php b/resources/lang/zh_TW/validation.php
+new file mode 100644
+index 000000000..2f3d7f106
+--- /dev/null
++++ b/resources/lang/zh_TW/validation.php
+@@ -0,0 +1,83 @@
++<?php
++
++return [
++    'accepted' => ':attribute 必須接受。',
++    'active_url' => ':attribute 不是有效的 URL。',
++    'after' => ':attribute 必須是 :date 之後的日期。',
++    'after_or_equal' => ':attribute 必須是 :date 之後或相同的日期。',
++    'alpha' => ':attribute 只能包含字母。',
++    'alpha_dash' => ':attribute 只能包含字母、數字與破折號。',
++    'alpha_num' => ':attribute 只能包含字母與數字。',
++    'array' => ':attribute 必須為陣列。',
++    'before' => ':attribute 必須是 :date 之前的日期。',
++    'before_or_equal' => ':attribute 必須是 :date 之前或相同的日期。',
++    'between' => [
++        'numeric' => ':attribute 必須介於 :min 到 :max 之間。',
++        'file' => ':attribute 必須介於 :min 到 :max KB 之間。',
++        'string' => ':attribute 長度必須介於 :min 到 :max 個字元之間。',
++        'array' => ':attribute 的項目數必須介於 :min 到 :max 之間。',
++    ],
++    'boolean' => ':attribute 欄位必須為 true 或 false。',
++    'confirmed' => ':attribute 與確認欄位不一致。',
++    'date' => ':attribute 不是有效日期。',
++    'date_format' => ':attribute 不符合 :format 格式。',
++    'different' => ':attribute 與 :other 必須不同。',
++    'digits' => ':attribute 必須為 :digits 位數字。',
++    'digits_between' => ':attribute 位數必須介於 :min 到 :max 之間。',
++    'dimensions' => ':attribute 的圖片尺寸無效。',
++    'distinct' => ':attribute 欄位包含重複值。',
++    'email' => ':attribute 必須是有效的電子郵件地址。',
++    'exists' => '所選的 :attribute 無效。',
++    'file' => ':attribute 必須是檔案。',
++    'filled' => ':attribute 欄位為必填。',
++    'image' => ':attribute 必須是圖片。',
++    'in' => '所選的 :attribute 無效。',
++    'in_array' => ':attribute 欄位不存在於 :other。',
++    'integer' => ':attribute 必須為整數。',
++    'ip' => ':attribute 必須是有效的 IP 位址。',
++    'json' => ':attribute 必須是有效的 JSON 字串。',
++    'max' => [
++        'numeric' => ':attribute 不可大於 :max。',
++        'file' => ':attribute 不可大於 :max KB。',
++        'string' => ':attribute 長度不可超過 :max 個字元。',
++        'array' => ':attribute 不可超過 :max 個項目。',
++    ],
++    'mimes' => ':attribute 必須是以下類型的檔案：:values。',
++    'mimetypes' => ':attribute 必須是以下類型的檔案：:values。',
++    'min' => [
++        'numeric' => ':attribute 至少要為 :min。',
++        'file' => ':attribute 至少要有 :min KB。',
++        'string' => ':attribute 長度至少要有 :min 個字元。',
++        'array' => ':attribute 至少要有 :min 個項目。',
++    ],
++    'not_in' => '所選的 :attribute 無效。',
++    'numeric' => ':attribute 必須為數字。',
++    'present' => ':attribute 欄位必須存在。',
++    'regex' => ':attribute 格式無效。',
++    'required' => ':attribute 欄位為必填。',
++    'required_if' => '當 :other 為 :value 時，:attribute 欄位為必填。',
++    'required_unless' => '除非 :other 在 :values 之中，否則 :attribute 欄位為必填。',
++    'required_with' => '當 :values 存在時，:attribute 欄位為必填。',
++    'required_with_all' => '當 :values 存在時，:attribute 欄位為必填。',
++    'required_without' => '當 :values 不存在時，:attribute 欄位為必填。',
++    'required_without_all' => '當 :values 都不存在時，:attribute 欄位為必填。',
++    'same' => ':attribute 與 :other 必須相同。',
++    'size' => [
++        'numeric' => ':attribute 必須為 :size。',
++        'file' => ':attribute 必須為 :size KB。',
++        'string' => ':attribute 長度必須為 :size 個字元。',
++        'array' => ':attribute 必須包含 :size 個項目。',
++    ],
++    'string' => ':attribute 必須是字串。',
++    'timezone' => ':attribute 必須是有效的時區。',
++    'unique' => ':attribute 已被使用。',
++    'uploaded' => ':attribute 上傳失敗。',
++    'url' => ':attribute 格式無效。',
++
++    'attributes' => [],
++
++    'internal' => [
++        'variable_value' => ':env 變數',
++        'invalid_password' => '提供的密碼對此帳號無效。',
++    ],
++];
+diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
+index ee56cd8b3..d118c1cbe 100644
+--- a/resources/scripts/i18n.ts
++++ b/resources/scripts/i18n.ts
+@@ -3,17 +3,29 @@ import { initReactI18next } from 'react-i18next';
+ import I18NextHttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
+ import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
+ 
++interface ExtendedWindow extends Window {
++    SiteConfiguration?: {
++        locale?: string;
++    };
++    PterodactylUser?: {
++        language?: string;
++    };
++}
++
+ // If we're using HMR use a unique hash per page reload so that we're always
+ // doing cache busting. Otherwise just use the builder provided hash value in
+ // the URL to allow cache busting to occur whenever the front-end is rebuilt.
+ const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
++const { PterodactylUser, SiteConfiguration } = window as ExtendedWindow;
++const locale = (PterodactylUser?.language || SiteConfiguration?.locale || 'en').replace('-', '_');
+ 
+ i18n.use(I18NextMultiloadBackendAdapter)
+     .use(initReactI18next)
+     .init({
+         debug: process.env.DEBUG === 'true',
+-        lng: 'en',
++        lng: locale,
+         fallbackLng: 'en',
++        load: 'currentOnly',
+         keySeparator: '.',
+         backend: {
+             backend: I18NextHttpBackend,

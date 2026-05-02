@@ -1,0 +1,125 @@
+diff --git a/resources/scripts/components/server/files/FileManagerContainer.tsx b/resources/scripts/components/server/files/FileManagerContainer.tsx
+index 3bebd2062..c96b31cee 100644
+--- a/resources/scripts/components/server/files/FileManagerContainer.tsx
++++ b/resources/scripts/components/server/files/FileManagerContainer.tsx
+@@ -1,4 +1,4 @@
+-import React, { useEffect } from 'react';
++import React, { useEffect, useMemo, useState } from 'react';
+ import { httpErrorToHuman } from '@/api/http';
+ import { CSSTransition } from 'react-transition-group';
+ import Spinner from '@/components/elements/Spinner';
+@@ -40,19 +40,37 @@ export default () => {
+ 
+     const setSelectedFiles = ServerContext.useStoreActions((actions) => actions.files.setSelectedFiles);
+     const selectedFilesLength = ServerContext.useStoreState((state) => state.files.selectedFiles.length);
++    const [page, setPage] = useState(1);
++    const [perPage, setPerPage] = useState<number | 'all'>(100);
++
++    const perPageOptions: Array<number | 'all'> = [25, 50, 100, 250, 'all'];
++    const sortedFiles = useMemo(() => sortFiles([...(files || [])]), [files]);
++    const totalFiles = sortedFiles.length;
++    const totalPages = perPage === 'all' ? 1 : Math.max(1, Math.ceil(totalFiles / perPage));
++    const currentPage = Math.min(page, totalPages);
++    const startIndex = perPage === 'all' ? 0 : (currentPage - 1) * perPage;
++    const endIndex = perPage === 'all' ? totalFiles : Math.min(startIndex + perPage, totalFiles);
++    const visibleFiles = perPage === 'all' ? sortedFiles : sortedFiles.slice(startIndex, endIndex);
+ 
+     useEffect(() => {
+         clearFlashes('files');
+         setSelectedFiles([]);
+         setDirectory(hashToPath(hash));
++        setPage(1);
+     }, [hash]);
+ 
+     useEffect(() => {
+         mutate();
+     }, [directory]);
+ 
++    useEffect(() => {
++        if (page > totalPages) {
++            setPage(totalPages);
++        }
++    }, [page, totalPages]);
++
+     const onSelectAllClick = (e: React.ChangeEvent<HTMLInputElement>) => {
+-        setSelectedFiles(e.currentTarget.checked ? files?.map((file) => file.name) || [] : []);
++        setSelectedFiles(e.currentTarget.checked ? visibleFiles.map((file) => file.name) : []);
+     };
+ 
+     if (error) {
+@@ -68,7 +86,7 @@ export default () => {
+                             <FileActionCheckbox
+                                 type={'checkbox'}
+                                 css={tw`mx-4`}
+-                                checked={selectedFilesLength === (files?.length === 0 ? -1 : files?.length)}
++                                checked={selectedFilesLength === (visibleFiles.length === 0 ? -1 : visibleFiles.length)}
+                                 onChange={onSelectAllClick}
+                             />
+                         }
+@@ -94,15 +112,58 @@ export default () => {
+                     ) : (
+                         <CSSTransition classNames={'fade'} timeout={150} appear in>
+                             <div>
+-                                {files.length > 250 && (
+-                                    <div css={tw`rounded bg-yellow-400 mb-px p-3`}>
+-                                        <p css={tw`text-yellow-900 text-sm text-center`}>
+-                                            This directory is too large to display in the browser, limiting the output
+-                                            to the first 250 files.
+-                                        </p>
++                                <div
++                                    css={tw`bg-neutral-900/40 p-3 mb-px flex flex-col md:flex-row md:items-center md:justify-between gap-3`}
++                                >
++                                    <div css={tw`text-xs text-neutral-300`}>
++                                        Showing <span css={tw`text-neutral-100 font-semibold`}>{startIndex + 1}</span> to{' '}
++                                        <span css={tw`text-neutral-100 font-semibold`}>{endIndex}</span> of{' '}
++                                        <span css={tw`text-neutral-100 font-semibold`}>{totalFiles}</span> files
++                                    </div>
++                                    <div css={tw`flex items-center gap-2 flex-wrap`}>
++                                        <label css={tw`text-xs text-neutral-400`} htmlFor={'file-per-page'}>
++                                            Per page
++                                        </label>
++                                        <select
++                                            id={'file-per-page'}
++                                            css={tw`bg-neutral-800 border border-neutral-700 text-neutral-100 text-xs rounded px-2 py-1`}
++                                            value={perPage}
++                                            onChange={(e) => {
++                                                const value = e.currentTarget.value;
++                                                setPerPage(value === 'all' ? 'all' : Number(value));
++                                                setPage(1);
++                                            }}
++                                        >
++                                            {perPageOptions.map((option) => (
++                                                <option key={option} value={option}>
++                                                    {option === 'all' ? 'All' : option}
++                                                </option>
++                                            ))}
++                                        </select>
++                                        <Button.Text disabled={currentPage <= 1} onClick={() => setPage(1)}>
++                                            First
++                                        </Button.Text>
++                                        <Button.Text
++                                            disabled={currentPage <= 1}
++                                            onClick={() => setPage((value) => Math.max(1, value - 1))}
++                                        >
++                                            Prev
++                                        </Button.Text>
++                                        <span css={tw`text-xs text-neutral-300 px-1`}>
++                                            Page {currentPage} / {totalPages}
++                                        </span>
++                                        <Button.Text
++                                            disabled={currentPage >= totalPages}
++                                            onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
++                                        >
++                                            Next
++                                        </Button.Text>
++                                        <Button.Text disabled={currentPage >= totalPages} onClick={() => setPage(totalPages)}>
++                                            Last
++                                        </Button.Text>
+                                     </div>
+-                                )}
+-                                {sortFiles(files.slice(0, 250)).map((file) => (
++                                </div>
++                                {visibleFiles.map((file) => (
+                                     <FileObjectRow key={file.key} file={file} />
+                                 ))}
+                                 <MassActionsBar />

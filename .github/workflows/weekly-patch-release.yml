@@ -1,0 +1,79 @@
+name: Weekly Patch Release
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: "Optional upstream ref (branch, tag, or commit SHA)"
+        required: false
+        type: string
+      date_override:
+        description: "Optional release date in YYYYMMDD"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-patch-release
+  cancel-in-progress: false
+
+jobs:
+  patch-build-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout automation repository
+        uses: actions/checkout@v6
+
+      - name: Prepare upstream yarn.lock for cache key
+        env:
+          UPSTREAM_REF: ${{ inputs.upstream_ref }}
+        run: |
+          set -euo pipefail
+          WORK_DIR="$RUNNER_TEMP/panel-cache-src"
+          rm -rf "$WORK_DIR"
+          git clone --filter=blob:none https://github.com/pterodactyl/panel "$WORK_DIR"
+
+          if [[ -n "$UPSTREAM_REF" ]]; then
+            git -C "$WORK_DIR" fetch --force origin "$UPSTREAM_REF"
+            git -C "$WORK_DIR" checkout --force FETCH_HEAD
+          fi
+
+          cp "$WORK_DIR/yarn.lock" "$GITHUB_WORKSPACE/upstream.yarn.lock"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: upstream.yarn.lock
+
+      - name: Patch and build
+        id: build
+        env:
+          UPSTREAM_URL: https://github.com/pterodactyl/panel
+          UPSTREAM_REF: ${{ inputs.upstream_ref }}
+          DATE_OVERRIDE: ${{ inputs.date_override }}
+          PATCH_DIR: ${{ github.workspace }}/patches
+          DIST_DIR: ${{ github.workspace }}/dist
+        run: .github/scripts/patch-build-release.sh
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: panel-${{ steps.build.outputs.release_tag }}
+          path: |
+            dist/${{ steps.build.outputs.archive_name }}
+            dist/SHA256SUMS
+
+      - name: Create release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.build.outputs.release_tag }}
+          name: ${{ steps.build.outputs.release_tag }}
+          files: |
+            dist/${{ steps.build.outputs.archive_name }}
+            dist/SHA256SUMS
