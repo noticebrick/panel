@@ -410,42 +410,60 @@ index 501a1dcde..fcf038202 100644
              'create' => 'Created new API key :identifier',
 diff --git a/resources/lang/en/literals.php b/resources/lang/en/literals.php
 new file mode 100644
-index 000000000..807017c83
+index 000000000..973e59144
 --- /dev/null
 +++ b/resources/lang/en/literals.php
-@@ -0,0 +1,449 @@
+@@ -0,0 +1,772 @@
 +<?php
 +
 +return array (
 +  '&copy; 2015 - :year Pterodactyl Software' => '&copy; 2015 - :year Pterodactyl Software',
 +  '&laquo; Previous' => '&laquo; Previous',
++  '(min 1, max 100 characters).' => '(min 1, max 100 characters).',
++  '2-Factor authentication has been disabled for :email.' => '2-Factor authentication has been disabled for :email.',
 +  '2-Factor Required' => '2-Factor Required',
 +  '2-Factor Token' => '2-Factor Token',
-+  '2-Factor authentication has been disabled for :email.' => '2-Factor authentication has been disabled for :email.',
 +  '2FA' => '2FA',
++  ':count files' => ':count files',
++  ':count files are uploading, click to view' => ':count files are uploading, click to view',
 +  ':env variable' => ':env variable',
-+  'A Nest with active servers attached to it cannot be deleted from the Panel.' => 'A Nest with active servers attached to it cannot be deleted from the Panel.',
-+  'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.' => 'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.',
-+  'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.' => 'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.',
-+  'A new nest, :name, has been successfully created.' => 'A new nest, :name, has been successfully created.',
-+  'A node must have no servers linked to it in order to be deleted.' => 'A node must have no servers linked to it in order to be deleted.',
-+  'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.' => 'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.',
-+  'A user with that email address is already assigned as a subuser for this server.' => 'A user with that email address is already assigned as a subuser for this server.',
++  'Accept Minecraft&reg; EULA' => 'Accept Minecraft&reg; EULA',
++  'Accept Minecraft® EULA' => 'Accept Minecraft® EULA',
++  'Access Denied' => 'Access Denied',
 +  'Account' => 'Account',
-+  'Account Overview' => 'Account Overview',
-+  'Account Settings' => 'Account Settings',
++  'Account Activity Log' => 'Account Activity Log',
++  'Account API' => 'Account API',
 +  'Account has been created successfully.' => 'Account has been created successfully.',
 +  'Account has been successfully updated.' => 'Account has been successfully updated.',
++  'Account Overview' => 'Account Overview',
++  'Account Settings' => 'Account Settings',
 +  'Action' => 'Action',
++  'Active' => 'Active',
++  'Activity Log' => 'Activity Log',
 +  'Added :allocation to the server' => 'Added :allocation to the server',
 +  'Added :email as a subuser' => 'Added :email as a subuser',
++  'Added on:' => 'Added on:',
 +  'Added SSH key :fingerprint to account' => 'Added SSH key :fingerprint to account',
 +  'Adding more than 1000 ports in a single range at once is not supported.' => 'Adding more than 1000 ports in a single range at once is not supported.',
++  'Additional features belonging to the egg. Useful for configuring additional panel modifications.' => 'Additional features belonging to the egg. Useful for configuring additional panel modifications.',
++  'Address' => 'Address',
++  'Add SSH Key' => 'Add SSH Key',
++  'A description of this API key.' => 'A description of this API key.',
++  'A descriptive name for your database instance.' => 'A descriptive name for your database instance.',
 +  'Admin' => 'Admin',
 +  'Admin Control' => 'Admin Control',
 +  'Admin Control Panel' => 'Admin Control Panel',
++  'Administrator' => 'Administrator',
++  'Admin Only' => 'Admin Only',
++  'Advanced' => 'Advanced',
++  'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.' => 'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.',
++  'A human readable identifier for this schedule.' => 'A human readable identifier for this schedule.',
 +  'Alias' => 'Alias',
++  'All' => 'All',
 +  'Allocations have successfully been added to this node.' => 'Allocations have successfully been added to this node.',
++  'Allowed IPs' => 'Allowed IPs',
++  'Allows access to the server allocation management pages.' => 'Allows access to the server allocation management pages.',
++  'Allows access to the websocket for this server.' => 'Allows access to the websocket for this server.',
 +  'Allows a user permission to delete a database instance.' => 'Allows a user permission to delete a database instance.',
 +  'Allows a user permission to make modifications to a database. If the user does not have the "View Password" permission as well they will not be able to modify the password.' => 'Allows a user permission to make modifications to a database. If the user does not have the "View Password" permission as well they will not be able to modify the password.',
 +  'Allows a user permission to make modifications to an existing server schedule.' => 'Allows a user permission to make modifications to an existing server schedule.',
@@ -453,8 +471,6 @@ index 000000000..807017c83
 +  'Allows a user permission to view schedules for a server.' => 'Allows a user permission to view schedules for a server.',
 +  'Allows a user to create a new schedule for the server.' => 'Allows a user to create a new schedule for the server.',
 +  'Allows a user to delete a schedule for the server.' => 'Allows a user to delete a schedule for the server.',
-+  'Allows access to the server allocation management pages.' => 'Allows access to the server allocation management pages.',
-+  'Allows access to the websocket for this server.' => 'Allows access to the websocket for this server.',
 +  'Allows the user permission to create new files and directories.' => 'Allows the user permission to create new files and directories.',
 +  'Allows the user permission to view users associated with this server.' => 'Allows the user permission to view users associated with this server.',
 +  'Allows the user to create file archives and decompress existing archives.' => 'Allows the user to create file archives and decompress existing archives.',
@@ -473,213 +489,489 @@ index 000000000..807017c83
 +  'Allows user permission to create a new database for the server.' => 'Allows user permission to create a new database for the server.',
 +  'Allows user permission to make modifications to the server\'s allocations.' => 'Allows user permission to make modifications to the server\'s allocations.',
 +  'Allows user permission to view the server databases.' => 'Allows user permission to view the server databases.',
++  'All Users' => 'All Users',
++  'and' => 'and',
++  'and :count others' => 'and :count others',
 +  'An Egg with active servers attached to it cannot be deleted from the Panel.' => 'An Egg with active servers attached to it cannot be deleted from the Panel.',
++  'A Nest with active servers attached to it cannot be deleted from the Panel.' => 'A Nest with active servers attached to it cannot be deleted from the Panel.',
++  'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.' => 'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.',
++  'A new nest, :name, has been successfully created.' => 'A new nest, :name, has been successfully created.',
++  'A node must have no servers linked to it in order to be deleted.' => 'A node must have no servers linked to it in order to be deleted.',
++  'any value' => 'any value',
 +  'Api Access' => 'Api Access',
++  'API Keys' => 'API Keys',
++  'Application API' => 'Application API',
++  'Archive' => 'Archive',
++  'Archiving files...' => 'Archiving files...',
++  'Are you sure you want to delete :count files? This is a permanent action and the files cannot be recovered.' => 'Are you sure you want to delete :count files? This is a permanent action and the files cannot be recovered.',
 +  'Are you sure you want to delete this user from the Panel?' => 'Are you sure you want to delete this user from the Panel?',
++  'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.' => 'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.',
++  'A short identifier used to distinguish this location from others. Must be between 1 and 60 characters, for example,' => 'A short identifier used to distinguish this location from others. Must be between 1 and 60 characters, for example,',
++  'Associated Nest' => 'Associated Nest',
++  'A user with that email address is already assigned as a subuser for this server.' => 'A user with that email address is already assigned as a subuser for this server.',
++  'Authentication Code' => 'Authentication Code',
++  'Authentication Required' => 'Authentication Required',
 +  'Authentication Token' => 'Authentication Token',
++  'Author' => 'Author',
++  'A valid directory name must be provided.' => 'A valid directory name must be provided.',
++  'Backup name' => 'Backup name',
++  'Backups' => 'Backups',
++  'BASIC ADMINISTRATION' => 'BASIC ADMINISTRATION',
 +  'Began a file upload' => 'Began a file upload',
-+  'Blocked SFTP access due to permissions' => 'Blocked SFTP access due to permissions',
++  'Behind Proxy' => 'Behind Proxy',
 +  'Blocked request from unlisted IP address for :identifier' => 'Blocked request from unlisted IP address for :identifier',
-+  'CIDR notation only allows masks between /25 and /32.' => 'CIDR notation only allows masks between /25 and /32.',
-+  'CPU' => 'CPU',
++  'Blocked SFTP access due to permissions' => 'Blocked SFTP access due to permissions',
 +  'Can\'t scan the code? Enter the code below into your application:' => 'Can\'t scan the code? Enter the code below into your application:',
 +  'Cancel' => 'Cancel',
 +  'Cannot delete a database host server that has active databases linked to it.' => 'Cannot delete a database host server that has active databases linked to it.',
 +  'Cannot delete a location that has active nodes attached to it.' => 'Cannot delete a location that has active nodes attached to it.',
 +  'Cannot delete a user with active servers attached to their account. Please delete their servers before continuing.' => 'Cannot delete a user with active servers attached to their account. Please delete their servers before continuing.',
-+  'Change your password' => 'Change your password',
 +  'Changed email from :old to :new' => 'Changed email from :old to :new',
 +  'Changed language from :old to :new' => 'Changed language from :old to :new',
 +  'Changed password' => 'Changed password',
 +  'Changed the :variable variable from ":old" to ":new"' => 'Changed the :variable variable from ":old" to ":new"',
 +  'Changed the server description from :old to :new' => 'Changed the server description from :old to :new',
++  'Change Server Details' => 'Change Server Details',
++  'Change your password' => 'Change your password',
++  'Character limits:' => 'Character limits:',
 +  'Choose your preferred language for this account.' => 'Choose your preferred language for this account.',
++  'CIDR notation only allows masks between /25 and /32.' => 'CIDR notation only allows masks between /25 and /32.',
++  'Clear Filters' => 'Clear Filters',
++  'Client First Name' => 'Client First Name',
++  'Client Last Name' => 'Client Last Name',
 +  'Close' => 'Close',
++  'Communicate Over SSL' => 'Communicate Over SSL',
++  'Company Name' => 'Company Name',
 +  'Completed restoration of the :name backup' => 'Completed restoration of the :name backup',
 +  'Compressed :count files in :directory' => 'Compressed :count files in :directory',
 +  'Compressed :directory:file' => 'Compressed :directory:file',
 +  'Configuration' => 'Configuration',
++  'configuration,' => 'configuration,',
++  'Configuration Files' => 'Configuration Files',
 +  'Configure 2-Factor Authentication' => 'Configure 2-Factor Authentication',
++  'Configure Pterodactyl to your liking.' => 'Configure Pterodactyl to your liking.',
++  'Confirm database deletion' => 'Confirm database deletion',
++  'Confirm Database Name' => 'Confirm Database Name',
 +  'Confirm new password' => 'Confirm new password',
++  'Confirm New Password' => 'Confirm New Password',
++  'Confirm Password' => 'Confirm Password',
++  'Confirm server reinstallation' => 'Confirm server reinstallation',
++  'Confirm task deletion' => 'Confirm task deletion',
 +  'Connection' => 'Connection',
++  'Connections From' => 'Connections From',
++  'Connections from' => 'Connections from',
++  'Console' => 'Console',
++  'Console command input.' => 'Console command input.',
++  'container' => 'container',
++  'Continue' => 'Continue',
++  'Continue on Failure' => 'Continue on Failure',
++  'Copied "{{value}}" to clipboard.' => 'Copied "{{value}}" to clipboard.',
++  'Copied text to clipboard.' => 'Copied text to clipboard.',
++  'Copy' => 'Copy',
++  'Copy Settings From' => 'Copy Settings From',
 +  'Could not locate a record matching the provided short code.' => 'Could not locate a record matching the provided short code.',
++  'CPU' => 'CPU',
++  'CPU Limit' => 'CPU Limit',
++  'CPU Load' => 'CPU Load',
++  'CPU Pinning' => 'CPU Pinning',
 +  'Create' => 'Create',
++  'Create API Key' => 'Create API Key',
++  'Create backup' => 'Create backup',
 +  'Created' => 'Created',
 +  'Created :count directories' => 'Created :count directories',
 +  'Created :count new files' => 'Created :count new files',
 +  'Created :files.0' => 'Created :files.0',
-+  'Created At' => 'Created At',
 +  'Created a copy of :file' => 'Created a copy of :file',
 +  'Created a new ":action" task for the :name schedule' => 'Created a new ":action" task for the :name schedule',
++  'Created At' => 'Created At',
++  'Create Database' => 'Create Database',
 +  'Created directory :directory:name' => 'Created directory :directory:name',
++  'Create Directory' => 'Create Directory',
 +  'Created new API key :identifier' => 'Created new API key :identifier',
 +  'Created new database :name' => 'Created new database :name',
 +  'Created the :files.0 directory' => 'Created the :files.0 directory',
 +  'Created the :name schedule' => 'Created the :name schedule',
++  'Create File' => 'Create File',
++  'Create New' => 'Create New',
++  'Create new database' => 'Create new database',
++  'Create server backup' => 'Create server backup',
++  'Current Password' => 'Current Password',
 +  'Danger' => 'Danger',
 +  'Dashboard' => 'Dashboard',
 +  'Data' => 'Data',
 +  'Database' => 'Database',
++  'Database connection details' => 'Database connection details',
++  'Database Hosts' => 'Database Hosts',
++  'Database Name' => 'Database Name',
 +  'Databases' => 'Databases',
++  'Day (Month)' => 'Day (Month)',
++  'Day (Week)' => 'Day (Week)',
++  'Day of month' => 'Day of month',
++  'Day of week' => 'Day of week',
++  'Debug Information' => 'Debug Information',
 +  'Decompressed :files in :directory' => 'Decompressed :files in :directory',
++  'Default Language' => 'Default Language',
++  'Default Value' => 'Default Value',
 +  'Delete' => 'Delete',
++  'Delete all files before restoring backup.' => 'Delete all files before restoring backup.',
++  'Delete API Key' => 'Delete API Key',
 +  'Deleted :count files' => 'Deleted :count files',
 +  'Deleted :count files in :directory' => 'Deleted :count files in :directory',
 +  'Deleted :directory:files.0' => 'Deleted :directory:files.0',
 +  'Deleted :files.0' => 'Deleted :files.0',
-+  'Deleted API key :identifier' => 'Deleted API key :identifier',
-+  'Deleted a task for the :name schedule' => 'Deleted a task for the :name schedule',
 +  'Deleted all un-allocated ports for <code>:ip</code>.' => 'Deleted all un-allocated ports for <code>:ip</code>.',
++  'Deleted API key :identifier' => 'Deleted API key :identifier',
++  'Delete Database' => 'Delete Database',
++  'Deleted a task for the :name schedule' => 'Deleted a task for the :name schedule',
 +  'Deleted database :name' => 'Deleted database :name',
++  'Delete Directory' => 'Delete Directory',
 +  'Deleted the :allocation allocation' => 'Deleted the :allocation allocation',
 +  'Deleted the :name backup' => 'Deleted the :name backup',
 +  'Deleted the :name schedule' => 'Deleted the :name schedule',
++  'Delete File' => 'Delete File',
++  'Delete Files' => 'Delete Files',
++  'Delete files or increase the available disk space to resolve the issue.' => 'Delete files or increase the available disk space to resolve the issue.',
++  'Delete Key' => 'Delete Key',
++  'Delete Schedule' => 'Delete Schedule',
++  'Delete scheduled task' => 'Delete scheduled task',
++  'Delete SSH Key' => 'Delete SSH Key',
++  'Delete subuser' => 'Delete subuser',
++  'Delete Task' => 'Delete Task',
++  'Delete this subuser?' => 'Delete this subuser?',
++  'Deleting files...' => 'Deleting files...',
 +  'Deleting service backup file :file.' => 'Deleting service backup file :file.',
++  'Description' => 'Description',
++  'Device Checkpoint' => 'Device Checkpoint',
 +  'Disable' => 'Disable',
-+  'Disable two-factor authentication' => 'Disable two-factor authentication',
++  'Disabled' => 'Disabled',
 +  'Disabled two-factor auth' => 'Disabled two-factor auth',
++  'Disable two-factor authentication' => 'Disable two-factor authentication',
++  'Disable Two-Step' => 'Disable Two-Step',
 +  'Disk' => 'Disk',
++  'Disk Space' => 'Disk Space',
 +  'Dispatching job for first task in `:schedule` (:hash).' => 'Dispatching job for first task in `:schedule` (:hash).',
++  'Docker Image' => 'Docker Image',
++  'Docker Images' => 'Docker Images',
++  'Done' => 'Done',
++  'Download' => 'Download',
 +  'Downloaded :file' => 'Downloaded :file',
 +  'Downloaded a remote file from :url to :directory' => 'Downloaded a remote file from :url to :directory',
 +  'Downloaded the :name backup' => 'Downloaded the :name backup',
++  'Do you want to log out?' => 'Do you want to log out?',
++  'Drag and drop files to upload.' => 'Drag and drop files to upload.',
++  'Edit' => 'Edit',
 +  'Editing your own subuser account is not permitted.' => 'Editing your own subuser account is not permitted.',
++  'Edit scheduled task' => 'Edit scheduled task',
++  'Edit subuser' => 'Edit subuser',
 +  'Egg configuration has been updated successfully.' => 'Egg configuration has been updated successfully.',
++  'Egg File' => 'Egg File',
 +  'Egg install script has been updated and will run whenever servers are installed.' => 'Egg install script has been updated and will run whenever servers are installed.',
++  'Eggs' => 'Eggs',
 +  'Email' => 'Email',
 +  'Email Address' => 'Email Address',
 +  'Email address' => 'Email address',
 +  'Email address emails should originate from' => 'Email address emails should originate from',
 +  'Enable' => 'Enable',
++  'Enabled' => 'Enabled',
 +  'Enabled two-factor auth' => 'Enabled two-factor auth',
++  'Enable Two-Step' => 'Enable Two-Step',
 +  'Encryption method to use' => 'Encryption method to use',
++  'Endpoint' => 'Endpoint',
++  'Enter a server name, uuid, or allocation to begin searching.' => 'Enter a server name, uuid, or allocation to begin searching.',
 +  'Enter a Username, User ID, or Email Address' => 'Enter a Username, User ID, or Email Address',
++  'Enter the database name to confirm deletion.' => 'Enter the database name to confirm deletion.',
++  'Enter the name that this file should be saved as.' => 'Enter the name that this file should be saved as.',
 +  'Enter token' => 'Enter token',
 +  'Enter your account email address to receive instructions on resetting your password.' => 'Enter your account email address to receive instructions on resetting your password.',
++  'Enter your public SSH key.' => 'Enter your public SSH key.',
++  'Environment Variable' => 'Environment Variable',
++  'Error' => 'Error',
++  'every 5 minutes' => 'every 5 minutes',
++  'every hour' => 'every hour',
++  'every Monday' => 'every Monday',
++  'Examples' => 'Examples',
 +  'Executed ":command" on the server' => 'Executed ":command" on the server',
++  'Exit Admin Control' => 'Exit Admin Control',
 +  'Expires' => 'Expires',
-+  'Failed SFTP log in' => 'Failed SFTP log in',
 +  'Failed log in' => 'Failed log in',
++  'Failed SFTP log in' => 'Failed SFTP log in',
 +  'Failed to complete restoration of the :name backup' => 'Failed to complete restoration of the :name backup',
 +  'Failed to revoke keys on <a href=":link">Node #:node</a>. :error' => 'Failed to revoke keys on <a href=":link">Node #:node</a>. :error',
++  'False' => 'False',
++  'Features' => 'Features',
++  'file. Any files or directories listed in here will be excluded from backups. Wildcards are supported by using an asterisk' => 'file. Any files or directories listed in here will be excluded from backups. Wildcards are supported by using an asterisk',
++  'File Manager' => 'File Manager',
++  'File Mode' => 'File Mode',
++  'File Name' => 'File Name',
++  'File Uploads' => 'File Uploads',
 +  'First Name' => 'First Name',
++  'First page' => 'First page',
++  'Folder uploads are not supported.' => 'Folder uploads are not supported.',
++  'Force Outgoing IP' => 'Force Outgoing IP',
++  'Forcibly stopping a server can lead to data corruption.' => 'Forcibly stopping a server can lead to data corruption.',
++  'Forcibly Stop Process' => 'Forcibly Stop Process',
 +  'Forgot Password?' => 'Forgot Password?',
++  'Forgot password?' => 'Forgot password?',
++  'FQDN' => 'FQDN',
 +  'Friday' => 'Friday',
++  'Future tasks will be run when this task fails.' => 'Future tasks will be run when this task fails.',
 +  'Go to Login' => 'Go to Login',
++  'GSL Token' => 'GSL Token',
++  'here.' => 'here.',
 +  'Home' => 'Home',
++  'Host' => 'Host',
++  'Hour' => 'Hour',
++  'hour range' => 'hour range',
++  'I\'ve Lost My Device' => 'I\'ve Lost My Device',
 +  'ID' => 'ID',
++  'Identity' => 'Identity',
 +  'ID of user to delete (Enter \'0\' to re-search)' => 'ID of user to delete (Enter \'0\' to re-search)',
-+  'IP Address' => 'IP Address',
++  'If enabled, any account falling into the selected grouping will be required to have 2-Factor authentication enabled to use the Panel.' => 'If enabled, any account falling into the selected grouping will be required to have 2-Factor authentication enabled to use the Panel.',
++  'If provided, the name that should be used to reference this backup.' => 'If provided, the name that should be used to reference this backup.',
 +  'If this is not what you wanted to do, press CTRL+C to exit this process.' => 'If this is not what you wanted to do, press CTRL+C to exit this process.',
++  'If you are running the daemon behind a proxy such as Cloudflare, select this to have the daemon skip looking for certificates on boot.' => 'If you are running the daemon behind a proxy such as Cloudflare, select this to have the daemon skip looking for certificates on boot.',
 +  'If you would like to create an account with a random password emailed to the user, re-run this command (CTRL+C) and pass the `--no-password` flag.' => 'If you would like to create an account with a random password emailed to the user, re-run this command (CTRL+C) and pass the `--no-password` flag.',
++  'Ignored Files' => 'Ignored Files',
++  'Ignored Files & Directories' => 'Ignored Files & Directories',
++  'Ignoring files & folders:' => 'Ignoring files & folders:',
++  'I Have My Device' => 'I Have My Device',
++  'Inactive' => 'Inactive',
++  'Increasing' => 'Increasing',
++  'Input Rules' => 'Input Rules',
++  'Invalid GSL token!' => 'Invalid GSL token!',
++  'IP Address' => 'IP Address',
 +  'Is this user an administrator?' => 'Is this user an administrator?',
++  'It looks like you don\'t have any subusers.' => 'It looks like you don\'t have any subusers.',
++  'It seems like your Gameserver Login Token (GSL token) is invalid or has expired.' => 'It seems like your Gameserver Login Token (GSL token) is invalid or has expired.',
++  'JDBC Connection String' => 'JDBC Connection String',
++  'Kill' => 'Kill',
 +  'Killed the server process' => 'Killed the server process',
 +  'Language' => 'Language',
 +  'Language Preferences' => 'Language Preferences',
++  'Laravel Framework validation rules' => 'Laravel Framework validation rules',
 +  'Last Activity' => 'Last Activity',
 +  'Last Name' => 'Last Name',
++  'Last page' => 'Last page',
 +  'Last Run' => 'Last Run',
++  'Last run at:' => 'Last run at:',
 +  'Last Used' => 'Last Used',
++  'Last used:' => 'Last used:',
++  'Launch SFTP' => 'Launch SFTP',
++  'Loading...' => 'Loading...',
++  'Location' => 'Location',
 +  'Location Description' => 'Location Description',
++  'Locations' => 'Locations',
 +  'Location Short Code' => 'Location Short Code',
++  'Lock' => 'Lock',
++  'Locked' => 'Locked',
 +  'Locked the :name backup' => 'Locked the :name backup',
++  'Log Configuration' => 'Log Configuration',
 +  'Logged in' => 'Logged in',
 +  'Login' => 'Login',
++  'Login to Continue' => 'Login to Continue',
 +  'Logout' => 'Logout',
++  'Log out' => 'Log out',
 +  'Mailgun Domain' => 'Mailgun Domain',
 +  'Mailgun Endpoint' => 'Mailgun Endpoint',
 +  'Mailgun Secret' => 'Mailgun Secret',
 +  'Make Primary' => 'Make Primary',
++  'MANAGEMENT' => 'MANAGEMENT',
 +  'Mandrill Secret' => 'Mandrill Secret',
 +  'Manually executed the :name schedule' => 'Manually executed the :name schedule',
 +  'Marked the :name backup as complete' => 'Marked the :name backup as complete',
 +  'Marked the :name backup as failed' => 'Marked the :name backup as failed',
 +  'Memo' => 'Memo',
 +  'Memory' => 'Memory',
++  'Memory or process limit reached...' => 'Memory or process limit reached...',
++  'Metadata' => 'Metadata',
++  'MiB' => 'MiB',
++  'might help resolve this issue.' => 'might help resolve this issue.',
++  'Minute' => 'Minute',
 +  'Minutes' => 'Minutes',
 +  'Modified the contents of :count files' => 'Modified the contents of :count files',
 +  'Modified the contents of :files.0' => 'Modified the contents of :files.0',
 +  'Monday' => 'Monday',
++  'Month' => 'Month',
++  'Mounts' => 'Mounts',
++  'Move' => 'Move',
 +  'Multiple accounts were found for the user provided, unable to delete a user because of the --no-interaction flag.' => 'Multiple accounts were found for the user provided, unable to delete a user because of the --no-interaction flag.',
++  'must' => 'must',
++  'n/a' => 'n/a',
 +  'Name' => 'Name',
 +  'Name that emails should appear from' => 'Name that emails should appear from',
++  'Nests' => 'Nests',
++  'Network' => 'Network',
++  'Network (Inbound)' => 'Network (Inbound)',
++  'Network (Outbound)' => 'Network (Outbound)',
++  'never' => 'never',
++  'Never' => 'Never',
 +  'New' => 'New',
++  'New Database' => 'New Database',
++  'New Egg' => 'New Egg',
++  'New File' => 'New File',
++  'New location:' => 'New location:',
++  'New Nest' => 'New Nest',
 +  'New password' => 'New password',
++  'New Password' => 'New Password',
++  'New User' => 'New User',
 +  'New variable has successfully been created and assigned to this egg.' => 'New variable has successfully been created and assigned to this egg.',
 +  'Next &raquo;' => 'Next &raquo;',
++  'Next page' => 'Next page',
 +  'Next Run' => 'Next Run',
++  'Next run at:' => 'Next run at:',
 +  'No' => 'No',
 +  'No account matching those credentials could be found.' => 'No account matching those credentials could be found.',
++  'No activity logs available for this server.' => 'No activity logs available for this server.',
 +  'No allocations satisfying the requirements for automatic deployment were found.' => 'No allocations satisfying the requirements for automatic deployment were found.',
-+  'No nodes satisfying the requirements specified for automatic deployment could be found.' => 'No nodes satisfying the requirements specified for automatic deployment could be found.',
-+  'No users were found for the search term provided.' => 'No users were found for the search term provided.',
++  'No API keys exist for this account.' => 'No API keys exist for this account.',
 +  'Node' => 'Node',
 +  'Node has been successfully removed from the panel.' => 'Node has been successfully removed from the panel.',
 +  'Node information has been updated. If any daemon settings were changed you will need to reboot it for those changes to take effect.' => 'Node information has been updated. If any daemon settings were changed you will need to reboot it for those changes to take effect.',
++  'Nodes' => 'Nodes',
++  'Node under Maintenance' => 'Node under Maintenance',
 +  'None' => 'None',
++  'No nodes satisfying the requirements specified for automatic deployment could be found.' => 'No nodes satisfying the requirements specified for automatic deployment could be found.',
++  'No SSH Keys exist for this account.' => 'No SSH Keys exist for this account.',
++  'Not Behind Proxy' => 'Not Behind Proxy',
++  'Note: Wings must be restarted for the configuration file changes to take effect' => 'Note: Wings must be restarted for the configuration file changes to take effect',
++  'Notes' => 'Notes',
++  'Not Required' => 'Not Required',
 +  'Not Run Yet' => 'Not Run Yet',
++  'Not Set' => 'Not Set',
++  'No users were found for the search term provided.' => 'No users were found for the search term provided.',
++  'Offline' => 'Offline',
++  'Okay' => 'Okay',
++  'once a day' => 'once a day',
++  'Only execute this schedule when the server is in a running state.' => 'Only execute this schedule when the server is in a running state.',
++  'Only When Server Is Online' => 'Only When Server Is Online',
++  'Oops!' => 'Oops!',
 +  'Optional' => 'Optional',
++  'Out of available disk space...' => 'Out of available disk space...',
++  'Overview' => 'Overview',
 +  'Owner' => 'Owner',
++  'Page :current / :total' => 'Page :current / :total',
++  'Panel Settings' => 'Panel Settings',
 +  'Password' => 'Password',
 +  'Password must be at least 8 characters in length and should be unique to this site.' => 'Password must be at least 8 characters in length and should be unique to this site.',
 +  'Password reset' => 'Password reset',
 +  'Password rotated for database :name' => 'Password rotated for database :name',
++  'Passwords must be at least 8 characters in length.' => 'Passwords must be at least 8 characters in length.',
 +  'Passwords must be at least 8 characters in length and contain at least one capital letter and number.' => 'Passwords must be at least 8 characters in length and contain at least one capital letter and number.',
 +  'Passwords must be at least six characters and match the confirmation.' => 'Passwords must be at least six characters and match the confirmation.',
++  'Payload' => 'Payload',
++  'Permissions' => 'Permissions',
++  'Per page' => 'Per page',
++  'Please enter domain name (e.g' => 'Please enter domain name (e.g',
 +  'Port' => 'Port',
 +  'Ports in an allocation must be greater than 1024 and less than or equal to 65535.' => 'Ports in an allocation must be greater than 1024 and less than or equal to 65535.',
++  'Possible resource limit reached...' => 'Possible resource limit reached...',
 +  'Postmark API Key' => 'Postmark API Key',
 +  'Power action request for ":name" (#:id) on node ":node" failed with error: :message' => 'Power action request for ":name" (#:id) on node ":node" failed with error: :message',
++  'Prevents this backup from being deleted until explicitly unlocked.' => 'Prevents this backup from being deleted until explicitly unlocked.',
++  'Previous page' => 'Previous page',
 +  'Primary' => 'Primary',
++  'Processing' => 'Processing',
++  'Process Management' => 'Process Management',
++  'Public' => 'Public',
++  'Public Key' => 'Public Key',
 +  'Queued' => 'Queued',
++  'range values' => 'range values',
 +  'Read Only' => 'Read Only',
 +  'Rebuild request for ":name" (#:id) on node ":node" failed with error: :message' => 'Rebuild request for ":name" (#:id) on node ":node" failed with error: :message',
 +  'Recover Account' => 'Recover Account',
-+  'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message' => 'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message',
++  'Recovery Code' => 'Recovery Code',
 +  'Reinstalled server' => 'Reinstalled server',
++  'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message' => 'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message',
++  'Reinstall Server' => 'Reinstall Server',
 +  'Relation' => 'Relation',
++  'Remove Allocation' => 'Remove Allocation',
 +  'Removed :email as a subuser' => 'Removed :email as a subuser',
 +  'Removed SSH key :fingerprint from account' => 'Removed SSH key :fingerprint from account',
++  'Rename' => 'Rename',
 +  'Renamed :count files in :directory' => 'Renamed :count files in :directory',
 +  'Renamed :directory:files.0.from to :directory:files.0.to' => 'Renamed :directory:files.0.from to :directory:files.0.to',
 +  'Renamed :files.0.from to :files.0.to' => 'Renamed :files.0.from to :files.0.to',
 +  'Renamed or moved :count files' => 'Renamed or moved :count files',
 +  'Renamed the server from :old to :new' => 'Renamed the server from :old to :new',
 +  'Requested password reset' => 'Requested password reset',
++  'Request Password Reset' => 'Request Password Reset',
++  'Require 2-Factor Authentication' => 'Require 2-Factor Authentication',
 +  'Required' => 'Required',
 +  'Reset and Sign In' => 'Reset and Sign In',
++  'Reset Password' => 'Reset Password',
++  'Restart' => 'Restart',
 +  'Restarted the server' => 'Restarted the server',
++  'Restart the server' => 'Restart the server',
++  'Restore' => 'Restore',
 +  'Restored the :name backup (deleted files: :truncate)' => 'Restored the :name backup (deleted files: :truncate)',
++  'Return to Login' => 'Return to Login',
 +  'Revoke' => 'Revoke',
-+  'SFTP' => 'SFTP',
-+  'SMTP Host (e.g. smtp.gmail.com)' => 'SMTP Host (e.g. smtp.gmail.com)',
-+  'SMTP Password' => 'SMTP Password',
-+  'SMTP Port' => 'SMTP Port',
-+  'SMTP Username' => 'SMTP Username',
++  'Running Installer' => 'Running Installer',
 +  'Saturday' => 'Saturday',
 +  'Save' => 'Save',
++  'Save Content' => 'Save Content',
++  'Schedule Enabled' => 'Schedule Enabled',
++  'Schedule name' => 'Schedule name',
++  'Schedules' => 'Schedules',
 +  'Search' => 'Search',
 +  'Search for servers...' => 'Search for servers...',
++  'Search term' => 'Search term',
 +  'Seconds' => 'Seconds',
 +  'Security' => 'Security',
 +  'Select All' => 'Select All',
 +  'Select None' => 'Select None',
++  'Send command' => 'Send command',
++  'Send power action' => 'Send power action',
++  'Server Address' => 'Server Address',
++  'Server Description' => 'Server Description',
 +  'Server details have been successfully updated.' => 'Server details have been successfully updated.',
 +  'Server has successfully been deleted from the system.' => 'Server has successfully been deleted from the system.',
++  'Server ID' => 'Server ID',
++  'Server Name' => 'Server Name',
++  'Server Owner' => 'Server Owner',
++  'Servers' => 'Servers',
++  'Server Suspended' => 'Server Suspended',
 +  'Server suspension status has been changed to :status.' => 'Server suspension status has been changed to :status.',
 +  'Server transfer has been started.' => 'Server transfer has been started.',
 +  'Server was successfully created on the panel. Please allow the daemon a few minutes to completely install this server.' => 'Server was successfully created on the panel. Please allow the daemon a few minutes to completely install this server.',
-+  'Servers' => 'Servers',
++  'SERVICE MANAGEMENT' => 'SERVICE MANAGEMENT',
 +  'Set :allocation as the primary server allocation' => 'Set :allocation as the primary server allocation',
 +  'Settings' => 'Settings',
++  'Setting this to \'Yes\' gives a user full administrative access.' => 'Setting this to \'Yes\' gives a user full administrative access.',
 +  'Setup two-factor authentication' => 'Setup two-factor authentication',
++  'SFTP' => 'SFTP',
++  'SFTP Details' => 'SFTP Details',
++  'Short Code' => 'Short Code',
++  'Show Cheatsheet' => 'Show Cheatsheet',
++  'Showing :from to :to of :total files' => 'Showing :from to :to of :total files',
++  'Show the cron cheatsheet for some examples.' => 'Show the cron cheatsheet for some examples.',
++  'SIGINT' => 'SIGINT',
 +  'Sign In' => 'Sign In',
 +  'Sign out' => 'Sign out',
++  'SMTP Host (e.g. smtp.gmail.com)' => 'SMTP Host (e.g. smtp.gmail.com)',
++  'SMTP Password' => 'SMTP Password',
++  'SMTP Port' => 'SMTP Port',
++  'SMTP Username' => 'SMTP Username',
 +  'Solved two-factor challenge' => 'Solved two-factor challenge',
++  'Something went wrong' => 'Something went wrong',
++  'Source' => 'Source',
++  'Special Characters' => 'Special Characters',
++  'SSH Key Name' => 'SSH Key Name',
++  'SSH Keys' => 'SSH Keys',
++  'Start' => 'Start',
++  'Start backup' => 'Start backup',
++  'Start Configuration' => 'Start Configuration',
 +  'Started a new backup :name' => 'Started a new backup :name',
 +  'Started the server' => 'Started the server',
++  'Start the server' => 'Start the server',
++  'Startup Command' => 'Startup Command',
++  'Startup Settings' => 'Startup Settings',
 +  'Status' => 'Status',
++  'step values' => 'step values',
++  'Stop' => 'Stop',
++  'Stop Command' => 'Stop Command',
 +  'Stopped the server' => 'Stopped the server',
++  'Stop the server' => 'Stop the server',
 +  'Submit' => 'Submit',
 +  'Subuser' => 'Subuser',
 +  'Successfully changed the default Docker image to use for this server. A reboot is required to apply this change.' => 'Successfully changed the default Docker image to use for this server. A reboot is required to apply this change.',
@@ -692,7 +984,12 @@ index 000000000..807017c83
 +  'Successfully updated the nest configuration options.' => 'Successfully updated the nest configuration options.',
 +  'Sunday' => 'Sunday',
 +  'Suspended' => 'Suspended',
++  'System' => 'System',
++  'System Information' => 'System Information',
++  'System User' => 'System User',
++  'Target' => 'Target',
 +  'Tasks' => 'Tasks',
++  'Terminate the server' => 'Terminate the server',
 +  'The "Copy Settings From" directive for this Egg must be a child option for the selected Nest.' => 'The "Copy Settings From" directive for this Egg must be a child option for the selected Nest.',
 +  'The :attribute and :other must be different.' => 'The :attribute and :other must be different.',
 +  'The :attribute and :other must match.' => 'The :attribute and :other must match.',
@@ -701,66 +998,70 @@ index 000000000..807017c83
 +  'The :attribute failed to upload.' => 'The :attribute failed to upload.',
 +  'The :attribute field does not exist in :other.' => 'The :attribute field does not exist in :other.',
 +  'The :attribute field has a duplicate value.' => 'The :attribute field has a duplicate value.',
++  'The :attribute field is required.' => 'The :attribute field is required.',
 +  'The :attribute field is required unless :other is in :values.' => 'The :attribute field is required unless :other is in :values.',
 +  'The :attribute field is required when :other is :value.' => 'The :attribute field is required when :other is :value.',
 +  'The :attribute field is required when :values is not present.' => 'The :attribute field is required when :values is not present.',
 +  'The :attribute field is required when :values is present.' => 'The :attribute field is required when :values is present.',
 +  'The :attribute field is required when none of :values are present.' => 'The :attribute field is required when none of :values are present.',
-+  'The :attribute field is required.' => 'The :attribute field is required.',
 +  'The :attribute field must be present.' => 'The :attribute field must be present.',
 +  'The :attribute field must be true or false.' => 'The :attribute field must be true or false.',
 +  'The :attribute format is invalid.' => 'The :attribute format is invalid.',
 +  'The :attribute has already been taken.' => 'The :attribute has already been taken.',
 +  'The :attribute has invalid image dimensions.' => 'The :attribute has invalid image dimensions.',
-+  'The :attribute is not a valid URL.' => 'The :attribute is not a valid URL.',
 +  'The :attribute is not a valid date.' => 'The :attribute is not a valid date.',
++  'The :attribute is not a valid URL.' => 'The :attribute is not a valid URL.',
++  'The :attribute may not be greater than :max.' => 'The :attribute may not be greater than :max.',
 +  'The :attribute may not be greater than :max characters.' => 'The :attribute may not be greater than :max characters.',
 +  'The :attribute may not be greater than :max kilobytes.' => 'The :attribute may not be greater than :max kilobytes.',
-+  'The :attribute may not be greater than :max.' => 'The :attribute may not be greater than :max.',
 +  'The :attribute may not have more than :max items.' => 'The :attribute may not have more than :max items.',
-+  'The :attribute may only contain letters and numbers.' => 'The :attribute may only contain letters and numbers.',
 +  'The :attribute may only contain letters, numbers, and dashes.' => 'The :attribute may only contain letters, numbers, and dashes.',
 +  'The :attribute may only contain letters.' => 'The :attribute may only contain letters.',
++  'The :attribute may only contain letters and numbers.' => 'The :attribute may only contain letters and numbers.',
 +  'The :attribute must be :digits digits.' => 'The :attribute must be :digits digits.',
++  'The :attribute must be :size.' => 'The :attribute must be :size.',
 +  'The :attribute must be :size characters.' => 'The :attribute must be :size characters.',
 +  'The :attribute must be :size kilobytes.' => 'The :attribute must be :size kilobytes.',
-+  'The :attribute must be :size.' => 'The :attribute must be :size.',
++  'The :attribute must be accepted.' => 'The :attribute must be accepted.',
 +  'The :attribute must be a date after :date.' => 'The :attribute must be a date after :date.',
 +  'The :attribute must be a date after or equal to :date.' => 'The :attribute must be a date after or equal to :date.',
 +  'The :attribute must be a date before :date.' => 'The :attribute must be a date before :date.',
 +  'The :attribute must be a date before or equal to :date.' => 'The :attribute must be a date before or equal to :date.',
-+  'The :attribute must be a file of type: :values.' => 'The :attribute must be a file of type: :values.',
 +  'The :attribute must be a file.' => 'The :attribute must be a file.',
-+  'The :attribute must be a number.' => 'The :attribute must be a number.',
-+  'The :attribute must be a string.' => 'The :attribute must be a string.',
-+  'The :attribute must be a valid IP address.' => 'The :attribute must be a valid IP address.',
-+  'The :attribute must be a valid JSON string.' => 'The :attribute must be a valid JSON string.',
-+  'The :attribute must be a valid email address.' => 'The :attribute must be a valid email address.',
-+  'The :attribute must be a valid zone.' => 'The :attribute must be a valid zone.',
-+  'The :attribute must be accepted.' => 'The :attribute must be accepted.',
++  'The :attribute must be a file of type: :values.' => 'The :attribute must be a file of type: :values.',
 +  'The :attribute must be an array.' => 'The :attribute must be an array.',
 +  'The :attribute must be an image.' => 'The :attribute must be an image.',
 +  'The :attribute must be an integer.' => 'The :attribute must be an integer.',
++  'The :attribute must be a number.' => 'The :attribute must be a number.',
++  'The :attribute must be a string.' => 'The :attribute must be a string.',
++  'The :attribute must be at least :min.' => 'The :attribute must be at least :min.',
 +  'The :attribute must be at least :min characters.' => 'The :attribute must be at least :min characters.',
 +  'The :attribute must be at least :min kilobytes.' => 'The :attribute must be at least :min kilobytes.',
-+  'The :attribute must be at least :min.' => 'The :attribute must be at least :min.',
++  'The :attribute must be a valid email address.' => 'The :attribute must be a valid email address.',
++  'The :attribute must be a valid IP address.' => 'The :attribute must be a valid IP address.',
++  'The :attribute must be a valid JSON string.' => 'The :attribute must be a valid JSON string.',
++  'The :attribute must be a valid zone.' => 'The :attribute must be a valid zone.',
++  'The :attribute must be between :min and :max.' => 'The :attribute must be between :min and :max.',
 +  'The :attribute must be between :min and :max characters.' => 'The :attribute must be between :min and :max characters.',
 +  'The :attribute must be between :min and :max digits.' => 'The :attribute must be between :min and :max digits.',
 +  'The :attribute must be between :min and :max kilobytes.' => 'The :attribute must be between :min and :max kilobytes.',
-+  'The :attribute must be between :min and :max.' => 'The :attribute must be between :min and :max.',
 +  'The :attribute must contain :size items.' => 'The :attribute must contain :size items.',
 +  'The :attribute must have at least :min items.' => 'The :attribute must have at least :min items.',
 +  'The :attribute must have between :min and :max items.' => 'The :attribute must have between :min and :max items.',
-+  'The Egg selected for copying a script from either does not exist, or is copying a script itself.' => 'The Egg selected for copying a script from either does not exist, or is copying a script itself.',
-+  'The FQDN or IP address provided does not resolve to a valid IP address.' => 'The FQDN or IP address provided does not resolve to a valid IP address.',
-+  'The JSON file provided is not in a format that can be recognized.' => 'The JSON file provided is not in a format that can be recognized.',
-+  'The JSON file provided was not valid.' => 'The JSON file provided was not valid.',
 +  'The administrator has required that 2-Factor Authentication be enabled for your account in order to use the Panel.' => 'The administrator has required that 2-Factor Authentication be enabled for your account in order to use the Panel.',
 +  'The build details for this server have been updated. Some changes may require a restart to take effect.' => 'The build details for this server have been updated. Some changes may require a restart to take effect.',
++  'The command that should be sent to server processes to stop them gracefully. If you need to send a' => 'The command that should be sent to server processes to stop them gracefully. If you need to send a',
 +  'The daemon configuration has been updated, however there was an error encountered while attempting to automatically update the configuration file on the Daemon. You will need to manually update the configuration file (config.yml) for the daemon to apply these changes.' => 'The daemon configuration has been updated, however there was an error encountered while attempting to automatically update the configuration file on the Daemon. You will need to manually update the configuration file (config.yml) for the daemon to apply these changes.',
++  'The default language to use when rendering the Panel for this user.' => 'The default language to use when rendering the Panel for this user.',
++  'The default language to use when rendering UI components.' => 'The default language to use when rendering UI components.',
++  'The Egg selected for copying a script from either does not exist, or is copying a script itself.' => 'The Egg selected for copying a script from either does not exist, or is copying a script itself.',
 +  'The environment variable :name is protected and cannot be assigned to a variable.' => 'The environment variable :name is protected and cannot be assigned to a variable.',
 +  'The environment variable :name must be unique to this Egg.' => 'The environment variable :name must be unique to this Egg.',
++  'The following files are being uploaded to your server.' => 'The following files are being uploaded to your server.',
++  'The FQDN or IP address provided does not resolve to a valid IP address.' => 'The FQDN or IP address provided does not resolve to a valid IP address.',
 +  'The installation status for this server has been toggled.' => 'The installation status for this server has been toggled.',
++  'The JSON file provided is not in a format that can be recognized.' => 'The JSON file provided is not in a format that can be recognized.',
++  'The JSON file provided was not valid.' => 'The JSON file provided was not valid.',
 +  'The mapping provided for :port was invalid and could not be processed.' => 'The mapping provided for :port was invalid and could not be processed.',
 +  'The maximum interval time for a chained task is 15 minutes.' => 'The maximum interval time for a chained task is 15 minutes.',
 +  'The node you selected does not have the required disk space or memory available to accommodate this server.' => 'The node you selected does not have the required disk space or memory available to accommodate this server.',
@@ -768,100 +1069,122 @@ index 000000000..807017c83
 +  'The provided captcha is invalid.' => 'The provided captcha is invalid.',
 +  'The requested default allocation was not found in this server\'s allocations.' => 'The requested default allocation was not found in this server\'s allocations.',
 +  'The requested resource does not exist on this server.' => 'The requested resource does not exist on this server.',
++  'The requested resource was not found.' => 'The requested resource was not found.',
++  'There was an error validating the data provided.' => 'There was an error validating the data provided.',
++  'There was an error while attempting to parse the JSON file: :error.' => 'There was an error while attempting to parse the JSON file: :error.',
++  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.' => 'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.',
++  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)' => 'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)',
++  'There was a validation error with the :name variable.' => 'There was a validation error with the :name variable.',
++  'There were no servers found matching the search criteria provided.' => 'There were no servers found matching the search criteria provided.',
 +  'The selected :attribute is invalid.' => 'The selected :attribute is invalid.',
++  'These rules are defined using standard' => 'These rules are defined using standard',
 +  'The startup configuration for this server has been updated. If this server\'s nest or egg was changed a reinstall will be occurring now.' => 'The startup configuration for this server has been updated. If this server\'s nest or egg was changed a reinstall will be occurring now.',
 +  'The token provided was invalid.' => 'The token provided was invalid.',
 +  'The two-factor authentication token was invalid.' => 'The two-factor authentication token was invalid.',
 +  'The validation rule ":rule" is not a valid rule for this application.' => 'The validation rule ":rule" is not a valid rule for this application.',
 +  'The variable ":variable" has been deleted and will no longer be available to servers once rebuilt.' => 'The variable ":variable" has been deleted and will no longer be available to servers once rebuilt.',
 +  'The variable ":variable" has been updated. You will need to rebuild any servers using this variable in order to apply changes.' => 'The variable ":variable" has been updated. You will need to rebuild any servers using this variable in order to apply changes.',
-+  'There was a validation error with the :name variable.' => 'There was a validation error with the :name variable.',
-+  'There was an error while attempting to parse the JSON file: :error.' => 'There was an error while attempting to parse the JSON file: :error.',
-+  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.' => 'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.',
-+  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)' => 'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)',
-+  'There were no servers found matching the search criteria provided.' => 'There were no servers found matching the search criteria provided.',
-+  'This Egg has been updated using the file provided.' => 'This Egg has been updated using the file provided.',
-+  'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.' => 'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.',
 +  'This account requires a second layer of authentication in order to continue. Please enter the code generated by your device to complete this login.' => 'This account requires a second layer of authentication in order to continue. Please enter the code generated by your device to complete this login.',
 +  'This command will disable 2-factor authentication for a user\'s account if it is enabled. This should only be used as an account recovery command if the user is locked out of their account.' => 'This command will disable 2-factor authentication for a user\'s account if it is enabled. This should only be used as an account recovery command if the user is locked out of their account.',
++  'This directory seems to be empty.' => 'This directory seems to be empty.',
++  'This directory will be created as' => 'This directory will be created as',
++  'This Egg has been updated using the file provided.' => 'This Egg has been updated using the file provided.',
++  'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.' => 'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.',
++  'This is a permanent operation. The backup cannot be recovered once deleted.' => 'This is a permanent operation. The backup cannot be recovered once deleted.',
++  'This is the name that is used throughout the panel and in emails sent to clients.' => 'This is the name that is used throughout the panel and in emails sent to clients.',
 +  'This password reset token is invalid.' => 'This password reset token is invalid.',
++  'This schedule will be executed automatically if enabled.' => 'This schedule will be executed automatically if enabled.',
 +  'This server has been marked as requiring a Docker Container rebuild. This will happen the next time the server is started.' => 'This server has been marked as requiring a Docker Container rebuild. This will happen the next time the server is started.',
 +  'This server has been queued for a reinstallation beginning now.' => 'This server has been queued for a reinstallation beginning now.',
++  'This server has reached the maximum process or memory limit.' => 'This server has reached the maximum process or memory limit.',
++  'This server has run out of available disk space and cannot complete the install or update process.' => 'This server has run out of available disk space and cannot complete the install or update process.',
 +  'This server was marked as having failed a previous installation. Current status cannot be toggled in this state.' => 'This server was marked as having failed a previous installation. Current status cannot be toggled in this state.',
-+  'This directory seems to be empty.' => 'This directory seems to be empty.',
++  'This should be a JSON representation of configuration files to modify and what parts should be changed.' => 'This should be a JSON representation of configuration files to modify and what parts should be changed.',
++  'This should be a JSON representation of what values the daemon should be looking for when booting a server to determine completion.' => 'This should be a JSON representation of what values the daemon should be looking for when booting a server to determine completion.',
++  'This should be a JSON representation of where log files are stored, and whether or not the daemon should be creating custom logs.' => 'This should be a JSON representation of where log files are stored, and whether or not the daemon should be creating custom logs.',
 +  'Thursday' => 'Thursday',
++  'Time offset (in seconds)' => 'Time offset (in seconds)',
++  'Toggle navigation' => 'Toggle navigation',
 +  'Token' => 'Token',
 +  'Too many login attempts. Please try again in :seconds seconds.' => 'Too many login attempts. Please try again in :seconds seconds.',
++  'Transfer Server' => 'Transfer Server',
++  'True' => 'True',
 +  'Tuesday' => 'Tuesday',
-+  'Two-Step Verification' => 'Two-Step Verification',
 +  'Two-factor authentication has been disabled on your account. You will no longer be prompted to provide a token when logging in.' => 'Two-factor authentication has been disabled on your account. You will no longer be prompted to provide a token when logging in.',
 +  'Two-factor authentication has been enabled on your account! From now on, when logging in, you will be required to provide the code generated by your device.' => 'Two-factor authentication has been enabled on your account! From now on, when logging in, you will be required to provide the code generated by your device.',
 +  'Two-factor authentication requested' => 'Two-factor authentication requested',
++  'Two-Step Authentication Enabled' => 'Two-Step Authentication Enabled',
++  'Two-Step Verification' => 'Two-Step Verification',
++  'Type a command...' => 'Type a command...',
++  'Unarchive' => 'Unarchive',
 +  'Under Maintenance' => 'Under Maintenance',
++  'Unlimited' => 'Unlimited',
++  'Unlock' => 'Unlock',
 +  'Unlocked the :name backup' => 'Unlocked the :name backup',
-+  'Using API Key' => 'Using API Key',
-+  'Using SFTP' => 'Using SFTP',
-+  'Update Email Address' => 'Update Email Address',
-+  'Update Language' => 'Update Language',
-+  'Update Password' => 'Update Password',
-+  'Update your email' => 'Update your email',
++  'Unsupported Java Version' => 'Unsupported Java Version',
++  'Update' => 'Update',
 +  'Updated the ":action" task for the :name schedule' => 'Updated the ":action" task for the :name schedule',
 +  'Updated the :name schedule' => 'Updated the :name schedule',
 +  'Updated the Docker Image for the server from :old to :new' => 'Updated the Docker Image for the server from :old to :new',
 +  'Updated the notes for :allocation from ":old" to ":new"' => 'Updated the notes for :allocation from ":old" to ":new"',
 +  'Updated the subuser permissions for :email' => 'Updated the subuser permissions for :email',
++  'Update Email' => 'Update Email',
++  'Update Email Address' => 'Update Email Address',
++  'Update GSL Token' => 'Update GSL Token',
++  'Update Language' => 'Update Language',
++  'Update Password' => 'Update Password',
++  'Update your email' => 'Update your email',
++  'Upload' => 'Upload',
 +  'Uploaded :directory:file' => 'Uploaded :directory:file',
++  'Uptime' => 'Uptime',
 +  'Used two-factor recovery token' => 'Used two-factor recovery token',
-+  'User successfully deleted from the Panel.' => 'User successfully deleted from the Panel.',
++  'Use HTTP Connection' => 'Use HTTP Connection',
++  'User Email' => 'User Email',
 +  'Username' => 'Username',
 +  'Username or Email' => 'Username or Email',
++  'Users' => 'Users',
++  'User successfully deleted from the Panel.' => 'User successfully deleted from the Panel.',
++  'Use SSL Connection' => 'Use SSL Connection',
++  'Using API Key' => 'Using API Key',
++  'Using SFTP' => 'Using SFTP',
++  'UUID' => 'UUID',
++  'value list separator' => 'value list separator',
++  'Variables' => 'Variables',
 +  'View additional event metadata' => 'View additional event metadata',
 +  'Viewed the contents of :file' => 'Viewed the contents of :file',
++  'Visit https://steamcommunity.com/dev/managegameservers to generate a token.' => 'Visit https://steamcommunity.com/dev/managegameservers to generate a token.',
 +  'We can\'t find a user with that e-mail address.' => 'We can\'t find a user with that e-mail address.',
-+  'We have e-mailed your password reset link!' => 'We have e-mailed your password reset link!',
 +  'Wednesday' => 'Wednesday',
++  'We have e-mailed your password reset link!' => 'We have e-mailed your password reset link!',
 +  'Which driver should be used for sending emails?' => 'Which driver should be used for sending emails?',
 +  'Wrote new content to :file' => 'Wrote new content to :file',
 +  'Yes' => 'Yes',
-+  ':count files are uploading, click to view' => ':count files are uploading, click to view',
-+  'Access Denied' => 'Access Denied',
-+  'All' => 'All',
-+  'Copied "{{value}}" to clipboard.' => 'Copied "{{value}}" to clipboard.',
-+  'Copied text to clipboard.' => 'Copied text to clipboard.',
-+  'File Manager' => 'File Manager',
-+  'File Uploads' => 'File Uploads',
-+  'First page' => 'First page',
-+  'Last page' => 'Last page',
-+  'Metadata' => 'Metadata',
-+  'New File' => 'New File',
-+  'Next page' => 'Next page',
-+  'Okay' => 'Okay',
-+  'Page :current / :total' => 'Page :current / :total',
-+  'Per page' => 'Per page',
-+  'Previous page' => 'Previous page',
-+  'Showing :from to :to of :total files' => 'Showing :from to :to of :total files',
-+  'Something went wrong' => 'Something went wrong',
-+  'System' => 'System',
-+  'System User' => 'System User',
-+  'The following files are being uploaded to your server.' => 'The following files are being uploaded to your server.',
-+  'The requested resource was not found.' => 'The requested resource was not found.',
-+  'You do not have permission to access this page.' => 'You do not have permission to access this page.',
++  'Yes, reinstall server' => 'Yes, reinstall server',
++  'Yes, remove subuser' => 'Yes, remove subuser',
 +  'You are about to perform a :action against :count servers. Do you wish to continue?' => 'You are about to perform a :action against :count servers. Do you wish to continue?',
 +  'You are about to reinstall against a group of servers. Do you wish to continue?' => 'You are about to reinstall against a group of servers. Do you wish to continue?',
 +  'You are attempting to delete the default allocation for this server but there is no fallback allocation to use.' => 'You are attempting to delete the default allocation for this server but there is no fallback allocation to use.',
++  'You are editing a' => 'You are editing a',
++  'You can either generate a new one and enter it below or leave the field blank to remove it completely.' => 'You can either generate a new one and enter it below or leave the field blank to remove it completely.',
++  'You can negate a prior rule by prepending an exclamation point' => 'You can negate a prior rule by prepending an exclamation point',
 +  'You cannot add the server owner as a subuser for this server.' => 'You cannot add the server owner as a subuser for this server.',
 +  'You cannot delete your own account.' => 'You cannot delete your own account.',
++  'You do not have permission to access this page.' => 'You do not have permission to access this page.',
 +  'You must choose a language.' => 'You must choose a language.',
 +  'You must have at least one location configured before you can add a node to this panel.' => 'You must have at least one location configured before you can add a node to this panel.',
 +  'You must have at least one node configured before you can add a server to this panel.' => 'You must have at least one node configured before you can add a server to this panel.',
 +  'You must have at least two nodes configured before you can transfer servers.' => 'You must have at least two nodes configured before you can transfer servers.',
 +  'Your account must have two-factor authentication enabled in order to continue.' => 'Your account must have two-factor authentication enabled in order to continue.',
++  'Your API Key' => 'Your API Key',
 +  'Your email address has been updated.' => 'Your email address has been updated.',
 +  'Your language preference has been updated.' => 'Your language preference has been updated.',
 +  'Your new password should be at least 8 characters in length.' => 'Your new password should be at least 8 characters in length.',
 +  'Your password has been reset!' => 'Your password has been reset!',
 +  'Your password has been updated.' => 'Your password has been updated.',
-+  'never' => 'never',
++  'you should enter' => 'you should enter',
++  'You will not be able to recover the contents of :name once deleted.' => 'You will not be able to recover the contents of :name once deleted.',
++  '[Space]' => '[Space]',
++  '^C' => '^C',
 +);
 diff --git a/resources/lang/en/strings.php b/resources/lang/en/strings.php
 index ddade2cea..0ce10d4a6 100644
@@ -1362,42 +1685,60 @@ index 000000000..2806e01ce
 +];
 diff --git a/resources/lang/zh_TW/literals.php b/resources/lang/zh_TW/literals.php
 new file mode 100644
-index 000000000..b01e32131
+index 000000000..b01a76551
 --- /dev/null
 +++ b/resources/lang/zh_TW/literals.php
-@@ -0,0 +1,449 @@
+@@ -0,0 +1,772 @@
 +<?php
 +
 +return array (
 +  '&copy; 2015 - :year Pterodactyl Software' => '&copy; 2015 - :year Pterodactyl Software',
 +  '&laquo; Previous' => '&laquo; 上一頁',
++  '(min 1, max 100 characters).' => '（最少 1 字元，最多 100 字元）。',
++  '2-Factor authentication has been disabled for :email.' => '已為 :email 停用兩步驟驗證。',
 +  '2-Factor Required' => '需要兩步驟驗證',
 +  '2-Factor Token' => '兩步驟驗證碼',
-+  '2-Factor authentication has been disabled for :email.' => '已為 :email 停用兩步驟驗證。',
 +  '2FA' => '2FA',
++  ':count files' => ':count 個檔案',
++  ':count files are uploading, click to view' => '正在上傳 :count 個檔案，點擊檢視',
 +  ':env variable' => ':env 變數',
-+  'A Nest with active servers attached to it cannot be deleted from the Panel.' => '有啟用中的伺服器綁定此 Nest，無法從控制面板刪除。',
-+  'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.' => '若要在此節點使用 SSL，必須提供可解析到公開 IP 的完整網域名稱（FQDN）。',
-+  'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.' => '已成功建立新的 Egg。你需要重新啟動所有執行中的 Daemon 才會套用此 Egg。',
-+  'A new nest, :name, has been successfully created.' => '已成功建立新的 Nest：:name。',
-+  'A node must have no servers linked to it in order to be deleted.' => '節點必須沒有綁定任何伺服器才能刪除。',
-+  'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.' => '目前有伺服器正在使用此配置。僅在沒有伺服器使用時才能刪除。',
-+  'A user with that email address is already assigned as a subuser for this server.' => '該電子郵件地址的使用者已是此伺服器的子使用者。',
++  'Accept Minecraft&reg; EULA' => '接受 Minecraft&reg; EULA',
++  'Accept Minecraft® EULA' => '接受 Minecraft® EULA',
++  'Access Denied' => '存取遭拒',
 +  'Account' => '帳號',
-+  'Account Overview' => '帳號總覽',
-+  'Account Settings' => '帳號設定',
++  'Account Activity Log' => '帳號活動紀錄',
++  'Account API' => '帳號 API',
 +  'Account has been created successfully.' => '帳號已成功建立。',
 +  'Account has been successfully updated.' => '帳號已成功更新。',
++  'Account Overview' => '帳號總覽',
++  'Account Settings' => '帳號設定',
 +  'Action' => '操作',
++  'Active' => '啟用',
++  'Activity Log' => '活動紀錄',
 +  'Added :allocation to the server' => '已將 :allocation 新增到伺服器',
 +  'Added :email as a subuser' => '已將 :email 新增為子使用者',
++  'Added on:' => '新增於：',
 +  'Added SSH key :fingerprint to account' => '已將 SSH 金鑰 :fingerprint 新增到帳號',
 +  'Adding more than 1000 ports in a single range at once is not supported.' => '不支援一次在單一範圍中新增超過 1000 個連接埠。',
++  'Additional features belonging to the egg. Useful for configuring additional panel modifications.' => '此 Egg 的附加功能，可用於設定額外的面板修改。',
++  'Address' => '位址',
++  'Add SSH Key' => '新增 SSH 金鑰',
++  'A description of this API key.' => '這把 API 金鑰的用途說明。',
++  'A descriptive name for your database instance.' => '這個資料庫實例的描述名稱。',
 +  'Admin' => '管理員',
 +  'Admin Control' => '管理控制',
 +  'Admin Control Panel' => '管理控制台',
++  'Administrator' => '管理員',
++  'Admin Only' => '僅管理員',
++  'Advanced' => '進階',
++  'A fully qualified domain name that resolves to a public IP address is required in order to use SSL for this node.' => '若要在此節點使用 SSL，必須提供可解析到公開 IP 的完整網域名稱（FQDN）。',
++  'A human readable identifier for this schedule.' => '方便辨識此排程的名稱。',
 +  'Alias' => '別名',
++  'All' => '全部',
 +  'Allocations have successfully been added to this node.' => '已成功將配置新增到此節點。',
++  'Allowed IPs' => '允許的 IP',
++  'Allows access to the server allocation management pages.' => '允許存取伺服器配置管理頁面。',
++  'Allows access to the websocket for this server.' => '允許存取此伺服器的 WebSocket。',
 +  'Allows a user permission to delete a database instance.' => '允許使用者刪除資料庫實例。',
 +  'Allows a user permission to make modifications to a database. If the user does not have the "View Password" permission as well they will not be able to modify the password.' => '允許使用者修改資料庫。若使用者同時沒有「檢視密碼」權限，將無法修改密碼。',
 +  'Allows a user permission to make modifications to an existing server schedule.' => '允許使用者修改既有伺服器排程。',
@@ -1405,8 +1746,6 @@ index 000000000..b01e32131
 +  'Allows a user permission to view schedules for a server.' => '允許使用者檢視伺服器排程。',
 +  'Allows a user to create a new schedule for the server.' => '允許使用者為伺服器建立新排程。',
 +  'Allows a user to delete a schedule for the server.' => '允許使用者刪除伺服器排程。',
-+  'Allows access to the server allocation management pages.' => '允許存取伺服器配置管理頁面。',
-+  'Allows access to the websocket for this server.' => '允許存取此伺服器的 WebSocket。',
 +  'Allows the user permission to create new files and directories.' => '允許使用者建立新的檔案與資料夾。',
 +  'Allows the user permission to view users associated with this server.' => '允許使用者檢視與此伺服器關聯的使用者。',
 +  'Allows the user to create file archives and decompress existing archives.' => '允許使用者建立檔案封存並解壓縮既有封存檔。',
@@ -1425,213 +1764,489 @@ index 000000000..b01e32131
 +  'Allows user permission to create a new database for the server.' => '允許使用者為伺服器建立新資料庫。',
 +  'Allows user permission to make modifications to the server\'s allocations.' => '允許使用者修改伺服器配置。',
 +  'Allows user permission to view the server databases.' => '允許使用者檢視伺服器資料庫。',
++  'All Users' => '所有使用者',
++  'and' => '和',
++  'and :count others' => '以及另外 :count 個',
 +  'An Egg with active servers attached to it cannot be deleted from the Panel.' => '有啟用中的伺服器綁定此 Egg，無法從控制面板刪除。',
++  'A Nest with active servers attached to it cannot be deleted from the Panel.' => '有啟用中的伺服器綁定此 Nest，無法從控制面板刪除。',
++  'A new egg was laid successfully. You will need to restart any running daemons to apply this new egg.' => '已成功建立新的 Egg。你需要重新啟動所有執行中的 Daemon 才會套用此 Egg。',
++  'A new nest, :name, has been successfully created.' => '已成功建立新的 Nest：:name。',
++  'A node must have no servers linked to it in order to be deleted.' => '節點必須沒有綁定任何伺服器才能刪除。',
++  'any value' => '任意值',
 +  'Api Access' => 'API 存取',
++  'API Keys' => 'API 金鑰',
++  'Application API' => '應用程式 API',
++  'Archive' => '封存',
++  'Archiving files...' => '正在封存檔案...',
++  'Are you sure you want to delete :count files? This is a permanent action and the files cannot be recovered.' => '你確定要刪除 :count 個檔案嗎？這是永久操作，刪除後無法復原。',
 +  'Are you sure you want to delete this user from the Panel?' => '你確定要從控制面板刪除此使用者嗎？',
++  'A server is currently assigned to this allocation. An allocation can only be deleted if no server is currently assigned.' => '目前有伺服器正在使用此配置。僅在沒有伺服器使用時才能刪除。',
++  'A short identifier used to distinguish this location from others. Must be between 1 and 60 characters, for example,' => '用於區分此地區與其他地區的短代碼。長度需介於 1 到 60 個字元，例如：',
++  'Associated Nest' => '關聯 Nest',
++  'A user with that email address is already assigned as a subuser for this server.' => '該電子郵件地址的使用者已是此伺服器的子使用者。',
++  'Authentication Code' => '驗證碼',
++  'Authentication Required' => '需要驗證',
 +  'Authentication Token' => '驗證權杖',
++  'Author' => '作者',
++  'A valid directory name must be provided.' => '請提供有效的資料夾名稱。',
++  'Backup name' => '備份名稱',
++  'Backups' => '備份',
++  'BASIC ADMINISTRATION' => '基本管理',
 +  'Began a file upload' => '已開始上傳檔案',
-+  'Blocked SFTP access due to permissions' => '因權限不足而封鎖 SFTP 存取',
++  'Behind Proxy' => '位於代理後方',
 +  'Blocked request from unlisted IP address for :identifier' => '已封鎖來自未列入白名單 IP 的 :identifier 請求',
-+  'CIDR notation only allows masks between /25 and /32.' => 'CIDR 掩碼僅允許 /25 到 /32。',
-+  'CPU' => 'CPU',
++  'Blocked SFTP access due to permissions' => '因權限不足而封鎖 SFTP 存取',
 +  'Can\'t scan the code? Enter the code below into your application:' => '無法掃描條碼嗎？請將下方金鑰輸入到你的驗證器應用程式：',
 +  'Cancel' => '取消',
 +  'Cannot delete a database host server that has active databases linked to it.' => '無法刪除仍有啟用中資料庫關聯的資料庫主機。',
 +  'Cannot delete a location that has active nodes attached to it.' => '無法刪除仍有啟用中節點的地區。',
 +  'Cannot delete a user with active servers attached to their account. Please delete their servers before continuing.' => '無法刪除仍綁定啟用中伺服器的使用者。請先刪除該使用者的伺服器。',
-+  'Change your password' => '變更你的密碼',
 +  'Changed email from :old to :new' => '已將電子郵件從 :old 變更為 :new',
 +  'Changed language from :old to :new' => '已將語言從 :old 變更為 :new',
 +  'Changed password' => '已變更密碼',
 +  'Changed the :variable variable from ":old" to ":new"' => '已將變數 :variable 從「:old」變更為「:new」',
 +  'Changed the server description from :old to :new' => '已將伺服器說明從 :old 變更為 :new',
++  'Change Server Details' => '變更伺服器資訊',
++  'Change your password' => '變更你的密碼',
++  'Character limits:' => '字元限制：',
 +  'Choose your preferred language for this account.' => '選擇此帳號要使用的語言。',
++  'CIDR notation only allows masks between /25 and /32.' => 'CIDR 掩碼僅允許 /25 到 /32。',
++  'Clear Filters' => '清除篩選',
++  'Client First Name' => '客戶名字',
++  'Client Last Name' => '客戶姓氏',
 +  'Close' => '關閉',
++  'Communicate Over SSL' => '透過 SSL 通訊',
++  'Company Name' => '公司名稱',
 +  'Completed restoration of the :name backup' => '已完成備份 :name 的還原',
 +  'Compressed :count files in :directory' => '已在 :directory 壓縮 :count 個檔案',
 +  'Compressed :directory:file' => '已壓縮 :directory:file',
 +  'Configuration' => '設定',
++  'configuration,' => '設定檔，',
++  'Configuration Files' => '設定檔案',
 +  'Configure 2-Factor Authentication' => '設定兩步驟驗證',
++  'Configure Pterodactyl to your liking.' => '依照你的需求設定 Pterodactyl。',
++  'Confirm database deletion' => '確認刪除資料庫',
++  'Confirm Database Name' => '確認資料庫名稱',
 +  'Confirm new password' => '確認新密碼',
++  'Confirm New Password' => '確認新密碼',
++  'Confirm Password' => '確認密碼',
++  'Confirm server reinstallation' => '確認重新安裝伺服器',
++  'Confirm task deletion' => '確認刪除任務',
 +  'Connection' => '連線',
++  'Connections From' => '允許連線來源',
++  'Connections from' => '連線來源',
++  'Console' => '主控台',
++  'Console command input.' => '主控台指令輸入欄。',
++  'container' => 'container',
++  'Continue' => '繼續',
++  'Continue on Failure' => '發生失敗時仍繼續',
++  'Copied "{{value}}" to clipboard.' => '已將「{{value}}」複製到剪貼簿。',
++  'Copied text to clipboard.' => '已將文字複製到剪貼簿。',
++  'Copy' => '複製',
++  'Copy Settings From' => '從下列項目複製設定',
 +  'Could not locate a record matching the provided short code.' => '找不到與提供短代碼相符的紀錄。',
++  'CPU' => 'CPU',
++  'CPU Limit' => 'CPU 限制',
++  'CPU Load' => 'CPU 負載',
++  'CPU Pinning' => 'CPU 綁定',
 +  'Create' => '建立',
-+  'Created' => '已建立',
++  'Create API Key' => '建立 API 金鑰',
++  'Create backup' => '建立備份',
++  'Created' => '建立時間',
 +  'Created :count directories' => '已建立 :count 個目錄',
 +  'Created :count new files' => '已建立 :count 個新檔案',
 +  'Created :files.0' => '已建立 :files.0',
-+  'Created At' => '建立時間',
 +  'Created a copy of :file' => '已建立 :file 的副本',
 +  'Created a new ":action" task for the :name schedule' => '已為排程 :name 建立新的「:action」任務',
++  'Created At' => '建立時間',
++  'Create Database' => '建立資料庫',
 +  'Created directory :directory:name' => '已建立目錄 :directory:name',
++  'Create Directory' => '建立資料夾',
 +  'Created new API key :identifier' => '已建立新的 API 金鑰 :identifier',
 +  'Created new database :name' => '已建立新資料庫 :name',
 +  'Created the :files.0 directory' => '已建立目錄 :files.0',
 +  'Created the :name schedule' => '已建立排程 :name',
++  'Create File' => '建立檔案',
++  'Create New' => '新增',
++  'Create new database' => '建立新資料庫',
++  'Create server backup' => '建立伺服器備份',
++  'Current Password' => '目前密碼',
 +  'Danger' => '危險',
 +  'Dashboard' => '儀表板',
 +  'Data' => '資料',
 +  'Database' => '資料庫',
++  'Database connection details' => '資料庫連線資訊',
++  'Database Hosts' => '資料庫主機',
++  'Database Name' => '資料庫名稱',
 +  'Databases' => '資料庫',
++  'Day (Month)' => '日（每月）',
++  'Day (Week)' => '日（每週）',
++  'Day of month' => '每月日期',
++  'Day of week' => '每週星期',
++  'Debug Information' => '偵錯資訊',
 +  'Decompressed :files in :directory' => '已在 :directory 解壓縮 :files',
++  'Default Language' => '預設語言',
++  'Default Value' => '預設值',
 +  'Delete' => '刪除',
++  'Delete all files before restoring backup.' => '還原備份前先刪除所有檔案。',
++  'Delete API Key' => '刪除 API 金鑰',
 +  'Deleted :count files' => '已刪除 :count 個檔案',
 +  'Deleted :count files in :directory' => '已在 :directory 刪除 :count 個檔案',
 +  'Deleted :directory:files.0' => '已刪除 :directory:files.0',
 +  'Deleted :files.0' => '已刪除 :files.0',
-+  'Deleted API key :identifier' => '已刪除 API 金鑰 :identifier',
-+  'Deleted a task for the :name schedule' => '已刪除排程 :name 的任務',
 +  'Deleted all un-allocated ports for <code>:ip</code>.' => '已刪除 <code>:ip</code> 的所有未配置連接埠。',
++  'Deleted API key :identifier' => '已刪除 API 金鑰 :identifier',
++  'Delete Database' => '刪除資料庫',
++  'Deleted a task for the :name schedule' => '已刪除排程 :name 的任務',
 +  'Deleted database :name' => '已刪除資料庫 :name',
++  'Delete Directory' => '刪除資料夾',
 +  'Deleted the :allocation allocation' => '已刪除配置 :allocation',
 +  'Deleted the :name backup' => '已刪除備份 :name',
 +  'Deleted the :name schedule' => '已刪除排程 :name',
++  'Delete File' => '刪除檔案',
++  'Delete Files' => '刪除檔案',
++  'Delete files or increase the available disk space to resolve the issue.' => '請刪除檔案或增加可用磁碟空間來解決此問題。',
++  'Delete Key' => '刪除金鑰',
++  'Delete Schedule' => '刪除排程',
++  'Delete scheduled task' => '刪除排程任務',
++  'Delete SSH Key' => '刪除 SSH 金鑰',
++  'Delete subuser' => '刪除子使用者',
++  'Delete Task' => '刪除任務',
++  'Delete this subuser?' => '要刪除此子使用者嗎？',
++  'Deleting files...' => '正在刪除檔案...',
 +  'Deleting service backup file :file.' => '正在刪除服務備份檔案 :file。',
++  'Description' => '說明',
++  'Device Checkpoint' => '裝置驗證',
 +  'Disable' => '停用',
-+  'Disable two-factor authentication' => '停用兩步驟驗證',
++  'Disabled' => '停用',
 +  'Disabled two-factor auth' => '已停用兩步驟驗證',
++  'Disable two-factor authentication' => '停用兩步驟驗證',
++  'Disable Two-Step' => '停用兩步驟驗證',
 +  'Disk' => '磁碟',
++  'Disk Space' => '磁碟空間',
 +  'Dispatching job for first task in `:schedule` (:hash).' => '正在派送 `:schedule`（:hash）的第一個任務。',
++  'Docker Image' => 'Docker 映像檔',
++  'Docker Images' => 'Docker 映像檔',
++  'Done' => '完成',
++  'Download' => '下載',
 +  'Downloaded :file' => '已下載 :file',
 +  'Downloaded a remote file from :url to :directory' => '已從 :url 下載遠端檔案到 :directory',
 +  'Downloaded the :name backup' => '已下載備份 :name',
++  'Do you want to log out?' => '你確定要登出嗎？',
++  'Drag and drop files to upload.' => '拖放檔案以上傳。',
++  'Edit' => '編輯',
 +  'Editing your own subuser account is not permitted.' => '不允許編輯自己的子使用者帳號。',
++  'Edit scheduled task' => '編輯排程任務',
++  'Edit subuser' => '編輯子使用者',
 +  'Egg configuration has been updated successfully.' => 'Egg 設定已成功更新。',
++  'Egg File' => 'Egg 檔案',
 +  'Egg install script has been updated and will run whenever servers are installed.' => 'Egg 安裝腳本已更新，伺服器安裝時將使用新腳本。',
++  'Eggs' => 'Egg',
 +  'Email' => '電子郵件',
 +  'Email Address' => '電子郵件地址',
 +  'Email address' => '電子郵件地址',
 +  'Email address emails should originate from' => '寄件者電子郵件地址',
 +  'Enable' => '啟用',
++  'Enabled' => '啟用',
 +  'Enabled two-factor auth' => '已啟用兩步驟驗證',
++  'Enable Two-Step' => '啟用兩步驟驗證',
 +  'Encryption method to use' => '要使用的加密方式',
++  'Endpoint' => '端點',
++  'Enter a server name, uuid, or allocation to begin searching.' => '請輸入伺服器名稱、UUID 或配置開始搜尋。',
 +  'Enter a Username, User ID, or Email Address' => '請輸入使用者名稱、使用者 ID 或電子郵件地址',
++  'Enter the database name to confirm deletion.' => '請輸入資料庫名稱以確認刪除。',
++  'Enter the name that this file should be saved as.' => '輸入此檔案儲存時使用的名稱。',
 +  'Enter token' => '輸入驗證碼',
 +  'Enter your account email address to receive instructions on resetting your password.' => '請輸入帳號的電子郵件地址，我們會寄送重設密碼說明。',
++  'Enter your public SSH key.' => '請輸入你的 SSH 公開金鑰。',
++  'Environment Variable' => '環境變數',
++  'Error' => '錯誤',
++  'every 5 minutes' => '每 5 分鐘',
++  'every hour' => '每小時',
++  'every Monday' => '每週一',
++  'Examples' => '範例',
 +  'Executed ":command" on the server' => '已在伺服器上執行「:command」',
++  'Exit Admin Control' => '離開管理控制',
 +  'Expires' => '到期',
-+  'Failed SFTP log in' => 'SFTP 登入失敗',
 +  'Failed log in' => '登入失敗',
++  'Failed SFTP log in' => 'SFTP 登入失敗',
 +  'Failed to complete restoration of the :name backup' => '備份 :name 還原失敗',
 +  'Failed to revoke keys on <a href=":link">Node #:node</a>. :error' => '在 <a href=":link">節點 #:node</a> 上撤銷金鑰失敗。:error',
++  'False' => '否',
++  'Features' => '功能',
++  'file. Any files or directories listed in here will be excluded from backups. Wildcards are supported by using an asterisk' => '檔案。此處列出的任何檔案或資料夾都不會被備份。你可以使用星號作為萬用字元',
++  'File Manager' => '檔案管理',
++  'File Mode' => '檔案權限模式',
++  'File Name' => '檔案名稱',
++  'File Uploads' => '檔案上傳',
 +  'First Name' => '名字',
++  'First page' => '第一頁',
++  'Folder uploads are not supported.' => '不支援資料夾上傳。',
++  'Force Outgoing IP' => '強制外部 IP',
++  'Forcibly stopping a server can lead to data corruption.' => '強制停止伺服器可能導致資料毀損。',
++  'Forcibly Stop Process' => '強制停止程序',
 +  'Forgot Password?' => '忘記密碼？',
++  'Forgot password?' => '忘記密碼？',
++  'FQDN' => 'FQDN',
 +  'Friday' => '星期五',
++  'Future tasks will be run when this task fails.' => '此任務失敗時仍會執行後續任務。',
 +  'Go to Login' => '前往登入',
++  'GSL Token' => 'GSL 權杖',
++  'here.' => '在這裡。',
 +  'Home' => '首頁',
++  'Host' => '主機',
++  'Hour' => '小時',
++  'hour range' => '小時範圍',
++  'I\'ve Lost My Device' => '我遺失了裝置',
 +  'ID' => 'ID',
++  'Identity' => '身分資訊',
 +  'ID of user to delete (Enter \'0\' to re-search)' => '要刪除的使用者 ID（輸入「0」可重新搜尋）',
-+  'IP Address' => 'IP 位址',
++  'If enabled, any account falling into the selected grouping will be required to have 2-Factor authentication enabled to use the Panel.' => '啟用後，所選群組內的所有帳號都必須啟用兩步驟驗證才能使用面板。',
++  'If provided, the name that should be used to reference this backup.' => '若有填寫，將用此名稱作為備份顯示名稱。',
 +  'If this is not what you wanted to do, press CTRL+C to exit this process.' => '如果你不是要做這件事，請按 CTRL+C 離開此流程。',
++  'If you are running the daemon behind a proxy such as Cloudflare, select this to have the daemon skip looking for certificates on boot.' => '如果你的 Daemon 運行在 Cloudflare 等代理後方，請勾選此項，讓 Daemon 在啟動時略過憑證檢查。',
 +  'If you would like to create an account with a random password emailed to the user, re-run this command (CTRL+C) and pass the `--no-password` flag.' => '若要建立隨機密碼並透過電子郵件通知使用者，請重新執行此指令（CTRL+C）並加上 `--no-password` 旗標。',
++  'Ignored Files' => '忽略的檔案',
++  'Ignored Files & Directories' => '忽略的檔案與資料夾',
++  'Ignoring files & folders:' => '忽略的檔案與資料夾：',
++  'I Have My Device' => '我有我的裝置',
++  'Inactive' => '停用',
++  'Increasing' => '提高',
++  'Input Rules' => '輸入規則',
++  'Invalid GSL token!' => '無效的 GSL 權杖！',
++  'IP Address' => 'IP 位址',
 +  'Is this user an administrator?' => '此使用者是否為管理員？',
++  'It looks like you don\'t have any subusers.' => '你目前沒有任何子使用者。',
++  'It seems like your Gameserver Login Token (GSL token) is invalid or has expired.' => '看起來你的遊戲伺服器登入權杖（GSL Token）無效或已過期。',
++  'JDBC Connection String' => 'JDBC 連線字串',
++  'Kill' => '強制終止',
 +  'Killed the server process' => '已強制終止伺服器程序',
 +  'Language' => '語言',
 +  'Language Preferences' => '語言偏好',
++  'Laravel Framework validation rules' => 'Laravel 框架驗證規則',
 +  'Last Activity' => '最近活動',
 +  'Last Name' => '姓氏',
++  'Last page' => '最後一頁',
 +  'Last Run' => '上次執行',
++  'Last run at:' => '上次執行時間：',
 +  'Last Used' => '上次使用',
++  'Last used:' => '上次使用：',
++  'Launch SFTP' => '啟動 SFTP',
++  'Loading...' => '載入中...',
++  'Location' => '地區',
 +  'Location Description' => '地區說明',
++  'Locations' => '地區',
 +  'Location Short Code' => '地區短代碼',
++  'Lock' => '鎖定',
++  'Locked' => '已鎖定',
 +  'Locked the :name backup' => '已鎖定備份 :name',
++  'Log Configuration' => '日誌設定',
 +  'Logged in' => '已登入',
 +  'Login' => '登入',
++  'Login to Continue' => '登入以繼續',
 +  'Logout' => '登出',
++  'Log out' => '登出',
 +  'Mailgun Domain' => 'Mailgun 網域',
 +  'Mailgun Endpoint' => 'Mailgun 端點',
 +  'Mailgun Secret' => 'Mailgun 密鑰',
 +  'Make Primary' => '設為主要',
++  'MANAGEMENT' => '管理',
 +  'Mandrill Secret' => 'Mandrill 密鑰',
 +  'Manually executed the :name schedule' => '已手動執行排程 :name',
 +  'Marked the :name backup as complete' => '已將備份 :name 標記為完成',
 +  'Marked the :name backup as failed' => '已將備份 :name 標記為失敗',
 +  'Memo' => '備註',
 +  'Memory' => '記憶體',
++  'Memory or process limit reached...' => '記憶體或程序數量已達上限...',
++  'Metadata' => '中繼資料',
++  'MiB' => 'MiB',
++  'might help resolve this issue.' => '可能有助於解決此問題。',
++  'Minute' => '分鐘',
 +  'Minutes' => '分鐘',
 +  'Modified the contents of :count files' => '已修改 :count 個檔案的內容',
 +  'Modified the contents of :files.0' => '已修改 :files.0 的內容',
 +  'Monday' => '星期一',
++  'Month' => '月份',
++  'Mounts' => '掛載點',
++  'Move' => '移動',
 +  'Multiple accounts were found for the user provided, unable to delete a user because of the --no-interaction flag.' => '找到多個符合條件的帳號，因為使用了 --no-interaction 旗標，無法刪除使用者。',
++  'must' => '必須',
++  'n/a' => '無',
 +  'Name' => '名稱',
 +  'Name that emails should appear from' => '寄件者名稱',
++  'Nests' => '巢狀分類',
++  'Network' => '網路',
++  'Network (Inbound)' => '網路（入站）',
++  'Network (Outbound)' => '網路（出站）',
++  'never' => '從未',
++  'Never' => '從未',
 +  'New' => '新增',
++  'New Database' => '新增資料庫',
++  'New Egg' => '新增 Egg',
++  'New File' => '新增檔案',
++  'New location:' => '新位置：',
++  'New Nest' => '新增 Nest',
 +  'New password' => '新密碼',
++  'New Password' => '新密碼',
++  'New User' => '新增使用者',
 +  'New variable has successfully been created and assigned to this egg.' => '已成功建立新變數並指派到此 Egg。',
 +  'Next &raquo;' => '下一頁 &raquo;',
++  'Next page' => '下一頁',
 +  'Next Run' => '下次執行',
++  'Next run at:' => '下次執行時間：',
 +  'No' => '否',
 +  'No account matching those credentials could be found.' => '找不到符合這組登入資訊的帳號。',
++  'No activity logs available for this server.' => '此伺服器目前沒有活動記錄。',
 +  'No allocations satisfying the requirements for automatic deployment were found.' => '找不到符合自動部署需求的配置。',
-+  'No nodes satisfying the requirements specified for automatic deployment could be found.' => '找不到符合自動部署需求的節點。',
-+  'No users were found for the search term provided.' => '找不到符合搜尋條件的使用者。',
++  'No API keys exist for this account.' => '此帳號目前沒有 API 金鑰。',
 +  'Node' => '節點',
 +  'Node has been successfully removed from the panel.' => '節點已成功從控制面板移除。',
 +  'Node information has been updated. If any daemon settings were changed you will need to reboot it for those changes to take effect.' => '節點資訊已更新。若有變更 Daemon 設定，需重新啟動 Daemon 才會生效。',
++  'Nodes' => '節點',
++  'Node under Maintenance' => '節點維護中',
 +  'None' => '無',
++  'No nodes satisfying the requirements specified for automatic deployment could be found.' => '找不到符合自動部署需求的節點。',
++  'No SSH Keys exist for this account.' => '此帳號目前沒有 SSH 金鑰。',
++  'Not Behind Proxy' => '不在代理後方',
++  'Note: Wings must be restarted for the configuration file changes to take effect' => '注意：變更設定檔後必須重新啟動 Wings 才會生效',
++  'Notes' => '備註',
++  'Not Required' => '不需要',
 +  'Not Run Yet' => '尚未執行',
++  'Not Set' => '未設定',
++  'No users were found for the search term provided.' => '找不到符合搜尋條件的使用者。',
++  'Offline' => '離線',
++  'Okay' => '好',
++  'once a day' => '每天一次',
++  'Only execute this schedule when the server is in a running state.' => '僅在伺服器運行中時執行此排程。',
++  'Only When Server Is Online' => '僅在伺服器在線時執行',
++  'Oops!' => '糟糕！',
 +  'Optional' => '選填',
++  'Out of available disk space...' => '可用磁碟空間不足...',
++  'Overview' => '總覽',
 +  'Owner' => '擁有者',
++  'Page :current / :total' => '第 :current / :total 頁',
++  'Panel Settings' => '面板設定',
 +  'Password' => '密碼',
 +  'Password must be at least 8 characters in length and should be unique to this site.' => '密碼長度至少 8 個字元，且建議使用本網站專用且不重複的密碼。',
 +  'Password reset' => '已重設密碼',
 +  'Password rotated for database :name' => '已輪替資料庫 :name 的密碼',
++  'Passwords must be at least 8 characters in length.' => '密碼長度至少需 8 個字元。',
 +  'Passwords must be at least 8 characters in length and contain at least one capital letter and number.' => '密碼長度至少需 8 個字元，且必須包含至少一個大寫字母與一個數字。',
 +  'Passwords must be at least six characters and match the confirmation.' => '密碼至少需要 6 個字元，且必須與確認密碼一致。',
++  'Payload' => '載荷',
++  'Permissions' => '權限',
++  'Per page' => '每頁',
++  'Please enter domain name (e.g' => '請輸入網域名稱（例如',
 +  'Port' => '連接埠',
 +  'Ports in an allocation must be greater than 1024 and less than or equal to 65535.' => '配置中的連接埠必須大於 1024 且小於或等於 65535。',
++  'Possible resource limit reached...' => '可能已達資源限制...',
 +  'Postmark API Key' => 'Postmark API 金鑰',
 +  'Power action request for ":name" (#:id) on node ":node" failed with error: :message' => '節點「:node」上「:name」（#:id）的電源操作請求失敗，錯誤：:message',
++  'Prevents this backup from being deleted until explicitly unlocked.' => '防止此備份在解除鎖定前被刪除。',
++  'Previous page' => '上一頁',
 +  'Primary' => '主要',
++  'Processing' => '處理中',
++  'Process Management' => '程序管理',
++  'Public' => '公開',
++  'Public Key' => '公開金鑰',
 +  'Queued' => '已排入佇列',
++  'range values' => '範圍值',
 +  'Read Only' => '唯讀',
 +  'Rebuild request for ":name" (#:id) on node ":node" failed with error: :message' => '節點「:node」上「:name」（#:id）的重建請求失敗，錯誤：:message',
 +  'Recover Account' => '找回帳號',
-+  'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message' => '節點「:node」上「:name」（#:id）的重新安裝請求失敗，錯誤：:message',
++  'Recovery Code' => '復原碼',
 +  'Reinstalled server' => '已重新安裝伺服器',
++  'Reinstall request for ":name" (#:id) on node ":node" failed with error: :message' => '節點「:node」上「:name」（#:id）的重新安裝請求失敗，錯誤：:message',
++  'Reinstall Server' => '重新安裝伺服器',
 +  'Relation' => '關聯',
++  'Remove Allocation' => '移除配置',
 +  'Removed :email as a subuser' => '已移除子使用者 :email',
 +  'Removed SSH key :fingerprint from account' => '已從帳號移除 SSH 金鑰 :fingerprint',
++  'Rename' => '重新命名',
 +  'Renamed :count files in :directory' => '已在 :directory 重新命名 :count 個檔案',
 +  'Renamed :directory:files.0.from to :directory:files.0.to' => '已將 :directory:files.0.from 重新命名為 :directory:files.0.to',
 +  'Renamed :files.0.from to :files.0.to' => '已將 :files.0.from 重新命名為 :files.0.to',
 +  'Renamed or moved :count files' => '已重新命名或移動 :count 個檔案',
 +  'Renamed the server from :old to :new' => '已將伺服器名稱從 :old 變更為 :new',
 +  'Requested password reset' => '已請求重設密碼',
++  'Request Password Reset' => '請求重設密碼',
++  'Require 2-Factor Authentication' => '強制使用兩步驟驗證',
 +  'Required' => '必填',
 +  'Reset and Sign In' => '重設並登入',
++  'Reset Password' => '重設密碼',
++  'Restart' => '重新啟動',
 +  'Restarted the server' => '已重新啟動伺服器',
++  'Restart the server' => '重新啟動伺服器',
++  'Restore' => '還原',
 +  'Restored the :name backup (deleted files: :truncate)' => '已還原備份 :name（刪除檔案：:truncate）',
++  'Return to Login' => '返回登入頁',
 +  'Revoke' => '撤銷',
-+  'SFTP' => 'SFTP',
-+  'SMTP Host (e.g. smtp.gmail.com)' => 'SMTP 主機（例如 smtp.gmail.com）',
-+  'SMTP Password' => 'SMTP 密碼',
-+  'SMTP Port' => 'SMTP 連接埠',
-+  'SMTP Username' => 'SMTP 使用者名稱',
++  'Running Installer' => '正在執行安裝程序',
 +  'Saturday' => '星期六',
 +  'Save' => '儲存',
++  'Save Content' => '儲存內容',
++  'Schedule Enabled' => '啟用排程',
++  'Schedule name' => '排程名稱',
++  'Schedules' => '排程',
 +  'Search' => '搜尋',
 +  'Search for servers...' => '搜尋伺服器...',
++  'Search term' => '搜尋關鍵字',
 +  'Seconds' => '秒',
 +  'Security' => '安全性',
 +  'Select All' => '全選',
 +  'Select None' => '取消全選',
++  'Send command' => '傳送指令',
++  'Send power action' => '傳送電源操作',
++  'Server Address' => '伺服器位址',
++  'Server Description' => '伺服器說明',
 +  'Server details have been successfully updated.' => '伺服器詳細資料已成功更新。',
 +  'Server has successfully been deleted from the system.' => '伺服器已成功從系統刪除。',
++  'Server ID' => '伺服器 ID',
++  'Server Name' => '伺服器名稱',
++  'Server Owner' => '伺服器擁有者',
++  'Servers' => '伺服器',
++  'Server Suspended' => '伺服器已停權',
 +  'Server suspension status has been changed to :status.' => '伺服器停權狀態已變更為 :status。',
 +  'Server transfer has been started.' => '伺服器轉移已開始。',
 +  'Server was successfully created on the panel. Please allow the daemon a few minutes to completely install this server.' => '伺服器已成功在控制面板建立。請稍候數分鐘讓 Daemon 完成安裝。',
-+  'Servers' => '伺服器',
++  'SERVICE MANAGEMENT' => '服務管理',
 +  'Set :allocation as the primary server allocation' => '已將 :allocation 設為伺服器主要配置',
 +  'Settings' => '設定',
++  'Setting this to \'Yes\' gives a user full administrative access.' => '設為「是」會給予使用者完整管理權限。',
 +  'Setup two-factor authentication' => '設定兩步驟驗證',
++  'SFTP' => 'SFTP',
++  'SFTP Details' => 'SFTP 詳細資訊',
++  'Short Code' => '短代碼',
++  'Show Cheatsheet' => '顯示速查表',
++  'Showing :from to :to of :total files' => '顯示第 :from 到 :to 筆，共 :total 個檔案',
++  'Show the cron cheatsheet for some examples.' => '顯示 Cron 速查表示範。',
++  'SIGINT' => 'SIGINT',
 +  'Sign In' => '登入',
 +  'Sign out' => '登出',
++  'SMTP Host (e.g. smtp.gmail.com)' => 'SMTP 主機（例如 smtp.gmail.com）',
++  'SMTP Password' => 'SMTP 密碼',
++  'SMTP Port' => 'SMTP 連接埠',
++  'SMTP Username' => 'SMTP 使用者名稱',
 +  'Solved two-factor challenge' => '已完成兩步驟驗證挑戰',
++  'Something went wrong' => '發生錯誤',
++  'Source' => '來源',
++  'Special Characters' => '特殊字元',
++  'SSH Key Name' => 'SSH 金鑰名稱',
++  'SSH Keys' => 'SSH 金鑰',
++  'Start' => '啟動',
++  'Start backup' => '開始備份',
++  'Start Configuration' => '啟動設定',
 +  'Started a new backup :name' => '已開始新的備份 :name',
 +  'Started the server' => '已啟動伺服器',
++  'Start the server' => '啟動伺服器',
++  'Startup Command' => '啟動指令',
++  'Startup Settings' => '啟動設定',
 +  'Status' => '狀態',
++  'step values' => '間隔值',
++  'Stop' => '停止',
++  'Stop Command' => '停止指令',
 +  'Stopped the server' => '已停止伺服器',
++  'Stop the server' => '停止伺服器',
 +  'Submit' => '送出',
 +  'Subuser' => '子使用者',
 +  'Successfully changed the default Docker image to use for this server. A reboot is required to apply this change.' => '已成功變更此伺服器預設使用的 Docker 映像。需重新啟動後才會套用變更。',
@@ -1644,7 +2259,12 @@ index 000000000..b01e32131
 +  'Successfully updated the nest configuration options.' => '已成功更新 Nest 設定選項。',
 +  'Sunday' => '星期日',
 +  'Suspended' => '已停用',
++  'System' => '系統',
++  'System Information' => '系統資訊',
++  'System User' => '系統使用者',
++  'Target' => '目標',
 +  'Tasks' => '任務',
++  'Terminate the server' => '強制終止伺服器',
 +  'The "Copy Settings From" directive for this Egg must be a child option for the selected Nest.' => '此 Egg 的「複製設定來源」必須是所選 Nest 的子選項。',
 +  'The :attribute and :other must be different.' => ':attribute 與 :other 必須不同。',
 +  'The :attribute and :other must match.' => ':attribute 與 :other 必須相同。',
@@ -1653,66 +2273,70 @@ index 000000000..b01e32131
 +  'The :attribute failed to upload.' => ':attribute 上傳失敗。',
 +  'The :attribute field does not exist in :other.' => ':attribute 欄位不存在於 :other。',
 +  'The :attribute field has a duplicate value.' => ':attribute 欄位包含重複值。',
++  'The :attribute field is required.' => ':attribute 欄位為必填。',
 +  'The :attribute field is required unless :other is in :values.' => '除非 :other 在 :values 之中，否則 :attribute 欄位為必填。',
 +  'The :attribute field is required when :other is :value.' => '當 :other 為 :value 時，:attribute 欄位為必填。',
 +  'The :attribute field is required when :values is not present.' => '當 :values 不存在時，:attribute 欄位為必填。',
 +  'The :attribute field is required when :values is present.' => '當 :values 存在時，:attribute 欄位為必填。',
 +  'The :attribute field is required when none of :values are present.' => '當 :values 都不存在時，:attribute 欄位為必填。',
-+  'The :attribute field is required.' => ':attribute 欄位為必填。',
 +  'The :attribute field must be present.' => ':attribute 欄位必須存在。',
 +  'The :attribute field must be true or false.' => ':attribute 欄位必須為 true 或 false。',
 +  'The :attribute format is invalid.' => ':attribute 格式無效。',
 +  'The :attribute has already been taken.' => ':attribute 已被使用。',
 +  'The :attribute has invalid image dimensions.' => ':attribute 的圖片尺寸無效。',
-+  'The :attribute is not a valid URL.' => ':attribute 不是有效的 URL。',
 +  'The :attribute is not a valid date.' => ':attribute 不是有效日期。',
++  'The :attribute is not a valid URL.' => ':attribute 不是有效的 URL。',
++  'The :attribute may not be greater than :max.' => ':attribute 不可大於 :max。',
 +  'The :attribute may not be greater than :max characters.' => ':attribute 長度不可超過 :max 個字元。',
 +  'The :attribute may not be greater than :max kilobytes.' => ':attribute 不可大於 :max KB。',
-+  'The :attribute may not be greater than :max.' => ':attribute 不可大於 :max。',
 +  'The :attribute may not have more than :max items.' => ':attribute 不可超過 :max 個項目。',
-+  'The :attribute may only contain letters and numbers.' => ':attribute 只能包含字母與數字。',
 +  'The :attribute may only contain letters, numbers, and dashes.' => ':attribute 只能包含字母、數字與破折號。',
 +  'The :attribute may only contain letters.' => ':attribute 只能包含字母。',
++  'The :attribute may only contain letters and numbers.' => ':attribute 只能包含字母與數字。',
 +  'The :attribute must be :digits digits.' => ':attribute 必須為 :digits 位數字。',
++  'The :attribute must be :size.' => ':attribute 必須為 :size。',
 +  'The :attribute must be :size characters.' => ':attribute 長度必須為 :size 個字元。',
 +  'The :attribute must be :size kilobytes.' => ':attribute 必須為 :size KB。',
-+  'The :attribute must be :size.' => ':attribute 必須為 :size。',
++  'The :attribute must be accepted.' => ':attribute 必須接受。',
 +  'The :attribute must be a date after :date.' => ':attribute 必須是 :date 之後的日期。',
 +  'The :attribute must be a date after or equal to :date.' => ':attribute 必須是 :date 之後或相同的日期。',
 +  'The :attribute must be a date before :date.' => ':attribute 必須是 :date 之前的日期。',
 +  'The :attribute must be a date before or equal to :date.' => ':attribute 必須是 :date 之前或相同的日期。',
-+  'The :attribute must be a file of type: :values.' => ':attribute 必須是以下類型的檔案：:values。',
 +  'The :attribute must be a file.' => ':attribute 必須是檔案。',
-+  'The :attribute must be a number.' => ':attribute 必須為數字。',
-+  'The :attribute must be a string.' => ':attribute 必須是字串。',
-+  'The :attribute must be a valid IP address.' => ':attribute 必須是有效的 IP 位址。',
-+  'The :attribute must be a valid JSON string.' => ':attribute 必須是有效的 JSON 字串。',
-+  'The :attribute must be a valid email address.' => ':attribute 必須是有效的電子郵件地址。',
-+  'The :attribute must be a valid zone.' => ':attribute 必須是有效的時區。',
-+  'The :attribute must be accepted.' => ':attribute 必須接受。',
++  'The :attribute must be a file of type: :values.' => ':attribute 必須是以下類型的檔案：:values。',
 +  'The :attribute must be an array.' => ':attribute 必須為陣列。',
 +  'The :attribute must be an image.' => ':attribute 必須是圖片。',
 +  'The :attribute must be an integer.' => ':attribute 必須為整數。',
++  'The :attribute must be a number.' => ':attribute 必須為數字。',
++  'The :attribute must be a string.' => ':attribute 必須是字串。',
++  'The :attribute must be at least :min.' => ':attribute 至少要為 :min。',
 +  'The :attribute must be at least :min characters.' => ':attribute 長度至少要有 :min 個字元。',
 +  'The :attribute must be at least :min kilobytes.' => ':attribute 至少要有 :min KB。',
-+  'The :attribute must be at least :min.' => ':attribute 至少要為 :min。',
++  'The :attribute must be a valid email address.' => ':attribute 必須是有效的電子郵件地址。',
++  'The :attribute must be a valid IP address.' => ':attribute 必須是有效的 IP 位址。',
++  'The :attribute must be a valid JSON string.' => ':attribute 必須是有效的 JSON 字串。',
++  'The :attribute must be a valid zone.' => ':attribute 必須是有效的時區。',
++  'The :attribute must be between :min and :max.' => ':attribute 必須介於 :min 到 :max 之間。',
 +  'The :attribute must be between :min and :max characters.' => ':attribute 長度必須介於 :min 到 :max 個字元之間。',
 +  'The :attribute must be between :min and :max digits.' => ':attribute 位數必須介於 :min 到 :max 之間。',
 +  'The :attribute must be between :min and :max kilobytes.' => ':attribute 必須介於 :min 到 :max KB 之間。',
-+  'The :attribute must be between :min and :max.' => ':attribute 必須介於 :min 到 :max 之間。',
 +  'The :attribute must contain :size items.' => ':attribute 必須包含 :size 個項目。',
 +  'The :attribute must have at least :min items.' => ':attribute 至少要有 :min 個項目。',
 +  'The :attribute must have between :min and :max items.' => ':attribute 的項目數必須介於 :min 到 :max 之間。',
-+  'The Egg selected for copying a script from either does not exist, or is copying a script itself.' => '選擇要複製安裝腳本的 Egg 不存在，或該 Egg 本身就是複製而來。',
-+  'The FQDN or IP address provided does not resolve to a valid IP address.' => '提供的 FQDN 或 IP 位址無法解析為有效 IP 位址。',
-+  'The JSON file provided is not in a format that can be recognized.' => '提供的 JSON 檔案格式無法辨識。',
-+  'The JSON file provided was not valid.' => '提供的 JSON 檔案無效。',
 +  'The administrator has required that 2-Factor Authentication be enabled for your account in order to use the Panel.' => '管理員已要求你必須啟用兩步驟驗證後，才能使用控制面板。',
 +  'The build details for this server have been updated. Some changes may require a restart to take effect.' => '此伺服器的建置資訊已更新。部分變更可能需要重新啟動才會生效。',
++  'The command that should be sent to server processes to stop them gracefully. If you need to send a' => '要傳送給伺服器程序以進行正常停止的指令。若你需要傳送',
 +  'The daemon configuration has been updated, however there was an error encountered while attempting to automatically update the configuration file on the Daemon. You will need to manually update the configuration file (config.yml) for the daemon to apply these changes.' => 'Daemon 設定已更新，但在自動更新 Daemon 設定檔時發生錯誤。你需要手動更新 Daemon 的設定檔（config.yml）以套用變更。',
++  'The default language to use when rendering the Panel for this user.' => '渲染此使用者面板時要使用的預設語言。',
++  'The default language to use when rendering UI components.' => '渲染介面元件時要使用的預設語言。',
++  'The Egg selected for copying a script from either does not exist, or is copying a script itself.' => '選擇要複製安裝腳本的 Egg 不存在，或該 Egg 本身就是複製而來。',
 +  'The environment variable :name is protected and cannot be assigned to a variable.' => '環境變數 :name 為保留名稱，無法指派給變數。',
 +  'The environment variable :name must be unique to this Egg.' => '環境變數 :name 在此 Egg 中必須為唯一值。',
++  'The following files are being uploaded to your server.' => '以下檔案正在上傳到你的伺服器。',
++  'The FQDN or IP address provided does not resolve to a valid IP address.' => '提供的 FQDN 或 IP 位址無法解析為有效 IP 位址。',
 +  'The installation status for this server has been toggled.' => '此伺服器的安裝狀態已切換。',
++  'The JSON file provided is not in a format that can be recognized.' => '提供的 JSON 檔案格式無法辨識。',
++  'The JSON file provided was not valid.' => '提供的 JSON 檔案無效。',
 +  'The mapping provided for :port was invalid and could not be processed.' => '提供給 :port 的映射無效，無法處理。',
 +  'The maximum interval time for a chained task is 15 minutes.' => '鏈式任務的最長間隔時間為 15 分鐘。',
 +  'The node you selected does not have the required disk space or memory available to accommodate this server.' => '你選擇的節點沒有足夠可用磁碟空間或記憶體來容納此伺服器。',
@@ -1720,100 +2344,122 @@ index 000000000..b01e32131
 +  'The provided captcha is invalid.' => '提供的驗證碼無效。',
 +  'The requested default allocation was not found in this server\'s allocations.' => '在此伺服器配置中找不到請求的預設配置。',
 +  'The requested resource does not exist on this server.' => '此伺服器上不存在請求的資源。',
++  'The requested resource was not found.' => '找不到請求的資源。',
++  'There was an error validating the data provided.' => '提供的資料驗證失敗。',
++  'There was an error while attempting to parse the JSON file: :error.' => '解析 JSON 檔案時發生錯誤：:error。',
++  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。',
++  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。（請求 ID：:request_id）',
++  'There was a validation error with the :name variable.' => '變數 :name 的驗證失敗。',
++  'There were no servers found matching the search criteria provided.' => '找不到符合搜尋條件的伺服器。',
 +  'The selected :attribute is invalid.' => '所選的 :attribute 無效。',
++  'These rules are defined using standard' => '這些規則使用標準',
 +  'The startup configuration for this server has been updated. If this server\'s nest or egg was changed a reinstall will be occurring now.' => '此伺服器的啟動設定已更新。若 Nest 或 Egg 有變更，現在會進行重新安裝。',
 +  'The token provided was invalid.' => '提供的驗證碼無效。',
 +  'The two-factor authentication token was invalid.' => '兩步驟驗證碼無效。',
 +  'The validation rule ":rule" is not a valid rule for this application.' => '驗證規則「:rule」不是此應用程式可用的規則。',
 +  'The variable ":variable" has been deleted and will no longer be available to servers once rebuilt.' => '變數「:variable」已刪除，重建後將不再提供給伺服器使用。',
 +  'The variable ":variable" has been updated. You will need to rebuild any servers using this variable in order to apply changes.' => '變數「:variable」已更新。你需要重建使用此變數的伺服器以套用變更。',
-+  'There was a validation error with the :name variable.' => '變數 :name 的驗證失敗。',
-+  'There was an error while attempting to parse the JSON file: :error.' => '解析 JSON 檔案時發生錯誤：:error。',
-+  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged.' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。',
-+  'There was an exception while attempting to communicate with the daemon resulting in a HTTP/:code response code. This exception has been logged. (request id: :request_id)' => '與 Daemon 通訊時發生例外，HTTP 回應碼為 :code。此例外已記錄。（請求 ID：:request_id）',
-+  'There were no servers found matching the search criteria provided.' => '找不到符合搜尋條件的伺服器。',
-+  'This Egg has been updated using the file provided.' => '此 Egg 已透過提供的檔案完成更新。',
-+  'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.' => '此 Egg 為一個或多個其他 Egg 的父項。請先刪除其子 Egg 再刪除此 Egg。',
 +  'This account requires a second layer of authentication in order to continue. Please enter the code generated by your device to complete this login.' => '此帳號需要第二層身分驗證才能繼續。請輸入裝置產生的驗證碼以完成登入。',
 +  'This command will disable 2-factor authentication for a user\'s account if it is enabled. This should only be used as an account recovery command if the user is locked out of their account.' => '此指令會在使用者帳號啟用時停用兩步驟驗證。僅建議在使用者無法登入時，作為帳號復原用途使用。',
++  'This directory seems to be empty.' => '此目錄似乎是空的。',
++  'This directory will be created as' => '將會建立此資料夾為',
++  'This Egg has been updated using the file provided.' => '此 Egg 已透過提供的檔案完成更新。',
++  'This Egg is a parent to one or more other Eggs. Please delete those Eggs before deleting this Egg.' => '此 Egg 為一個或多個其他 Egg 的父項。請先刪除其子 Egg 再刪除此 Egg。',
++  'This is a permanent operation. The backup cannot be recovered once deleted.' => '這是永久性操作，備份刪除後無法復原。',
++  'This is the name that is used throughout the panel and in emails sent to clients.' => '這是整個面板與寄送給客戶的電子郵件所使用的名稱。',
 +  'This password reset token is invalid.' => '此重設密碼權杖無效。',
++  'This schedule will be executed automatically if enabled.' => '啟用後將自動執行此排程。',
 +  'This server has been marked as requiring a Docker Container rebuild. This will happen the next time the server is started.' => '此伺服器已標記為需重建 Docker 容器，將在下次啟動時執行。',
 +  'This server has been queued for a reinstallation beginning now.' => '此伺服器已排入重新安裝佇列，將立即開始。',
++  'This server has reached the maximum process or memory limit.' => '此伺服器已達程序數量或記憶體上限。',
++  'This server has run out of available disk space and cannot complete the install or update process.' => '此伺服器已用盡可用磁碟空間，無法完成安裝或更新流程。',
 +  'This server was marked as having failed a previous installation. Current status cannot be toggled in this state.' => '此伺服器先前安裝失敗已被標記，目前狀態下無法切換狀態。',
-+  'This directory seems to be empty.' => '此目錄似乎是空的。',
++  'This should be a JSON representation of configuration files to modify and what parts should be changed.' => '這裡應填入 JSON 格式，描述要修改的設定檔與需變更的區段。',
++  'This should be a JSON representation of what values the daemon should be looking for when booting a server to determine completion.' => '這裡應填入 JSON 格式，描述 Daemon 在啟動伺服器時應檢查哪些值以判定完成。',
++  'This should be a JSON representation of where log files are stored, and whether or not the daemon should be creating custom logs.' => '這裡應填入 JSON 格式，用於描述日誌檔案儲存位置，以及是否由 Daemon 建立自訂日誌。',
 +  'Thursday' => '星期四',
++  'Time offset (in seconds)' => '時間偏移（秒）',
++  'Toggle navigation' => '切換導覽',
 +  'Token' => '權杖',
 +  'Too many login attempts. Please try again in :seconds seconds.' => '登入嘗試次數過多，請在 :seconds 秒後再試。',
++  'Transfer Server' => '轉移伺服器',
++  'True' => '是',
 +  'Tuesday' => '星期二',
-+  'Two-Step Verification' => '兩步驟驗證',
 +  'Two-factor authentication has been disabled on your account. You will no longer be prompted to provide a token when logging in.' => '你的帳號已停用兩步驟驗證。登入時將不再要求輸入驗證碼。',
 +  'Two-factor authentication has been enabled on your account! From now on, when logging in, you will be required to provide the code generated by your device.' => '你的帳號已啟用兩步驟驗證！之後登入時將需要輸入裝置產生的驗證碼。',
 +  'Two-factor authentication requested' => '已請求兩步驟驗證',
++  'Two-Step Authentication Enabled' => '已啟用兩步驟驗證',
++  'Two-Step Verification' => '兩步驟驗證',
++  'Type a command...' => '輸入指令...',
++  'Unarchive' => '解壓縮',
 +  'Under Maintenance' => '維護中',
++  'Unlimited' => '無限制',
++  'Unlock' => '解鎖',
 +  'Unlocked the :name backup' => '已解除鎖定備份 :name',
-+  'Using API Key' => '使用 API 金鑰',
-+  'Using SFTP' => '使用 SFTP',
-+  'Update Email Address' => '更新電子郵件地址',
-+  'Update Language' => '更新語言',
-+  'Update Password' => '更新密碼',
-+  'Update your email' => '更新你的電子郵件',
++  'Unsupported Java Version' => '不支援的 Java 版本',
++  'Update' => '更新',
 +  'Updated the ":action" task for the :name schedule' => '已更新排程 :name 的「:action」任務',
 +  'Updated the :name schedule' => '已更新排程 :name',
 +  'Updated the Docker Image for the server from :old to :new' => '已將伺服器 Docker 映像從 :old 更新為 :new',
 +  'Updated the notes for :allocation from ":old" to ":new"' => '已將 :allocation 的備註從「:old」更新為「:new」',
 +  'Updated the subuser permissions for :email' => '已更新 :email 的子使用者權限',
++  'Update Email' => '更新電子郵件',
++  'Update Email Address' => '更新電子郵件地址',
++  'Update GSL Token' => '更新 GSL 權杖',
++  'Update Language' => '更新語言',
++  'Update Password' => '更新密碼',
++  'Update your email' => '更新你的電子郵件',
++  'Upload' => '上傳',
 +  'Uploaded :directory:file' => '已上傳 :directory:file',
++  'Uptime' => '運行時間',
 +  'Used two-factor recovery token' => '已使用兩步驟復原碼',
-+  'User successfully deleted from the Panel.' => '使用者已成功從控制面板刪除。',
++  'Use HTTP Connection' => '使用 HTTP 連線',
++  'User Email' => '使用者電子郵件',
 +  'Username' => '使用者名稱',
 +  'Username or Email' => '使用者名稱或電子郵件',
++  'Users' => '使用者',
++  'User successfully deleted from the Panel.' => '使用者已成功從控制面板刪除。',
++  'Use SSL Connection' => '使用 SSL 連線',
++  'Using API Key' => '使用 API 金鑰',
++  'Using SFTP' => '使用 SFTP',
++  'UUID' => 'UUID',
++  'value list separator' => '值列表分隔符',
++  'Variables' => '變數',
 +  'View additional event metadata' => '檢視事件的其他中繼資料',
 +  'Viewed the contents of :file' => '已檢視 :file 的內容',
++  'Visit https://steamcommunity.com/dev/managegameservers to generate a token.' => '前往 https://steamcommunity.com/dev/managegameservers 產生權杖。',
 +  'We can\'t find a user with that e-mail address.' => '找不到使用該電子郵件地址的使用者。',
-+  'We have e-mailed your password reset link!' => '我們已將重設密碼連結寄到你的電子郵件。',
 +  'Wednesday' => '星期三',
++  'We have e-mailed your password reset link!' => '我們已將重設密碼連結寄到你的電子郵件。',
 +  'Which driver should be used for sending emails?' => '要使用哪個寄信驅動程式？',
 +  'Wrote new content to :file' => '已將新內容寫入 :file',
 +  'Yes' => '是',
-+  ':count files are uploading, click to view' => '正在上傳 :count 個檔案，點擊檢視',
-+  'Access Denied' => '存取遭拒',
-+  'All' => '全部',
-+  'Copied "{{value}}" to clipboard.' => '已將「{{value}}」複製到剪貼簿。',
-+  'Copied text to clipboard.' => '已將文字複製到剪貼簿。',
-+  'File Manager' => '檔案管理',
-+  'File Uploads' => '檔案上傳',
-+  'First page' => '第一頁',
-+  'Last page' => '最後一頁',
-+  'Metadata' => '中繼資料',
-+  'New File' => '新增檔案',
-+  'Next page' => '下一頁',
-+  'Okay' => '好',
-+  'Page :current / :total' => '第 :current / :total 頁',
-+  'Per page' => '每頁',
-+  'Previous page' => '上一頁',
-+  'Showing :from to :to of :total files' => '顯示第 :from 到 :to 筆，共 :total 個檔案',
-+  'Something went wrong' => '發生錯誤',
-+  'System' => '系統',
-+  'System User' => '系統使用者',
-+  'The following files are being uploaded to your server.' => '以下檔案正在上傳到你的伺服器。',
-+  'The requested resource was not found.' => '找不到請求的資源。',
-+  'You do not have permission to access this page.' => '你沒有權限存取此頁面。',
++  'Yes, reinstall server' => '是，重新安裝伺服器',
++  'Yes, remove subuser' => '是，移除子使用者',
 +  'You are about to perform a :action against :count servers. Do you wish to continue?' => '你即將對 :count 台伺服器執行 :action。要繼續嗎？',
 +  'You are about to reinstall against a group of servers. Do you wish to continue?' => '你即將對一組伺服器執行重新安裝。要繼續嗎？',
 +  'You are attempting to delete the default allocation for this server but there is no fallback allocation to use.' => '你正在嘗試刪除此伺服器的預設配置，但沒有可用的替代配置。',
++  'You are editing a' => '你正在編輯',
++  'You can either generate a new one and enter it below or leave the field blank to remove it completely.' => '你可以產生新的權杖並填入下方，或留空以完全移除。',
++  'You can negate a prior rule by prepending an exclamation point' => '你可以在規則前加上驚嘆號來反轉先前規則',
 +  'You cannot add the server owner as a subuser for this server.' => '你不能將伺服器擁有者新增為此伺服器的子使用者。',
 +  'You cannot delete your own account.' => '你不能刪除自己的帳號。',
++  'You do not have permission to access this page.' => '你沒有權限存取此頁面。',
 +  'You must choose a language.' => '請選擇語言。',
 +  'You must have at least one location configured before you can add a node to this panel.' => '在此控制面板新增節點前，至少要先設定一個地區。',
 +  'You must have at least one node configured before you can add a server to this panel.' => '在此控制面板新增伺服器前，至少要先設定一個節點。',
 +  'You must have at least two nodes configured before you can transfer servers.' => '在轉移伺服器前，至少要先設定兩個節點。',
 +  'Your account must have two-factor authentication enabled in order to continue.' => '您的帳號必須啟用兩步驟驗證才能繼續。',
++  'Your API Key' => '你的 API 金鑰',
 +  'Your email address has been updated.' => '你的電子郵件地址已更新。',
 +  'Your language preference has been updated.' => '已更新您的語言偏好。',
 +  'Your new password should be at least 8 characters in length.' => '你的新密碼長度至少需 8 個字元。',
 +  'Your password has been reset!' => '你的密碼已重設！',
 +  'Your password has been updated.' => '你的密碼已更新。',
-+  'never' => '從未',
++  'you should enter' => '你應該輸入',
++  'You will not be able to recover the contents of :name once deleted.' => '一旦刪除 :name，內容將無法復原。',
++  '[Space]' => '[空白]',
++  '^C' => '^C',
 +);
 diff --git a/resources/lang/zh_TW/pagination.php b/resources/lang/zh_TW/pagination.php
 new file mode 100644
@@ -2102,18 +2748,25 @@ index 000000000..e3ecb3f61
 +    });
 +};
 diff --git a/resources/scripts/components/App.tsx b/resources/scripts/components/App.tsx
-index 935400030..40440ed82 100644
+index 935400030..2f2adf0de 100644
 --- a/resources/scripts/components/App.tsx
 +++ b/resources/scripts/components/App.tsx
-@@ -14,6 +14,7 @@ import AuthenticatedRoute from '@/components/elements/AuthenticatedRoute';
+@@ -1,4 +1,4 @@
+-import React, { lazy } from 'react';
++import React, { lazy, useEffect } from 'react';
+ import { hot } from 'react-hot-loader/root';
+ import { Route, Router, Switch } from 'react-router-dom';
+ import { StoreProvider } from 'easy-peasy';
+@@ -14,6 +14,8 @@ import AuthenticatedRoute from '@/components/elements/AuthenticatedRoute';
  import { ServerContext } from '@/state/server';
  import '@/assets/tailwind.css';
  import Spinner from '@/components/elements/Spinner';
 +import { normalizeLocale } from '@/lib/locale';
++import { setupDomLiteralLocalization } from '@/lib/domLiterals';
  
  const DashboardRouter = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/routers/DashboardRouter'));
  const ServerRouter = lazy(() => import(/* webpackChunkName: "server" */ '@/routers/ServerRouter'));
-@@ -44,7 +45,7 @@ const App = () => {
+@@ -44,7 +46,7 @@ const App = () => {
              uuid: PterodactylUser.uuid,
              username: PterodactylUser.username,
              email: PterodactylUser.email,
@@ -2122,6 +2775,18 @@ index 935400030..40440ed82 100644
              rootAdmin: PterodactylUser.root_admin,
              useTotp: PterodactylUser.use_totp,
              createdAt: new Date(PterodactylUser.created_at),
+@@ -56,6 +58,11 @@ const App = () => {
+         store.getActions().settings.setSettings(SiteConfiguration!);
+     }
+ 
++    useEffect(() => {
++        const teardown = setupDomLiteralLocalization();
++        return () => teardown();
++    }, []);
++
+     return (
+         <>
+             <GlobalStylesheet />
 diff --git a/resources/scripts/components/MessageBox.tsx b/resources/scripts/components/MessageBox.tsx
 index 57a5cacb5..b0479ee03 100644
 --- a/resources/scripts/components/MessageBox.tsx
@@ -3262,8 +3927,209 @@ index ce488dc4f..8881a4423 100644
                          {props.arrow && (
                              <div
                                  ref={arrowEl}
+diff --git a/resources/scripts/components/server/files/ChmodFileModal.tsx b/resources/scripts/components/server/files/ChmodFileModal.tsx
+index 27a474d93..485471d23 100644
+--- a/resources/scripts/components/server/files/ChmodFileModal.tsx
++++ b/resources/scripts/components/server/files/ChmodFileModal.tsx
+@@ -9,6 +9,8 @@ import { ServerContext } from '@/state/server';
+ import tw from 'twin.macro';
+ import Button from '@/components/elements/Button';
+ import useFlash from '@/plugins/useFlash';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ interface FormikValues {
+     mode: string;
+@@ -22,6 +24,7 @@ interface File {
+ type OwnProps = RequiredModalProps & { files: File[] };
+ 
+ const ChmodFileModal = ({ files, ...props }: OwnProps) => {
++    const { t } = useTranslation('literals');
+     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+     const { mutate } = useFileManagerSwr();
+     const { clearFlashes, clearAndAddHttpError } = useFlash();
+@@ -59,10 +62,16 @@ const ChmodFileModal = ({ files, ...props }: OwnProps) => {
+                     <Form css={tw`m-0`}>
+                         <div css={tw`flex flex-wrap items-end`}>
+                             <div css={tw`w-full sm:flex-1 sm:mr-4`}>
+-                                <Field type={'string'} id={'file_mode'} name={'mode'} label={'File Mode'} autoFocus />
++                                <Field
++                                    type={'string'}
++                                    id={'file_mode'}
++                                    name={'mode'}
++                                    label={translateLiteral('File Mode', t)}
++                                    autoFocus
++                                />
+                             </div>
+                             <div css={tw`w-full sm:w-auto mt-4 sm:mt-0`}>
+-                                <Button css={tw`w-full`}>Update</Button>
++                                <Button css={tw`w-full`}>{translateLiteral('Update', t)}</Button>
+                             </div>
+                         </div>
+                     </Form>
+diff --git a/resources/scripts/components/server/files/FileDropdownMenu.tsx b/resources/scripts/components/server/files/FileDropdownMenu.tsx
+index 0edb542ed..5a5edfa06 100644
+--- a/resources/scripts/components/server/files/FileDropdownMenu.tsx
++++ b/resources/scripts/components/server/files/FileDropdownMenu.tsx
+@@ -32,6 +32,8 @@ import decompressFiles from '@/api/server/files/decompressFiles';
+ import isEqual from 'react-fast-compare';
+ import ChmodFileModal from '@/components/server/files/ChmodFileModal';
+ import { Dialog } from '@/components/elements/dialog';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ type ModalType = 'rename' | 'move' | 'chmod';
+ 
+@@ -55,6 +57,7 @@ const Row = ({ icon, title, ...props }: RowProps) => (
+ );
+ 
+ const FileDropdownMenu = ({ file }: { file: FileObject }) => {
++    const { t } = useTranslation('literals');
+     const onClickRef = useRef<DropdownMenu>(null);
+     const [showSpinner, setShowSpinner] = useState(false);
+     const [modal, setModal] = useState<ModalType | null>(null);
+@@ -132,12 +135,13 @@ const FileDropdownMenu = ({ file }: { file: FileObject }) => {
+             <Dialog.Confirm
+                 open={showConfirmation}
+                 onClose={() => setShowConfirmation(false)}
+-                title={`Delete ${file.isFile ? 'File' : 'Directory'}`}
+-                confirm={'Delete'}
++                title={translateLiteral(file.isFile ? 'Delete File' : 'Delete Directory', t)}
++                confirm={translateLiteral('Delete', t)}
+                 onConfirmed={doDeletion}
+             >
+-                You will not be able to recover the contents of&nbsp;
+-                <span className={'font-semibold text-gray-50'}>{file.name}</span> once deleted.
++                {translateLiteral('You will not be able to recover the contents of :name once deleted.', t, {
++                    name: file.name,
++                })}
+             </Dialog.Confirm>
+             <DropdownMenu
+                 ref={onClickRef}
+@@ -167,27 +171,27 @@ const FileDropdownMenu = ({ file }: { file: FileObject }) => {
+                 )}
+             >
+                 <Can action={'file.update'}>
+-                    <Row onClick={() => setModal('rename')} icon={faPencilAlt} title={'Rename'} />
+-                    <Row onClick={() => setModal('move')} icon={faLevelUpAlt} title={'Move'} />
+-                    <Row onClick={() => setModal('chmod')} icon={faFileCode} title={'Permissions'} />
++                    <Row onClick={() => setModal('rename')} icon={faPencilAlt} title={translateLiteral('Rename', t)} />
++                    <Row onClick={() => setModal('move')} icon={faLevelUpAlt} title={translateLiteral('Move', t)} />
++                    <Row onClick={() => setModal('chmod')} icon={faFileCode} title={translateLiteral('Permissions', t)} />
+                 </Can>
+                 {file.isFile && (
+                     <Can action={'file.create'}>
+-                        <Row onClick={doCopy} icon={faCopy} title={'Copy'} />
++                        <Row onClick={doCopy} icon={faCopy} title={translateLiteral('Copy', t)} />
+                     </Can>
+                 )}
+                 {file.isArchiveType() ? (
+                     <Can action={'file.create'}>
+-                        <Row onClick={doUnarchive} icon={faBoxOpen} title={'Unarchive'} />
++                        <Row onClick={doUnarchive} icon={faBoxOpen} title={translateLiteral('Unarchive', t)} />
+                     </Can>
+                 ) : (
+                     <Can action={'file.archive'}>
+-                        <Row onClick={doArchive} icon={faFileArchive} title={'Archive'} />
++                        <Row onClick={doArchive} icon={faFileArchive} title={translateLiteral('Archive', t)} />
+                     </Can>
+                 )}
+-                {file.isFile && <Row onClick={doDownload} icon={faFileDownload} title={'Download'} />}
++                {file.isFile && <Row onClick={doDownload} icon={faFileDownload} title={translateLiteral('Download', t)} />}
+                 <Can action={'file.delete'}>
+-                    <Row onClick={() => setShowConfirmation(true)} icon={faTrashAlt} title={'Delete'} $danger />
++                    <Row onClick={() => setShowConfirmation(true)} icon={faTrashAlt} title={translateLiteral('Delete', t)} $danger />
+                 </Can>
+             </DropdownMenu>
+         </>
+diff --git a/resources/scripts/components/server/files/FileEditContainer.tsx b/resources/scripts/components/server/files/FileEditContainer.tsx
+index de44493fc..88b286855 100644
+--- a/resources/scripts/components/server/files/FileEditContainer.tsx
++++ b/resources/scripts/components/server/files/FileEditContainer.tsx
+@@ -20,8 +20,11 @@ import ErrorBoundary from '@/components/elements/ErrorBoundary';
+ import { encodePathSegments, hashToPath } from '@/helpers';
+ import { dirname } from 'pathe';
+ import CodemirrorEditor from '@/components/elements/CodemirrorEditor';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ export default () => {
++    const { t } = useTranslation('literals');
+     const [error, setError] = useState('');
+     const { action } = useParams<{ action: 'new' | string }>();
+     const [loading, setLoading] = useState(action === 'edit');
+@@ -94,10 +97,14 @@ export default () => {
+             {hash.replace(/^#/, '').endsWith('.pteroignore') && (
+                 <div css={tw`mb-4 p-4 border-l-4 bg-neutral-900 rounded border-cyan-400`}>
+                     <p css={tw`text-neutral-300 text-sm`}>
+-                        You&apos;re editing a <code css={tw`font-mono bg-black rounded py-px px-1`}>.pteroignore</code>{' '}
+-                        file. Any files or directories listed in here will be excluded from backups. Wildcards are
+-                        supported by using an asterisk (<code css={tw`font-mono bg-black rounded py-px px-1`}>*</code>).
+-                        You can negate a prior rule by prepending an exclamation point (
++                        {translateLiteral('You are editing a', t)}{' '}
++                        <code css={tw`font-mono bg-black rounded py-px px-1`}>.pteroignore</code>{' '}
++                        {translateLiteral(
++                            'file. Any files or directories listed in here will be excluded from backups. Wildcards are supported by using an asterisk',
++                            t
++                        )}{' '}
++                        (<code css={tw`font-mono bg-black rounded py-px px-1`}>*</code>).
++                        {translateLiteral('You can negate a prior rule by prepending an exclamation point', t)} (
+                         <code css={tw`font-mono bg-black rounded py-px px-1`}>!</code>).
+                     </p>
+                 </div>
+@@ -142,13 +149,13 @@ export default () => {
+                 {action === 'edit' ? (
+                     <Can action={'file.update'}>
+                         <Button css={tw`flex-1 sm:flex-none`} onClick={() => save()}>
+-                            Save Content
++                            {translateLiteral('Save Content', t)}
+                         </Button>
+                     </Can>
+                 ) : (
+                     <Can action={'file.create'}>
+                         <Button css={tw`flex-1 sm:flex-none`} onClick={() => setModalVisible(true)}>
+-                            Create File
++                            {translateLiteral('Create File', t)}
+                         </Button>
+                     </Can>
+                 )}
+diff --git a/resources/scripts/components/server/files/FileManagerBreadcrumbs.tsx b/resources/scripts/components/server/files/FileManagerBreadcrumbs.tsx
+index bd71b09f2..89077174f 100644
+--- a/resources/scripts/components/server/files/FileManagerBreadcrumbs.tsx
++++ b/resources/scripts/components/server/files/FileManagerBreadcrumbs.tsx
+@@ -3,6 +3,8 @@ import { ServerContext } from '@/state/server';
+ import { NavLink, useLocation } from 'react-router-dom';
+ import { encodePathSegments, hashToPath } from '@/helpers';
+ import tw from 'twin.macro';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ interface Props {
+     renderLeft?: JSX.Element;
+@@ -11,6 +13,8 @@ interface Props {
+ }
+ 
+ export default ({ renderLeft, withinFileEditor, isNewFile }: Props) => {
++    const { t: ts } = useTranslation('strings');
++    const { t } = useTranslation('literals');
+     const [file, setFile] = useState<string | null>(null);
+     const id = ServerContext.useStoreState((state) => state.server.data!.id);
+     const directory = ServerContext.useStoreState((state) => state.files.directory);
+@@ -39,9 +43,10 @@ export default ({ renderLeft, withinFileEditor, isNewFile }: Props) => {
+ 
+     return (
+         <div css={tw`flex flex-grow-0 items-center text-sm text-neutral-500 overflow-x-hidden`}>
+-            {renderLeft || <div css={tw`w-12`} />}/<span css={tw`px-1 text-neutral-300`}>home</span>/
++            {renderLeft || <div css={tw`w-12`} />}/
++            <span css={tw`px-1 text-neutral-300`}>{ts('home')}</span>/
+             <NavLink to={`/server/${id}/files`} css={tw`px-1 text-neutral-200 no-underline hover:text-neutral-100`}>
+-                container
++                {translateLiteral('container', t)}
+             </NavLink>
+             /
+             {breadcrumbs().map((crumb, index) =>
 diff --git a/resources/scripts/components/server/files/FileManagerContainer.tsx b/resources/scripts/components/server/files/FileManagerContainer.tsx
-index 76dc1e48b..a125abf97 100644
+index 76dc1e48b..b1b08475a 100644
 --- a/resources/scripts/components/server/files/FileManagerContainer.tsx
 +++ b/resources/scripts/components/server/files/FileManagerContainer.tsx
 @@ -27,6 +27,8 @@ import { useStoreActions } from '@/state/hooks';
@@ -3294,17 +4160,14 @@ index 76dc1e48b..a125abf97 100644
                      ) : (
                          <CSSTransition classNames={'fade'} timeout={150} appear in>
                              <div>
-@@ -122,13 +127,18 @@ export default () => {
+@@ -122,13 +127,15 @@ export default () => {
                                      css={tw`bg-neutral-900/40 p-3 mb-px flex flex-col md:flex-row md:items-center md:justify-between gap-3`}
                                  >
                                      <div css={tw`text-xs text-neutral-300`}>
 -                                        Showing <span css={tw`text-neutral-100 font-semibold`}>{startIndex + 1}</span> to{' '}
 -                                        <span css={tw`text-neutral-100 font-semibold`}>{endIndex}</span> of{' '}
 -                                        <span css={tw`text-neutral-100 font-semibold`}>{totalFiles}</span> files
-+                                        {t('Showing :from to :to of :total files', {
-+                                            ns: 'literals',
-+                                            keySeparator: false,
-+                                            defaultValue: 'Showing :from to :to of :total files',
++                                        {translateLiteral('Showing :from to :to of :total files', t, {
 +                                            from: startIndex + 1,
 +                                            to: endIndex,
 +                                            total: totalFiles,
@@ -3317,7 +4180,7 @@ index 76dc1e48b..a125abf97 100644
                                          </label>
                                          <select
                                              id={'file-per-page'}
-@@ -142,14 +152,14 @@ export default () => {
+@@ -142,14 +149,14 @@ export default () => {
                                          >
                                              {perPageOptions.map((option) => (
                                                  <option key={option} value={option}>
@@ -3335,7 +4198,7 @@ index 76dc1e48b..a125abf97 100644
                                              size={Button.Sizes.Small}
                                              shape={Button.Shapes.IconSquare}
                                              variant={Button.Variants.Secondary}
-@@ -159,8 +169,8 @@ export default () => {
+@@ -159,8 +166,8 @@ export default () => {
                                          </Button.Text>
                                          <Button.Text
                                              disabled={currentPage <= 1}
@@ -3346,15 +4209,12 @@ index 76dc1e48b..a125abf97 100644
                                              size={Button.Sizes.Small}
                                              shape={Button.Shapes.IconSquare}
                                              variant={Button.Variants.Secondary}
-@@ -169,12 +179,18 @@ export default () => {
+@@ -169,12 +176,15 @@ export default () => {
                                              <ChevronLeftIcon className={'w-3 h-3'} />
                                          </Button.Text>
                                          <span css={tw`text-xs text-neutral-300 px-1`}>
 -                                            Page {currentPage} / {totalPages}
-+                                            {t('Page :current / :total', {
-+                                                ns: 'literals',
-+                                                keySeparator: false,
-+                                                defaultValue: 'Page :current / :total',
++                                            {translateLiteral('Page :current / :total', t, {
 +                                                current: currentPage,
 +                                                total: totalPages,
 +                                            })}
@@ -3368,7 +4228,7 @@ index 76dc1e48b..a125abf97 100644
                                              size={Button.Sizes.Small}
                                              shape={Button.Shapes.IconSquare}
                                              variant={Button.Variants.Secondary}
-@@ -184,8 +200,8 @@ export default () => {
+@@ -184,8 +194,8 @@ export default () => {
                                          </Button.Text>
                                          <Button.Text
                                              disabled={currentPage >= totalPages}
@@ -3380,18 +4240,19 @@ index 76dc1e48b..a125abf97 100644
                                              shape={Button.Shapes.IconSquare}
                                              variant={Button.Variants.Secondary}
 diff --git a/resources/scripts/components/server/files/FileManagerStatus.tsx b/resources/scripts/components/server/files/FileManagerStatus.tsx
-index 3e1c2df24..af244377e 100644
+index 3e1c2df24..46ab4c969 100644
 --- a/resources/scripts/components/server/files/FileManagerStatus.tsx
 +++ b/resources/scripts/components/server/files/FileManagerStatus.tsx
-@@ -7,6 +7,7 @@ import { Button } from '@/components/elements/button/index';
+@@ -7,6 +7,8 @@ import { Button } from '@/components/elements/button/index';
  import Tooltip from '@/components/elements/tooltip/Tooltip';
  import Code from '@/components/elements/Code';
  import { useSignal } from '@preact/signals-react';
 +import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
  
  const svgProps = {
      cx: 16,
-@@ -72,6 +73,7 @@ const FileUploadListDialog = asDialog({
+@@ -72,6 +74,7 @@ const FileUploadListDialog = asDialog({
  })(FileUploadList);
  
  export default () => {
@@ -3399,27 +4260,311 @@ index 3e1c2df24..af244377e 100644
      const open = useSignal(false);
  
      const count = ServerContext.useStoreState((state) => Object.keys(state.files.uploads).length);
-@@ -89,7 +91,14 @@ export default () => {
+@@ -89,7 +92,11 @@ export default () => {
      return (
          <>
              {count > 0 && (
 -                <Tooltip content={`${count} files are uploading, click to view`}>
 +                <Tooltip
-+                    content={t(':count files are uploading, click to view', {
-+                        ns: 'literals',
-+                        keySeparator: false,
-+                        defaultValue: ':count files are uploading, click to view',
++                    content={translateLiteral(':count files are uploading, click to view', t, {
 +                        count,
 +                    })}
 +                >
                      <button
                          className={'flex items-center justify-center w-10 h-10'}
                          onClick={() => (open.value = true)}
+diff --git a/resources/scripts/components/server/files/FileNameModal.tsx b/resources/scripts/components/server/files/FileNameModal.tsx
+index 3d0fb1686..c96c2df39 100644
+--- a/resources/scripts/components/server/files/FileNameModal.tsx
++++ b/resources/scripts/components/server/files/FileNameModal.tsx
+@@ -7,6 +7,8 @@ import { ServerContext } from '@/state/server';
+ import { join } from 'pathe';
+ import tw from 'twin.macro';
+ import Button from '@/components/elements/Button';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ type Props = RequiredModalProps & {
+     onFileNamed: (name: string) => void;
+@@ -17,6 +19,7 @@ interface Values {
+ }
+ 
+ export default ({ onFileNamed, onDismissed, ...props }: Props) => {
++    const { t } = useTranslation('literals');
+     const directory = ServerContext.useStoreState((state) => state.files.directory);
+ 
+     const submit = (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
+@@ -44,12 +47,12 @@ export default ({ onFileNamed, onDismissed, ...props }: Props) => {
+                         <Field
+                             id={'fileName'}
+                             name={'fileName'}
+-                            label={'File Name'}
+-                            description={'Enter the name that this file should be saved as.'}
++                            label={translateLiteral('File Name', t)}
++                            description={translateLiteral('Enter the name that this file should be saved as.', t)}
+                             autoFocus
+                         />
+                         <div css={tw`mt-6 text-right`}>
+-                            <Button>Create File</Button>
++                            <Button>{translateLiteral('Create File', t)}</Button>
+                         </div>
+                     </Form>
+                 </Modal>
+diff --git a/resources/scripts/components/server/files/MassActionsBar.tsx b/resources/scripts/components/server/files/MassActionsBar.tsx
+index 5d6ff42b9..a20e81603 100644
+--- a/resources/scripts/components/server/files/MassActionsBar.tsx
++++ b/resources/scripts/components/server/files/MassActionsBar.tsx
+@@ -11,8 +11,11 @@ import deleteFiles from '@/api/server/files/deleteFiles';
+ import RenameFileModal from '@/components/server/files/RenameFileModal';
+ import Portal from '@/components/elements/Portal';
+ import { Dialog } from '@/components/elements/dialog';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ const MassActionsBar = () => {
++    const { t } = useTranslation('literals');
+     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+ 
+     const { mutate } = useFileManagerSwr();
+@@ -33,7 +36,7 @@ const MassActionsBar = () => {
+     const onClickCompress = () => {
+         setLoading(true);
+         clearFlashes('files');
+-        setLoadingMessage('Archiving files...');
++        setLoadingMessage(translateLiteral('Archiving files...', t));
+ 
+         compressFiles(uuid, directory, selectedFiles)
+             .then(() => mutate())
+@@ -46,7 +49,7 @@ const MassActionsBar = () => {
+         setLoading(true);
+         setShowConfirm(false);
+         clearFlashes('files');
+-        setLoadingMessage('Deleting files...');
++        setLoadingMessage(translateLiteral('Deleting files...', t));
+ 
+         deleteFiles(uuid, directory, selectedFiles)
+             .then(() => {
+@@ -67,21 +70,25 @@ const MassActionsBar = () => {
+                     {loadingMessage}
+                 </SpinnerOverlay>
+                 <Dialog.Confirm
+-                    title={'Delete Files'}
++                    title={translateLiteral('Delete Files', t)}
+                     open={showConfirm}
+-                    confirm={'Delete'}
++                    confirm={translateLiteral('Delete', t)}
+                     onClose={() => setShowConfirm(false)}
+                     onConfirmed={onClickConfirmDeletion}
+                 >
+                     <p className={'mb-2'}>
+-                        Are you sure you want to delete&nbsp;
+-                        <span className={'font-semibold text-gray-50'}>{selectedFiles.length} files</span>? This is a
+-                        permanent action and the files cannot be recovered.
++                        {translateLiteral(
++                            'Are you sure you want to delete :count files? This is a permanent action and the files cannot be recovered.',
++                            t,
++                            { count: selectedFiles.length }
++                        )}
+                     </p>
+                     {selectedFiles.slice(0, 15).map((file) => (
+                         <li key={file}>{file}</li>
+                     ))}
+-                    {selectedFiles.length > 15 && <li>and {selectedFiles.length - 15} others</li>}
++                    {selectedFiles.length > 15 && (
++                        <li>{translateLiteral('and :count others', t, { count: selectedFiles.length - 15 })}</li>
++                    )}
+                 </Dialog.Confirm>
+                 {showMove && (
+                     <RenameFileModal
+@@ -96,10 +103,10 @@ const MassActionsBar = () => {
+                     <div className={'pointer-events-none fixed bottom-0 mb-6 flex justify-center w-full z-50'}>
+                         <Fade timeout={75} in={selectedFiles.length > 0} unmountOnExit>
+                             <div css={tw`flex items-center space-x-4 pointer-events-auto rounded p-4 bg-black/50`}>
+-                                <Button onClick={() => setShowMove(true)}>Move</Button>
+-                                <Button onClick={onClickCompress}>Archive</Button>
++                                <Button onClick={() => setShowMove(true)}>{translateLiteral('Move', t)}</Button>
++                                <Button onClick={onClickCompress}>{translateLiteral('Archive', t)}</Button>
+                                 <Button.Danger variant={Button.Variants.Secondary} onClick={() => setShowConfirm(true)}>
+-                                    Delete
++                                    {translateLiteral('Delete', t)}
+                                 </Button.Danger>
+                             </div>
+                         </Fade>
+diff --git a/resources/scripts/components/server/files/NewDirectoryButton.tsx b/resources/scripts/components/server/files/NewDirectoryButton.tsx
+index f7531a368..75290cde0 100644
+--- a/resources/scripts/components/server/files/NewDirectoryButton.tsx
++++ b/resources/scripts/components/server/files/NewDirectoryButton.tsx
+@@ -15,6 +15,8 @@ import FlashMessageRender from '@/components/FlashMessageRender';
+ import { Dialog, DialogWrapperContext } from '@/components/elements/dialog';
+ import Code from '@/components/elements/Code';
+ import asDialog from '@/hoc/asDialog';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ interface Values {
+     directoryName: string;
+@@ -42,6 +44,7 @@ const generateDirectoryData = (name: string): FileObject => ({
+ const NewDirectoryDialog = asDialog({
+     title: 'Create Directory',
+ })(() => {
++    const { t } = useTranslation('literals');
+     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+     const directory = ServerContext.useStoreState((state) => state.files.directory);
+ 
+@@ -71,9 +74,11 @@ const NewDirectoryDialog = asDialog({
+                 <>
+                     <FlashMessageRender key={'files:directory-modal'} />
+                     <Form css={tw`m-0`}>
+-                        <Field autoFocus id={'directoryName'} name={'directoryName'} label={'Name'} />
++                        <Field autoFocus id={'directoryName'} name={'directoryName'} label={translateLiteral('Name', t)} />
+                         <p css={tw`mt-2 text-sm md:text-base break-all`}>
+-                            <span css={tw`text-neutral-200`}>This directory will be created as&nbsp;</span>
++                            <span css={tw`text-neutral-200`}>
++                                {translateLiteral('This directory will be created as', t)}&nbsp;
++                            </span>
+                             <Code>
+                                 /home/container/
+                                 <span css={tw`text-cyan-200`}>
+@@ -84,10 +89,10 @@ const NewDirectoryDialog = asDialog({
+                     </Form>
+                     <Dialog.Footer>
+                         <Button.Text className={'w-full sm:w-auto'} onClick={close}>
+-                            Cancel
++                            {translateLiteral('Cancel', t)}
+                         </Button.Text>
+                         <Button className={'w-full sm:w-auto'} onClick={submitForm}>
+-                            Create
++                            {translateLiteral('Create', t)}
+                         </Button>
+                     </Dialog.Footer>
+                 </>
+@@ -97,13 +102,14 @@ const NewDirectoryDialog = asDialog({
+ });
+ 
+ export default ({ className }: WithClassname) => {
++    const { t } = useTranslation('literals');
+     const [open, setOpen] = useState(false);
+ 
+     return (
+         <>
+             <NewDirectoryDialog open={open} onClose={setOpen.bind(this, false)} />
+             <Button.Text onClick={setOpen.bind(this, true)} className={className}>
+-                Create Directory
++                {translateLiteral('Create Directory', t)}
+             </Button.Text>
+         </>
+     );
+diff --git a/resources/scripts/components/server/files/RenameFileModal.tsx b/resources/scripts/components/server/files/RenameFileModal.tsx
+index 08c99183b..c31a5c960 100644
+--- a/resources/scripts/components/server/files/RenameFileModal.tsx
++++ b/resources/scripts/components/server/files/RenameFileModal.tsx
+@@ -9,6 +9,8 @@ import tw from 'twin.macro';
+ import Button from '@/components/elements/Button';
+ import useFileManagerSwr from '@/plugins/useFileManagerSwr';
+ import useFlash from '@/plugins/useFlash';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ interface FormikValues {
+     name: string;
+@@ -17,6 +19,7 @@ interface FormikValues {
+ type OwnProps = RequiredModalProps & { files: string[]; useMoveTerminology?: boolean };
+ 
+ const RenameFileModal = ({ files, useMoveTerminology, ...props }: OwnProps) => {
++    const { t } = useTranslation('literals');
+     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+     const { mutate } = useFileManagerSwr();
+     const { clearFlashes, clearAndAddHttpError } = useFlash();
+@@ -66,22 +69,29 @@ const RenameFileModal = ({ files, useMoveTerminology, ...props }: OwnProps) => {
+                                     type={'string'}
+                                     id={'file_name'}
+                                     name={'name'}
+-                                    label={'File Name'}
++                                    label={translateLiteral('File Name', t)}
+                                     description={
+                                         useMoveTerminology
+-                                            ? 'Enter the new name and directory of this file or folder, relative to the current directory.'
++                                            ? translateLiteral(
++                                                  'Enter the new name and directory of this file or folder, relative to the current directory.',
++                                                  t
++                                              )
+                                             : undefined
+                                     }
+                                     autoFocus
+                                 />
+                             </div>
+                             <div css={tw`w-full sm:w-auto mt-4 sm:mt-0`}>
+-                                <Button css={tw`w-full`}>{useMoveTerminology ? 'Move' : 'Rename'}</Button>
++                                <Button css={tw`w-full`}>
++                                    {useMoveTerminology
++                                        ? translateLiteral('Move', t)
++                                        : translateLiteral('Rename', t)}
++                                </Button>
+                             </div>
+                         </div>
+                         {useMoveTerminology && (
+                             <p css={tw`text-xs mt-2 text-neutral-400`}>
+-                                <strong css={tw`text-neutral-200`}>New location:</strong>
++                                <strong css={tw`text-neutral-200`}>{translateLiteral('New location:', t)}</strong>
+                                 &nbsp;/home/container/{join(directory, values.name).replace(/^(\.\.\/|\/)+/, '')}
+                             </p>
+                         )}
+diff --git a/resources/scripts/components/server/files/UploadButton.tsx b/resources/scripts/components/server/files/UploadButton.tsx
+index 31fee06a6..62be05521 100644
+--- a/resources/scripts/components/server/files/UploadButton.tsx
++++ b/resources/scripts/components/server/files/UploadButton.tsx
+@@ -13,6 +13,8 @@ import { WithClassname } from '@/components/types';
+ import Portal from '@/components/elements/Portal';
+ import { CloudUploadIcon } from '@heroicons/react/outline';
+ import { useSignal } from '@preact/signals-react';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ function isFileOrDirectory(event: DragEvent): boolean {
+     if (!event.dataTransfer?.types) {
+@@ -23,6 +25,7 @@ function isFileOrDirectory(event: DragEvent): boolean {
+ }
+ 
+ export default ({ className }: WithClassname) => {
++    const { t } = useTranslation('literals');
+     const fileUploadInput = useRef<HTMLInputElement>(null);
+ 
+     const visible = useSignal(false);
+@@ -65,7 +68,10 @@ export default ({ className }: WithClassname) => {
+         clearAndAddHttpError();
+         const list = Array.from(files);
+         if (list.some((file) => !file.type && (!file.size || file.size === 4096))) {
+-            return addError('Folder uploads are not supported.', 'Error');
++            return addError(
++                translateLiteral('Folder uploads are not supported.', t),
++                translateLiteral('Error', t)
++            );
+         }
+ 
+         const uploads = list.map((file) => {
+@@ -125,7 +131,7 @@ export default ({ className }: WithClassname) => {
+                             >
+                                 <CloudUploadIcon className={'w-10 h-10 flex-shrink-0'} />
+                                 <p className={'font-header flex-1 text-lg text-neutral-100 text-center'}>
+-                                    Drag and drop files to upload.
++                                    {translateLiteral('Drag and drop files to upload.', t)}
+                                 </p>
+                             </div>
+                         </div>
+@@ -147,7 +153,7 @@ export default ({ className }: WithClassname) => {
+                 multiple
+             />
+             <Button className={className} onClick={() => fileUploadInput.current && fileUploadInput.current.click()}>
+-                Upload
++                {translateLiteral('Upload', t)}
+             </Button>
+         </>
+     );
 diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
-index ee56cd8b3..8641d0d24 100644
+index ee56cd8b3..4d67c1bb7 100644
 --- a/resources/scripts/i18n.ts
 +++ b/resources/scripts/i18n.ts
-@@ -2,23 +2,42 @@ import i18n from 'i18next';
+@@ -2,23 +2,43 @@ import i18n from 'i18next';
  import { initReactI18next } from 'react-i18next';
  import I18NextHttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
  import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
@@ -3453,6 +4598,7 @@ index ee56cd8b3..8641d0d24 100644
 +        supportedLngs: supportedLanguages,
 +        load: 'currentOnly',
          keySeparator: '.',
++        nsSeparator: false,
          backend: {
              backend: I18NextHttpBackend,
              backendOption: {
@@ -3464,22 +4610,178 @@ index ee56cd8b3..8641d0d24 100644
                  queryStringParams: { hash },
                  allowMultiLoading: true,
              } as HttpBackendOptions,
+diff --git a/resources/scripts/lib/domLiterals.ts b/resources/scripts/lib/domLiterals.ts
+new file mode 100644
+index 000000000..125dbe93f
+--- /dev/null
++++ b/resources/scripts/lib/domLiterals.ts
+@@ -0,0 +1,138 @@
++import i18n from '@/i18n';
++import { translateLiteral } from '@/lib/literals';
++
++const SKIPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'PRE', 'CODE']);
++const TRANSFORMED_ATTRIBUTES = ['title', 'placeholder', 'aria-label', 'data-original-title', 'value'] as const;
++
++const trimAndNormalize = (value: string): string => value.replace(/\u00a0/g, ' ').trim();
++
++const shouldTranslateElementValue = (element: Element): boolean => {
++    if (element.tagName === 'INPUT') {
++        const input = element as HTMLInputElement;
++        return ['button', 'submit', 'reset'].includes(input.type);
++    }
++
++    return element.tagName === 'BUTTON';
++};
++
++const translateValue = (value: string): string => {
++    const normalized = trimAndNormalize(value);
++    if (normalized.length === 0) {
++        return value;
++    }
++
++    const translated = translateLiteral(normalized, i18n.t.bind(i18n));
++    if (translated === normalized) {
++        return value;
++    }
++
++    const leading = value.match(/^\s*/u)?.[0] ?? '';
++    const trailing = value.match(/\s*$/u)?.[0] ?? '';
++
++    return `${leading}${translated}${trailing}`;
++};
++
++const translateTextNode = (node: Text): void => {
++    const parent = node.parentElement;
++    if (!parent || SKIPPED_TAGS.has(parent.tagName) || parent.closest('[data-no-localize]')) {
++        return;
++    }
++
++    const value = node.nodeValue || '';
++    const translated = translateValue(value);
++    if (translated !== value) {
++        node.nodeValue = translated;
++    }
++};
++
++const translateElementAttributes = (element: Element): void => {
++    if (element.closest('[data-no-localize]')) {
++        return;
++    }
++
++    TRANSFORMED_ATTRIBUTES.forEach((attribute) => {
++        if (!element.hasAttribute(attribute)) {
++            return;
++        }
++
++        if (attribute === 'value' && !shouldTranslateElementValue(element)) {
++            return;
++        }
++
++        const value = element.getAttribute(attribute);
++        if (!value) {
++            return;
++        }
++
++        const translated = translateValue(value);
++        if (translated !== value) {
++            element.setAttribute(attribute, translated);
++        }
++    });
++};
++
++const translateTree = (root: ParentNode): void => {
++    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
++    let current = walker.nextNode();
++    while (current) {
++        translateTextNode(current as Text);
++        current = walker.nextNode();
++    }
++
++    if (root instanceof Element) {
++        translateElementAttributes(root);
++    }
++
++    const elements = (root as Element | Document).querySelectorAll
++        ? (root as Element | Document).querySelectorAll('*')
++        : [];
++
++    elements.forEach((element) => translateElementAttributes(element));
++};
++
++export const setupDomLiteralLocalization = (): (() => void) => {
++    if (typeof window === 'undefined' || typeof document === 'undefined') {
++        return () => undefined;
++    }
++
++    const run = () => translateTree(document.body);
++    run();
++
++    const observer = new MutationObserver((mutations) => {
++        mutations.forEach((mutation) => {
++            if (mutation.type === 'characterData' && mutation.target.nodeType === Node.TEXT_NODE) {
++                translateTextNode(mutation.target as Text);
++                return;
++            }
++
++            if (mutation.type === 'attributes' && mutation.target instanceof Element) {
++                translateElementAttributes(mutation.target);
++                return;
++            }
++
++            mutation.addedNodes.forEach((node) => {
++                if (node.nodeType === Node.TEXT_NODE) {
++                    translateTextNode(node as Text);
++                } else if (node.nodeType === Node.ELEMENT_NODE) {
++                    translateTree(node as Element);
++                }
++            });
++        });
++    });
++
++    observer.observe(document.body, {
++        childList: true,
++        subtree: true,
++        characterData: true,
++        attributes: true,
++        attributeFilter: [...TRANSFORMED_ATTRIBUTES],
++    });
++
++    const onLanguageChanged = () => run();
++    i18n.on('languageChanged', onLanguageChanged);
++
++    return () => {
++        observer.disconnect();
++        i18n.off('languageChanged', onLanguageChanged);
++    };
++};
 diff --git a/resources/scripts/lib/literals.ts b/resources/scripts/lib/literals.ts
 new file mode 100644
-index 000000000..e7cafb697
+index 000000000..55b857fd8
 --- /dev/null
 +++ b/resources/scripts/lib/literals.ts
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,33 @@
 +import React from 'react';
 +import { TFunction } from 'i18next';
 +
 +const translationOptions = {
 +    ns: 'literals',
 +    keySeparator: false,
++    nsSeparator: false,
 +};
 +
-+export const translateLiteral = (value: string, t: TFunction): string =>
-+    (t as any)(value, { ...translationOptions, defaultValue: value });
++const toInterpolationString = (value: string): string =>
++    value.replace(/:([\w.-]+\w)([^\w:]?|$)/gm, '{{$1}}$2');
++
++export const translateLiteral = (
++    value: string,
++    t: TFunction,
++    values?: Record<string, unknown>
++): string =>
++    (t as any)(value, {
++        ...translationOptions,
++        defaultValue: toInterpolationString(value),
++        ...(values || {}),
++    });
 +
 +export const translateLiteralNode = (value: React.ReactNode, t: TFunction): React.ReactNode => {
 +    if (typeof value === 'string') {
@@ -3579,6 +4881,154 @@ index 489646dc9..bcf59fee8 100644
                                          @endforeach
                                      </select>
                                      <p class="text-muted"><small>The default language to use when rendering UI components.</small></p>
+diff --git a/resources/views/layouts/admin.blade.php b/resources/views/layouts/admin.blade.php
+index 20ca084d4..b043f3a1e 100644
+--- a/resources/views/layouts/admin.blade.php
++++ b/resources/views/layouts/admin.blade.php
+@@ -1,5 +1,5 @@
+ <!DOCTYPE html>
+-<html>
++<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+     <head>
+         <meta charset="utf-8">
+         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+@@ -17,6 +17,9 @@
+         <meta name="theme-color" content="#0e4688">
+ 
+         @include('layouts.scripts')
++        <script>
++            window.PterodactylLiterals = {!! json_encode(trans('literals'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!};
++        </script>
+ 
+         @section('scripts')
+             {!! Theme::css('vendor/select2/select2.min.css?t={cache-version}') !!}
+@@ -204,6 +207,126 @@
+                 </script>
+             @endif
+ 
++            <script>
++                (function () {
++                    const map = window.PterodactylLiterals || {};
++                    const skipTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'PRE', 'CODE']);
++                    const attrs = ['title', 'placeholder', 'aria-label', 'data-original-title', 'value'];
++
++                    const normalize = (value) => value.replace(/\u00a0/g, ' ').trim();
++                    const translate = (value) => {
++                        const normalized = normalize(value || '');
++                        if (!normalized || !Object.prototype.hasOwnProperty.call(map, normalized)) {
++                            return value;
++                        }
++
++                        const translated = map[normalized];
++                        if (!translated || translated === normalized) {
++                            return value;
++                        }
++
++                        const leading = (value.match(/^\s*/u) || [''])[0];
++                        const trailing = (value.match(/\s*$/u) || [''])[0];
++
++                        return `${leading}${translated}${trailing}`;
++                    };
++
++                    const shouldTranslateValue = (element) => {
++                        if (element.tagName === 'INPUT') {
++                            return ['button', 'submit', 'reset'].includes(element.type);
++                        }
++
++                        return element.tagName === 'BUTTON';
++                    };
++
++                    const translateAttrs = (element) => {
++                        if (element.closest('[data-no-localize]')) {
++                            return;
++                        }
++
++                        attrs.forEach((attr) => {
++                            if (!element.hasAttribute(attr)) {
++                                return;
++                            }
++
++                            if (attr === 'value' && !shouldTranslateValue(element)) {
++                                return;
++                            }
++
++                            const translated = translate(element.getAttribute(attr));
++                            if (translated !== element.getAttribute(attr)) {
++                                element.setAttribute(attr, translated);
++                            }
++                        });
++                    };
++
++                    const translateText = (textNode) => {
++                        const parent = textNode.parentElement;
++                        if (!parent || skipTags.has(parent.tagName) || parent.closest('[data-no-localize]')) {
++                            return;
++                        }
++
++                        const translated = translate(textNode.nodeValue || '');
++                        if (translated !== textNode.nodeValue) {
++                            textNode.nodeValue = translated;
++                        }
++                    };
++
++                    const translateTree = (root) => {
++                        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
++                        let current = walker.nextNode();
++                        while (current) {
++                            translateText(current);
++                            current = walker.nextNode();
++                        }
++
++                        if (root instanceof Element) {
++                            translateAttrs(root);
++                        }
++
++                        (root.querySelectorAll ? root.querySelectorAll('*') : []).forEach((element) => translateAttrs(element));
++                    };
++
++                    const run = () => translateTree(document.body);
++
++                    if (document.readyState === 'loading') {
++                        document.addEventListener('DOMContentLoaded', run, { once: true });
++                    } else {
++                        run();
++                    }
++
++                    const observer = new MutationObserver((mutations) => {
++                        mutations.forEach((mutation) => {
++                            if (mutation.type === 'characterData' && mutation.target.nodeType === Node.TEXT_NODE) {
++                                translateText(mutation.target);
++                                return;
++                            }
++
++                            if (mutation.type === 'attributes' && mutation.target instanceof Element) {
++                                translateAttrs(mutation.target);
++                                return;
++                            }
++
++                            mutation.addedNodes.forEach((node) => {
++                                if (node.nodeType === Node.TEXT_NODE) {
++                                    translateText(node);
++                                } else if (node.nodeType === Node.ELEMENT_NODE) {
++                                    translateTree(node);
++                                }
++                            });
++                        });
++                    });
++
++                    observer.observe(document.body, {
++                        childList: true,
++                        subtree: true,
++                        characterData: true,
++                        attributes: true,
++                        attributeFilter: attrs,
++                    });
++                })();
++            </script>
++
+             <script>
+                 $(function () {
+                     $('[data-toggle="tooltip"]').tooltip();
 diff --git a/routes/api-client.php b/routes/api-client.php
 index b5595ec01..de67bd4c8 100644
 --- a/routes/api-client.php
