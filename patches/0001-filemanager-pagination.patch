@@ -1,5 +1,5 @@
 diff --git a/resources/scripts/components/server/files/FileManagerContainer.tsx b/resources/scripts/components/server/files/FileManagerContainer.tsx
-index 3bebd2062..c96b31cee 100644
+index 3bebd2062..76dc1e48b 100644
 --- a/resources/scripts/components/server/files/FileManagerContainer.tsx
 +++ b/resources/scripts/components/server/files/FileManagerContainer.tsx
 @@ -1,4 +1,4 @@
@@ -8,7 +8,20 @@ index 3bebd2062..c96b31cee 100644
  import { httpErrorToHuman } from '@/api/http';
  import { CSSTransition } from 'react-transition-group';
  import Spinner from '@/components/elements/Spinner';
-@@ -40,19 +40,37 @@ export default () => {
+@@ -11,6 +11,12 @@ import Can from '@/components/elements/Can';
+ import { ServerError } from '@/components/elements/ScreenBlock';
+ import tw from 'twin.macro';
+ import { Button } from '@/components/elements/button/index';
++import {
++    ChevronDoubleLeftIcon,
++    ChevronDoubleRightIcon,
++    ChevronLeftIcon,
++    ChevronRightIcon,
++} from '@heroicons/react/solid';
+ import { ServerContext } from '@/state/server';
+ import useFileManagerSwr from '@/plugins/useFileManagerSwr';
+ import FileManagerStatus from '@/components/server/files/FileManagerStatus';
+@@ -40,19 +46,37 @@ export default () => {
  
      const setSelectedFiles = ServerContext.useStoreActions((actions) => actions.files.setSelectedFiles);
      const selectedFilesLength = ServerContext.useStoreState((state) => state.files.selectedFiles.length);
@@ -47,7 +60,7 @@ index 3bebd2062..c96b31cee 100644
      };
  
      if (error) {
-@@ -68,7 +86,7 @@ export default () => {
+@@ -68,7 +92,7 @@ export default () => {
                              <FileActionCheckbox
                                  type={'checkbox'}
                                  css={tw`mx-4`}
@@ -56,7 +69,7 @@ index 3bebd2062..c96b31cee 100644
                                  onChange={onSelectAllClick}
                              />
                          }
-@@ -94,15 +112,58 @@ export default () => {
+@@ -94,15 +118,84 @@ export default () => {
                      ) : (
                          <CSSTransition classNames={'fade'} timeout={150} appear in>
                              <div>
@@ -94,26 +107,52 @@ index 3bebd2062..c96b31cee 100644
 +                                                </option>
 +                                            ))}
 +                                        </select>
-+                                        <Button.Text disabled={currentPage <= 1} onClick={() => setPage(1)}>
-+                                            First
++                                        <Button.Text
++                                            disabled={currentPage <= 1}
++                                            title={'First page'}
++                                            aria-label={'First page'}
++                                            size={Button.Sizes.Small}
++                                            shape={Button.Shapes.IconSquare}
++                                            variant={Button.Variants.Secondary}
++                                            onClick={() => setPage(1)}
++                                        >
++                                            <ChevronDoubleLeftIcon className={'w-3 h-3'} />
 +                                        </Button.Text>
 +                                        <Button.Text
 +                                            disabled={currentPage <= 1}
++                                            title={'Previous page'}
++                                            aria-label={'Previous page'}
++                                            size={Button.Sizes.Small}
++                                            shape={Button.Shapes.IconSquare}
++                                            variant={Button.Variants.Secondary}
 +                                            onClick={() => setPage((value) => Math.max(1, value - 1))}
 +                                        >
-+                                            Prev
++                                            <ChevronLeftIcon className={'w-3 h-3'} />
 +                                        </Button.Text>
 +                                        <span css={tw`text-xs text-neutral-300 px-1`}>
 +                                            Page {currentPage} / {totalPages}
 +                                        </span>
 +                                        <Button.Text
 +                                            disabled={currentPage >= totalPages}
++                                            title={'Next page'}
++                                            aria-label={'Next page'}
++                                            size={Button.Sizes.Small}
++                                            shape={Button.Shapes.IconSquare}
++                                            variant={Button.Variants.Secondary}
 +                                            onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
 +                                        >
-+                                            Next
++                                            <ChevronRightIcon className={'w-3 h-3'} />
 +                                        </Button.Text>
-+                                        <Button.Text disabled={currentPage >= totalPages} onClick={() => setPage(totalPages)}>
-+                                            Last
++                                        <Button.Text
++                                            disabled={currentPage >= totalPages}
++                                            title={'Last page'}
++                                            aria-label={'Last page'}
++                                            size={Button.Sizes.Small}
++                                            shape={Button.Shapes.IconSquare}
++                                            variant={Button.Variants.Secondary}
++                                            onClick={() => setPage(totalPages)}
++                                        >
++                                            <ChevronDoubleRightIcon className={'w-3 h-3'} />
 +                                        </Button.Text>
                                      </div>
 -                                )}

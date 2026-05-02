@@ -1,3 +1,99 @@
+diff --git a/app/Http/Controllers/Api/Client/AccountController.php b/app/Http/Controllers/Api/Client/AccountController.php
+index 8f733cd22..ebcd30c46 100644
+--- a/app/Http/Controllers/Api/Client/AccountController.php
++++ b/app/Http/Controllers/Api/Client/AccountController.php
+@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\RateLimiter;
+ use Pterodactyl\Services\Users\UserUpdateService;
+ use Pterodactyl\Transformers\Api\Client\AccountTransformer;
+ use Pterodactyl\Http\Requests\Api\Client\Account\UpdateEmailRequest;
++use Pterodactyl\Http\Requests\Api\Client\Account\UpdateLanguageRequest;
+ use Pterodactyl\Http\Requests\Api\Client\Account\UpdatePasswordRequest;
+ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+ 
+@@ -89,4 +90,24 @@ class AccountController extends ClientApiController
+ 
+         return new JsonResponse([], Response::HTTP_NO_CONTENT);
+     }
++
++    /**
++     * Update the authenticated user's language preference.
++     */
++    public function updateLanguage(UpdateLanguageRequest $request): JsonResponse
++    {
++        $user = $request->user();
++        $oldLanguage = $user->language;
++        $newLanguage = $request->validated('language');
++
++        if ($oldLanguage !== $newLanguage) {
++            $this->updateService->handle($user, ['language' => $newLanguage]);
++
++            Activity::event('user:account.language-changed')
++                ->property(['old' => $oldLanguage, 'new' => $newLanguage])
++                ->log();
++        }
++
++        return new JsonResponse([], Response::HTTP_NO_CONTENT);
++    }
+ }
+diff --git a/app/Http/Middleware/LanguageMiddleware.php b/app/Http/Middleware/LanguageMiddleware.php
+index e98ad2863..7cf125e3d 100644
+--- a/app/Http/Middleware/LanguageMiddleware.php
++++ b/app/Http/Middleware/LanguageMiddleware.php
+@@ -19,8 +19,31 @@ class LanguageMiddleware
+      */
+     public function handle(Request $request, \Closure $next): mixed
+     {
+-        $this->app->setLocale($request->user()->language ?? config('app.locale', 'en'));
++        $this->app->setLocale($this->normalizeLocale($request->user()->language, config('app.locale', 'en')));
+ 
+         return $next($request);
+     }
++
++    private function normalizeLocale(?string $locale, string $fallback): string
++    {
++        $value = trim((string) $locale);
++        if ($value === '') {
++            return $fallback;
++        }
++
++        $lower = mb_strtolower($value);
++        if (in_array($lower, ['zhtw', 'zh_tw', 'zh-tw'], true)) {
++            return 'zh_TW';
++        }
++
++        $normalized = str_replace('-', '_', $value);
++        if (!str_contains($normalized, '_')) {
++            $normalized = mb_strtolower($normalized);
++        } else {
++            [$language, $region] = explode('_', $normalized, 2);
++            $normalized = mb_strtolower($language) . '_' . mb_strtoupper($region);
++        }
++
++        return is_dir(resource_path("lang/{$normalized}")) ? $normalized : $fallback;
++    }
+ }
+diff --git a/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
+new file mode 100644
+index 000000000..92d7599da
+--- /dev/null
++++ b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
+@@ -0,0 +1,16 @@
++<?php
++
++namespace Pterodactyl\Http\Requests\Api\Client\Account;
++
++use Pterodactyl\Models\User;
++use Pterodactyl\Http\Requests\Api\Client\ClientApiRequest;
++
++class UpdateLanguageRequest extends ClientApiRequest
++{
++    public function rules(): array
++    {
++        $rules = User::getRulesForUpdate($this->user());
++
++        return ['language' => $rules['language']];
++    }
++}
 diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
 index 0a2cc03d7..a6e511611 100644
 --- a/app/Http/Requests/Base/LocaleRequest.php
@@ -22,6 +118,31 @@ index 0a2cc03d7..a6e511611 100644
              'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
          ];
      }
+diff --git a/app/Http/ViewComposers/AssetComposer.php b/app/Http/ViewComposers/AssetComposer.php
+index d42f8a80a..9128af621 100644
+--- a/app/Http/ViewComposers/AssetComposer.php
++++ b/app/Http/ViewComposers/AssetComposer.php
+@@ -4,9 +4,12 @@ namespace Pterodactyl\Http\ViewComposers;
+ 
+ use Illuminate\View\View;
+ use Pterodactyl\Services\Helpers\AssetHashService;
++use Pterodactyl\Traits\Helpers\AvailableLanguages;
+ 
+ class AssetComposer
+ {
++    use AvailableLanguages;
++
+     /**
+      * AssetComposer constructor.
+      */
+@@ -23,6 +26,7 @@ class AssetComposer
+         $view->with('siteConfiguration', [
+             'name' => config('app.name') ?? 'Pterodactyl',
+             'locale' => config('app.locale') ?? 'en',
++            'languages' => $this->getAvailableLanguages(true),
+             'recaptcha' => [
+                 'enabled' => config('recaptcha.enabled', false),
+                 'siteKey' => config('recaptcha.website_key') ?? '',
 diff --git a/app/Traits/Helpers/AvailableLanguages.php b/app/Traits/Helpers/AvailableLanguages.php
 index d487e8ecc..be53917ab 100644
 --- a/app/Traits/Helpers/AvailableLanguages.php
@@ -64,12 +185,24 @@ index d487e8ecc..be53917ab 100644
      /**
       * Return an instance of the filesystem for getting a folder listing.
       */
+diff --git a/resources/lang/en/activity.php b/resources/lang/en/activity.php
+index 501a1dcde..fcf038202 100644
+--- a/resources/lang/en/activity.php
++++ b/resources/lang/en/activity.php
+@@ -24,6 +24,7 @@ return [
+         'account' => [
+             'email-changed' => 'Changed email from :old to :new',
+             'password-changed' => 'Changed password',
++            'language-changed' => 'Changed language from :old to :new',
+         ],
+         'api-key' => [
+             'create' => 'Created new API key :identifier',
 diff --git a/resources/lang/zh_TW/activity.php b/resources/lang/zh_TW/activity.php
 new file mode 100644
-index 000000000..86bfda189
+index 000000000..1f276492f
 --- /dev/null
 +++ b/resources/lang/zh_TW/activity.php
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,128 @@
 +<?php
 +
 +/**
@@ -93,6 +226,7 @@ index 000000000..86bfda189
 +        'account' => [
 +            'email-changed' => '已將電子郵件從 :old 變更為 :new',
 +            'password-changed' => '已變更密碼',
++            'language-changed' => '已將語言從 :old 變更為 :new',
 +        ],
 +        'api-key' => [
 +            'create' => '已建立新的 API 金鑰 :identifier',
@@ -776,11 +910,186 @@ index 000000000..2f3d7f106
 +        'invalid_password' => '提供的密碼對此帳號無效。',
 +    ],
 +];
+diff --git a/resources/scripts/api/account/updateAccountLanguage.ts b/resources/scripts/api/account/updateAccountLanguage.ts
+new file mode 100644
+index 000000000..e3ecb3f61
+--- /dev/null
++++ b/resources/scripts/api/account/updateAccountLanguage.ts
+@@ -0,0 +1,9 @@
++import http from '@/api/http';
++
++export default (language: string): Promise<void> => {
++    return new Promise((resolve, reject) => {
++        http.put('/api/client/account/language', { language })
++            .then(() => resolve())
++            .catch(reject);
++    });
++};
+diff --git a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
+index 4f64aec48..6f9a65a13 100644
+--- a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
++++ b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
+@@ -3,28 +3,13 @@ import ContentBox from '@/components/elements/ContentBox';
+ import UpdatePasswordForm from '@/components/dashboard/forms/UpdatePasswordForm';
+ import UpdateEmailAddressForm from '@/components/dashboard/forms/UpdateEmailAddressForm';
+ import ConfigureTwoFactorForm from '@/components/dashboard/forms/ConfigureTwoFactorForm';
++import UpdateLanguageForm from '@/components/dashboard/forms/UpdateLanguageForm';
+ import PageContentBlock from '@/components/elements/PageContentBlock';
+ import tw from 'twin.macro';
+-import { breakpoint } from '@/theme';
+-import styled from 'styled-components/macro';
+ import MessageBox from '@/components/MessageBox';
+ import { useLocation } from 'react-router-dom';
+ 
+-const Container = styled.div`
+-    ${tw`flex flex-wrap`};
+-
+-    & > div {
+-        ${tw`w-full`};
+-
+-        ${breakpoint('sm')`
+-      width: calc(50% - 1rem);
+-    `}
+-
+-        ${breakpoint('md')`
+-      ${tw`w-auto flex-1`};
+-    `}
+-    }
+-`;
++const Container = tw.div`grid gap-8 mt-10 mb-10 sm:grid-cols-2 xl:grid-cols-4`;
+ 
+ export default () => {
+     const { state } = useLocation<undefined | { twoFactorRedirect?: boolean }>();
+@@ -37,16 +22,19 @@ export default () => {
+                 </MessageBox>
+             )}
+ 
+-            <Container css={[tw`lg:grid lg:grid-cols-3 mb-10`, state?.twoFactorRedirect ? tw`mt-4` : tw`mt-10`]}>
++            <Container css={state?.twoFactorRedirect ? tw`mt-4` : undefined}>
+                 <ContentBox title={'Update Password'} showFlashes={'account:password'}>
+                     <UpdatePasswordForm />
+                 </ContentBox>
+-                <ContentBox css={tw`mt-8 sm:mt-0 sm:ml-8`} title={'Update Email Address'} showFlashes={'account:email'}>
++                <ContentBox title={'Update Email Address'} showFlashes={'account:email'}>
+                     <UpdateEmailAddressForm />
+                 </ContentBox>
+-                <ContentBox css={tw`md:ml-8 mt-8 md:mt-0`} title={'Two-Step Verification'}>
++                <ContentBox title={'Two-Step Verification'}>
+                     <ConfigureTwoFactorForm />
+                 </ContentBox>
++                <ContentBox title={'Language Preferences'} showFlashes={'account:language'}>
++                    <UpdateLanguageForm />
++                </ContentBox>
+             </Container>
+         </PageContentBlock>
+     );
+diff --git a/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
+new file mode 100644
+index 000000000..7a07a81e3
+--- /dev/null
++++ b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
+@@ -0,0 +1,96 @@
++import React from 'react';
++import { Actions, State, useStoreActions, useStoreState } from 'easy-peasy';
++import { Field as FormikField, Form, Formik, FormikHelpers } from 'formik';
++import * as Yup from 'yup';
++import SpinnerOverlay from '@/components/elements/SpinnerOverlay';
++import { httpErrorToHuman } from '@/api/http';
++import { ApplicationStore } from '@/state';
++import tw from 'twin.macro';
++import { Button } from '@/components/elements/button/index';
++import Label from '@/components/elements/Label';
++import Select from '@/components/elements/Select';
++import FormikFieldWrapper from '@/components/elements/FormikFieldWrapper';
++import i18n from '@/i18n';
++
++interface Values {
++    language: string;
++}
++
++const normalizeLocale = (value: string): string => {
++    const lowered = value.toLowerCase();
++    if (['zhtw', 'zh_tw', 'zh-tw'].includes(lowered)) {
++        return 'zh_TW';
++    }
++
++    const normalized = value.replace('-', '_');
++    const [language, region] = normalized.split('_');
++
++    return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
++};
++
++export default () => {
++    const user = useStoreState((state: State<ApplicationStore>) => state.user.data);
++    const settings = useStoreState((state: State<ApplicationStore>) => state.settings.data);
++    const updateLanguage = useStoreActions((state: Actions<ApplicationStore>) => state.user.updateUserLanguage);
++    const { clearFlashes, addFlash } = useStoreActions((actions: Actions<ApplicationStore>) => actions.flashes);
++
++    if (!user) {
++        return null;
++    }
++
++    const availableLanguages = settings?.languages || { en: 'English' };
++    const schema = Yup.object().shape({
++        language: Yup.string().oneOf(Object.keys(availableLanguages)).required('You must choose a language.'),
++    });
++
++    const submit = (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
++        clearFlashes('account:language');
++
++        updateLanguage({ language: values.language })
++            .then(async () => {
++                await i18n.changeLanguage(normalizeLocale(values.language));
++                addFlash({
++                    type: 'success',
++                    key: 'account:language',
++                    message: 'Your language preference has been updated.',
++                });
++            })
++            .catch((error) =>
++                addFlash({
++                    type: 'error',
++                    key: 'account:language',
++                    title: 'Error',
++                    message: httpErrorToHuman(error),
++                })
++            )
++            .then(() => setSubmitting(false));
++    };
++
++    return (
++        <Formik onSubmit={submit} validationSchema={schema} initialValues={{ language: user.language }} enableReinitialize>
++            {({ isSubmitting, isValid }) => (
++                <React.Fragment>
++                    <SpinnerOverlay size={'large'} visible={isSubmitting} />
++                    <Form css={tw`m-0`}>
++                        <Label htmlFor={'language'}>Language</Label>
++                        <FormikFieldWrapper
++                            name={'language'}
++                            description={'Choose your preferred language for this account.'}
++                        >
++                            <FormikField id={'language'} as={Select} name={'language'}>
++                                {Object.entries(availableLanguages).map(([code, name]) => (
++                                    <option key={code} value={code}>
++                                        {name}
++                                    </option>
++                                ))}
++                            </FormikField>
++                        </FormikFieldWrapper>
++                        <div css={tw`mt-6`}>
++                            <Button disabled={isSubmitting || !isValid}>Update Language</Button>
++                        </div>
++                    </Form>
++                </React.Fragment>
++            )}
++        </Formik>
++    );
++};
 diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
-index ee56cd8b3..d118c1cbe 100644
+index ee56cd8b3..d8f2b0144 100644
 --- a/resources/scripts/i18n.ts
 +++ b/resources/scripts/i18n.ts
-@@ -3,17 +3,29 @@ import { initReactI18next } from 'react-i18next';
+@@ -3,17 +3,45 @@ import { initReactI18next } from 'react-i18next';
  import I18NextHttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
  import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
  
@@ -793,12 +1102,28 @@ index ee56cd8b3..d118c1cbe 100644
 +    };
 +}
 +
++const normalizeLocale = (value: string | undefined): string => {
++    if (!value) {
++        return 'en';
++    }
++
++    const lowered = value.toLowerCase();
++    if (['zhtw', 'zh_tw', 'zh-tw'].includes(lowered)) {
++        return 'zh_TW';
++    }
++
++    const normalized = value.replace('-', '_');
++    const [language, region] = normalized.split('_');
++
++    return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
++};
++
  // If we're using HMR use a unique hash per page reload so that we're always
  // doing cache busting. Otherwise just use the builder provided hash value in
  // the URL to allow cache busting to occur whenever the front-end is rebuilt.
  const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
 +const { PterodactylUser, SiteConfiguration } = window as ExtendedWindow;
-+const locale = (PterodactylUser?.language || SiteConfiguration?.locale || 'en').replace('-', '_');
++const locale = normalizeLocale(PterodactylUser?.language || SiteConfiguration?.locale || 'en');
  
  i18n.use(I18NextMultiloadBackendAdapter)
      .use(initReactI18next)
@@ -811,3 +1136,59 @@ index ee56cd8b3..d118c1cbe 100644
          keySeparator: '.',
          backend: {
              backend: I18NextHttpBackend,
+diff --git a/resources/scripts/state/settings.ts b/resources/scripts/state/settings.ts
+index 20dbbdc6e..9025ee6db 100644
+--- a/resources/scripts/state/settings.ts
++++ b/resources/scripts/state/settings.ts
+@@ -3,6 +3,7 @@ import { action, Action } from 'easy-peasy';
+ export interface SiteSettings {
+     name: string;
+     locale: string;
++    languages: Record<string, string>;
+     recaptcha: {
+         enabled: boolean;
+         siteKey: string;
+diff --git a/resources/scripts/state/user.ts b/resources/scripts/state/user.ts
+index 0ec785137..717e0b72d 100644
+--- a/resources/scripts/state/user.ts
++++ b/resources/scripts/state/user.ts
+@@ -1,5 +1,6 @@
+ import { Action, action, Thunk, thunk } from 'easy-peasy';
+ import updateAccountEmail from '@/api/account/updateAccountEmail';
++import updateAccountLanguage from '@/api/account/updateAccountLanguage';
+ 
+ export interface UserData {
+     uuid: string;
+@@ -17,6 +18,7 @@ export interface UserStore {
+     setUserData: Action<UserStore, UserData>;
+     updateUserData: Action<UserStore, Partial<UserData>>;
+     updateUserEmail: Thunk<UserStore, { email: string; password: string }, any, UserStore, Promise<void>>;
++    updateUserLanguage: Thunk<UserStore, { language: string }, any, UserStore, Promise<void>>;
+ }
+ 
+ const user: UserStore = {
+@@ -35,6 +37,12 @@ const user: UserStore = {
+ 
+         actions.updateUserData({ email: payload.email });
+     }),
++
++    updateUserLanguage: thunk(async (actions, payload) => {
++        await updateAccountLanguage(payload.language);
++
++        actions.updateUserData({ language: payload.language });
++    }),
+ };
+ 
+ export default user;
+diff --git a/routes/api-client.php b/routes/api-client.php
+index b5595ec01..de67bd4c8 100644
+--- a/routes/api-client.php
++++ b/routes/api-client.php
+@@ -31,6 +31,7 @@ Route::prefix('/account')->middleware(AccountSubject::class)->group(function ()
+     Route::put('/email', [Client\AccountController::class, 'updateEmail'])
+         ->middleware('throttle')
+         ->name('api:client.account.update-email');
++    Route::put('/language', [Client\AccountController::class, 'updateLanguage'])->name('api:client.account.update-language');
+     Route::put('/password', [Client\AccountController::class, 'updatePassword'])->name('api:client.account.update-password');
+ 
+     Route::get('/activity', Client\ActivityLogController::class)->name('api:client.account.activity');
