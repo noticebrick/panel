@@ -1,3 +1,25 @@
+diff --git a/app/Http/Controllers/Admin/Settings/IndexController.php b/app/Http/Controllers/Admin/Settings/IndexController.php
+index e89d120f4..cadff3f3b 100644
+--- a/app/Http/Controllers/Admin/Settings/IndexController.php
++++ b/app/Http/Controllers/Admin/Settings/IndexController.php
+@@ -35,6 +35,9 @@ class IndexController extends Controller
+         return view('admin.settings.index', [
+             'version' => $this->versionService,
+             'languages' => $this->getAvailableLanguages(true),
++            'currentLocale' => $this->normalizeLocaleCode(
++                $this->settings->get('settings::app:locale', config('app.locale', 'en'))
++            ),
+         ]);
+     }
+ 
+@@ -50,6 +53,7 @@ class IndexController extends Controller
+             $this->settings->set('settings::' . $key, $value);
+         }
+ 
++        config()->set('app.locale', $request->input('app:locale'));
+         $this->kernel->call('queue:restart');
+         $this->alert->success('Panel settings have been updated successfully and the queue worker was restarted to apply these changes.')->flash();
+ 
 diff --git a/app/Http/Controllers/Api/Client/AccountController.php b/app/Http/Controllers/Api/Client/AccountController.php
 index 8f733cd22..ebcd30c46 100644
 --- a/app/Http/Controllers/Api/Client/AccountController.php
@@ -35,11 +57,47 @@ index 8f733cd22..ebcd30c46 100644
 +        return new JsonResponse([], Response::HTTP_NO_CONTENT);
 +    }
  }
+diff --git a/app/Http/Controllers/Base/LocaleController.php b/app/Http/Controllers/Base/LocaleController.php
+index 16a310092..019ce2650 100644
+--- a/app/Http/Controllers/Base/LocaleController.php
++++ b/app/Http/Controllers/Base/LocaleController.php
+@@ -22,9 +22,15 @@ class LocaleController extends Controller
+      */
+     public function __invoke(LocaleRequest $request): JsonResponse
+     {
+-        $locale = $request->input('locale');
+-        $namespace = $request->input('namespace');
+-        $response[$locale][$namespace] = $this->i18n($this->loader->load($locale, $namespace));
++        $response = [];
++        $locales = preg_split('/[+ ]+/', (string) $request->input('locale')) ?: [];
++        $namespaces = preg_split('/[+ ]+/', (string) $request->input('namespace')) ?: [];
++
++        foreach ($locales as $locale) {
++            foreach ($namespaces as $namespace) {
++                $response[$locale][$namespace] = $this->i18n($this->loader->load($locale, $namespace));
++            }
++        }
+ 
+         return new JsonResponse($response, 200, [
+             // Cache this in the browser for an hour, and allow the browser to use a stale
 diff --git a/app/Http/Middleware/LanguageMiddleware.php b/app/Http/Middleware/LanguageMiddleware.php
-index e98ad2863..7cf125e3d 100644
+index e98ad2863..5c9e936e2 100644
 --- a/app/Http/Middleware/LanguageMiddleware.php
 +++ b/app/Http/Middleware/LanguageMiddleware.php
-@@ -19,8 +19,31 @@ class LanguageMiddleware
+@@ -4,9 +4,12 @@ namespace Pterodactyl\Http\Middleware;
+ 
+ use Illuminate\Http\Request;
+ use Illuminate\Foundation\Application;
++use Pterodactyl\Traits\Helpers\NormalizesLocales;
+ 
+ class LanguageMiddleware
+ {
++    use NormalizesLocales;
++
+     /**
+      * LanguageMiddleware constructor.
+      */
+@@ -19,8 +22,15 @@ class LanguageMiddleware
       */
      public function handle(Request $request, \Closure $next): mixed
      {
@@ -51,58 +109,70 @@ index e98ad2863..7cf125e3d 100644
 +
 +    private function normalizeLocale(?string $locale, string $fallback): string
 +    {
-+        $value = trim((string) $locale);
-+        if ($value === '') {
-+            return $fallback;
-+        }
++        $normalized = $this->normalizeLocaleCode($locale, $fallback);
 +
-+        $lower = mb_strtolower($value);
-+        if (in_array($lower, ['zhtw', 'zh_tw', 'zh-tw'], true)) {
-+            return 'zh_TW';
-+        }
++        return is_dir(resource_path("lang/{$normalized}")) ? $normalized : $this->normalizeLocaleCode($fallback);
++    }
+ }
+diff --git a/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php b/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
+index 8a24dd0ac..6c9b18e2c 100644
+--- a/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
++++ b/app/Http/Requests/Admin/Settings/BaseSettingsFormRequest.php
+@@ -27,4 +27,13 @@ class BaseSettingsFormRequest extends AdminFormRequest
+             'app:locale' => 'Default Language',
+         ];
+     }
 +
-+        $normalized = str_replace('-', '_', $value);
-+        if (!str_contains($normalized, '_')) {
-+            $normalized = mb_strtolower($normalized);
-+        } else {
-+            [$language, $region] = explode('_', $normalized, 2);
-+            $normalized = mb_strtolower($language) . '_' . mb_strtoupper($region);
++    protected function prepareForValidation(): void
++    {
++        if ($this->has('app:locale')) {
++            $this->merge([
++                'app:locale' => $this->normalizeLocaleCode((string) $this->input('app:locale')),
++            ]);
 +        }
-+
-+        return is_dir(resource_path("lang/{$normalized}")) ? $normalized : $fallback;
 +    }
  }
 diff --git a/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
 new file mode 100644
-index 000000000..92d7599da
+index 000000000..341fbb32d
 --- /dev/null
 +++ b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,28 @@
 +<?php
 +
 +namespace Pterodactyl\Http\Requests\Api\Client\Account;
 +
 +use Pterodactyl\Models\User;
++use Pterodactyl\Traits\Helpers\NormalizesLocales;
 +use Pterodactyl\Http\Requests\Api\Client\ClientApiRequest;
 +
 +class UpdateLanguageRequest extends ClientApiRequest
 +{
++    use NormalizesLocales;
++
 +    public function rules(): array
 +    {
 +        $rules = User::getRulesForUpdate($this->user());
 +
 +        return ['language' => $rules['language']];
 +    }
++
++    protected function prepareForValidation(): void
++    {
++        if ($this->has('language')) {
++            $this->merge([
++                'language' => $this->normalizeLocaleCode((string) $this->input('language')),
++            ]);
++        }
++    }
 +}
 diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
-index 0a2cc03d7..a6e511611 100644
+index 0a2cc03d7..3e0ab6397 100644
 --- a/app/Http/Requests/Base/LocaleRequest.php
 +++ b/app/Http/Requests/Base/LocaleRequest.php
-@@ -2,14 +2,18 @@
- 
+@@ -3,14 +3,39 @@
  namespace Pterodactyl\Http\Requests\Base;
  
-+use Illuminate\Validation\Rule;
  use Illuminate\Foundation\Http\FormRequest;
 +use Pterodactyl\Traits\Helpers\AvailableLanguages;
  
@@ -114,12 +184,36 @@ index 0a2cc03d7..a6e511611 100644
      {
          return [
 -            'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
-+            'locale' => ['required', 'string', Rule::in(array_keys($this->getAvailableLanguages()))],
-             'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
+-            'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
++            'locale' => ['required', 'string', function (string $attribute, mixed $value, \Closure $fail) {
++                $languages = array_keys($this->getAvailableLanguages());
++                foreach ($this->normalizeLocaleList((string) $value) as $locale) {
++                    if (!in_array($locale, $languages, true)) {
++                        $fail('The selected locale is invalid.');
++                    }
++                }
++            }],
++            'namespace' => ['required', 'string', function (string $attribute, mixed $value, \Closure $fail) {
++                foreach (preg_split('/[+ ]+/', (string) $value) ?: [] as $namespace) {
++                    if (!preg_match('/^[a-z]{1,191}$/', $namespace)) {
++                        $fail('The selected namespace is invalid.');
++                    }
++                }
++            }],
          ];
      }
++
++    protected function prepareForValidation(): void
++    {
++        if ($this->has('locale')) {
++            $this->merge([
++                'locale' => implode('+', $this->normalizeLocaleList((string) $this->input('locale'))),
++            ]);
++        }
++    }
+ }
 diff --git a/app/Http/ViewComposers/AssetComposer.php b/app/Http/ViewComposers/AssetComposer.php
-index d42f8a80a..9128af621 100644
+index d42f8a80a..420d5ebd3 100644
 --- a/app/Http/ViewComposers/AssetComposer.php
 +++ b/app/Http/ViewComposers/AssetComposer.php
 @@ -4,9 +4,12 @@ namespace Pterodactyl\Http\ViewComposers;
@@ -135,19 +229,77 @@ index d42f8a80a..9128af621 100644
      /**
       * AssetComposer constructor.
       */
-@@ -23,6 +26,7 @@ class AssetComposer
+@@ -22,7 +25,8 @@ class AssetComposer
+         $view->with('asset', $this->assetHashService);
          $view->with('siteConfiguration', [
              'name' => config('app.name') ?? 'Pterodactyl',
-             'locale' => config('app.locale') ?? 'en',
+-            'locale' => config('app.locale') ?? 'en',
++            'locale' => $this->normalizeLocaleCode(config('app.locale') ?? 'en'),
 +            'languages' => $this->getAvailableLanguages(true),
              'recaptcha' => [
                  'enabled' => config('recaptcha.enabled', false),
                  'siteKey' => config('recaptcha.website_key') ?? '',
+diff --git a/app/Models/User.php b/app/Models/User.php
+index 02df0ca09..32f1d72ca 100644
+--- a/app/Models/User.php
++++ b/app/Models/User.php
+@@ -226,6 +226,22 @@ class User extends Model implements
+         $this->attributes['username'] = mb_strtolower($value);
+     }
+ 
++    /**
++     * Store language preferences using canonical Laravel locale directory names.
++     */
++    public function setLanguageAttribute(string $value)
++    {
++        $this->attributes['language'] = $this->normalizeLocaleCode($value);
++    }
++
++    /**
++     * Return legacy locale aliases in their canonical form.
++     */
++    public function getLanguageAttribute(?string $value): string
++    {
++        return $this->normalizeLocaleCode($value, config('app.locale', 'en'));
++    }
++
+     /**
+      * Return a concatenated result for the accounts full name.
+      */
+diff --git a/app/Providers/SettingsServiceProvider.php b/app/Providers/SettingsServiceProvider.php
+index dbcca85ea..14c7082ba 100644
+--- a/app/Providers/SettingsServiceProvider.php
++++ b/app/Providers/SettingsServiceProvider.php
+@@ -8,10 +8,13 @@ use Illuminate\Support\ServiceProvider;
+ use Illuminate\Contracts\Encryption\Encrypter;
+ use Illuminate\Contracts\Encryption\DecryptException;
+ use Illuminate\Contracts\Config\Repository as ConfigRepository;
++use Pterodactyl\Traits\Helpers\NormalizesLocales;
+ use Pterodactyl\Contracts\Repository\SettingsRepositoryInterface;
+ 
+ class SettingsServiceProvider extends ServiceProvider
+ {
++    use NormalizesLocales;
++
+     /**
+      * An array of configuration keys to override with database values
+      * if they exist.
+@@ -102,6 +105,10 @@ class SettingsServiceProvider extends ServiceProvider
+                     $value = null;
+             }
+ 
++            if ($key === 'app:locale') {
++                $value = $this->normalizeLocaleCode($value);
++            }
++
+             $config->set(str_replace(':', '.', $key), $value);
+         }
+     }
 diff --git a/app/Traits/Helpers/AvailableLanguages.php b/app/Traits/Helpers/AvailableLanguages.php
-index d487e8ecc..be53917ab 100644
+index d487e8ecc..19ff0a609 100644
 --- a/app/Traits/Helpers/AvailableLanguages.php
 +++ b/app/Traits/Helpers/AvailableLanguages.php
-@@ -3,6 +3,7 @@
+@@ -3,10 +3,13 @@
  namespace Pterodactyl\Traits\Helpers;
  
  use Matriphe\ISO639\ISO639;
@@ -155,21 +307,29 @@ index d487e8ecc..be53917ab 100644
  use Illuminate\Filesystem\Filesystem;
  
  trait AvailableLanguages
-@@ -19,12 +20,27 @@ trait AvailableLanguages
+ {
++    use NormalizesLocales;
++
+     private ?ISO639 $iso639 = null;
+ 
+     private ?Filesystem $filesystem = null;
+@@ -18,13 +21,28 @@ trait AvailableLanguages
+     public function getAvailableLanguages(bool $localize = false): array
      {
          return collect($this->getFilesystemInstance()->directories(resource_path('lang')))->mapWithKeys(function ($path) use ($localize) {
-             $code = basename($path);
+-            $code = basename($path);
 -            $value = $localize ? $this->getIsoInstance()->nativeByCode1($code) : $this->getIsoInstance()->languageByCode1($code);
++            $code = $this->normalizeLocaleCode(basename($path));
 +            $regionalKey = str_replace('-', '_', $code);
 +            $regionalName = $this->regionalLanguageName($regionalKey, $localize);
 +            if (!is_null($regionalName)) {
 +                return [$code => $regionalName];
 +            }
- 
--            return [$code => title_case($value)];
++
 +            $lookup = Str::lower(explode('_', $regionalKey, 2)[0]);
 +            $value = $localize ? $this->getIsoInstance()->nativeByCode1($lookup) : $this->getIsoInstance()->languageByCode1($lookup);
-+
+ 
+-            return [$code => title_case($value)];
 +            return [$code => Str::title((string) ($value ?: $code))];
          })->toArray();
      }
@@ -185,6 +345,57 @@ index d487e8ecc..be53917ab 100644
      /**
       * Return an instance of the filesystem for getting a folder listing.
       */
+diff --git a/app/Traits/Helpers/NormalizesLocales.php b/app/Traits/Helpers/NormalizesLocales.php
+new file mode 100644
+index 000000000..a7aab20a6
+--- /dev/null
++++ b/app/Traits/Helpers/NormalizesLocales.php
+@@ -0,0 +1,45 @@
++<?php
++
++namespace Pterodactyl\Traits\Helpers;
++
++trait NormalizesLocales
++{
++    /**
++     * Convert common locale aliases into the directory names used by Laravel.
++     */
++    protected function normalizeLocaleCode(?string $locale, string $fallback = 'en'): string
++    {
++        $value = trim((string) $locale);
++        if ($value === '') {
++            return $fallback;
++        }
++
++        $normalized = str_replace('-', '_', $value);
++        $lowered = mb_strtolower($normalized);
++
++        if (in_array($lowered, ['zhtw', 'zh_tw'], true)) {
++            return 'zh_TW';
++        }
++
++        if (str_contains($normalized, '_')) {
++            [$language, $region] = explode('_', $normalized, 2);
++
++            return mb_strtolower($language) . '_' . mb_strtoupper($region);
++        }
++
++        return $lowered;
++    }
++
++    /**
++     * Normalize the language and namespace lists sent by i18next's multiload backend.
++     */
++    protected function normalizeLocaleList(string $locales, string $fallback = 'en'): array
++    {
++        return collect(preg_split('/[+ ]+/', $locales) ?: [])
++            ->map(fn ($locale) => $this->normalizeLocaleCode($locale, $fallback))
++            ->filter()
++            ->unique()
++            ->values()
++            ->toArray();
++    }
++}
 diff --git a/resources/lang/en/activity.php b/resources/lang/en/activity.php
 index 501a1dcde..fcf038202 100644
 --- a/resources/lang/en/activity.php
@@ -197,6 +408,45 @@ index 501a1dcde..fcf038202 100644
          ],
          'api-key' => [
              'create' => 'Created new API key :identifier',
+diff --git a/resources/lang/en/strings.php b/resources/lang/en/strings.php
+index ddade2cea..2f006b5da 100644
+--- a/resources/lang/en/strings.php
++++ b/resources/lang/en/strings.php
+@@ -9,6 +9,7 @@ return [
+     'confirm_password' => 'Confirm new password',
+     'login' => 'Login',
+     'home' => 'Home',
++    'dashboard' => 'Dashboard',
+     'servers' => 'Servers',
+     'id' => 'ID',
+     'name' => 'Name',
+@@ -21,6 +22,8 @@ return [
+     'search' => 'Search',
+     'suspended' => 'Suspended',
+     'account' => 'Account',
++    'account_overview' => 'Account Overview',
++    'account_settings' => 'Account Settings',
+     'security' => 'Security',
+     'ip' => 'IP Address',
+     'last_activity' => 'Last Activity',
+@@ -73,6 +76,17 @@ return [
+     'owner' => 'Owner',
+     'admin' => 'Admin',
+     'subuser' => 'Subuser',
++    'update_password' => 'Update Password',
++    'update_email_address' => 'Update Email Address',
++    'two_step_verification' => 'Two-Step Verification',
++    '2fa_required' => '2-Factor Required',
++    '2fa_required_account' => 'Your account must have two-factor authentication enabled in order to continue.',
++    'language' => 'Language',
++    'language_preferences' => 'Language Preferences',
++    'choose_account_language' => 'Choose your preferred language for this account.',
++    'update_language' => 'Update Language',
++    'language_update_required' => 'You must choose a language.',
++    'language_update_success' => 'Your language preference has been updated.',
+     'captcha_invalid' => 'The provided captcha is invalid.',
+     'tasks' => 'Tasks',
+     'seconds' => 'Seconds',
 diff --git a/resources/lang/zh_TW/activity.php b/resources/lang/zh_TW/activity.php
 new file mode 100644
 index 000000000..1f276492f
@@ -722,10 +972,10 @@ index 000000000..5404e16bd
 +];
 diff --git a/resources/lang/zh_TW/strings.php b/resources/lang/zh_TW/strings.php
 new file mode 100644
-index 000000000..75f0da181
+index 000000000..e13db1578
 --- /dev/null
 +++ b/resources/lang/zh_TW/strings.php
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,109 @@
 +<?php
 +
 +return [
@@ -737,6 +987,7 @@ index 000000000..75f0da181
 +    'confirm_password' => '確認新密碼',
 +    'login' => '登入',
 +    'home' => '首頁',
++    'dashboard' => '儀表板',
 +    'servers' => '伺服器',
 +    'id' => 'ID',
 +    'name' => '名稱',
@@ -749,6 +1000,8 @@ index 000000000..75f0da181
 +    'search' => '搜尋',
 +    'suspended' => '已停用',
 +    'account' => '帳號',
++    'account_overview' => '帳號總覽',
++    'account_settings' => '帳號設定',
 +    'security' => '安全性',
 +    'ip' => 'IP 位址',
 +    'last_activity' => '最近活動',
@@ -801,6 +1054,17 @@ index 000000000..75f0da181
 +    'owner' => '擁有者',
 +    'admin' => '管理員',
 +    'subuser' => '子使用者',
++    'update_password' => '更新密碼',
++    'update_email_address' => '更新電子郵件地址',
++    'two_step_verification' => '兩步驟驗證',
++    '2fa_required' => '需要兩步驟驗證',
++    '2fa_required_account' => '您的帳號必須啟用兩步驟驗證才能繼續。',
++    'language' => '語言',
++    'language_preferences' => '語言偏好',
++    'choose_account_language' => '選擇此帳號要使用的語言。',
++    'update_language' => '更新語言',
++    'language_update_required' => '請選擇語言。',
++    'language_update_success' => '已更新您的語言偏好。',
 +    'captcha_invalid' => '提供的驗證碼無效。',
 +    'tasks' => '任務',
 +    'seconds' => '秒',
@@ -925,11 +1189,83 @@ index 000000000..e3ecb3f61
 +            .catch(reject);
 +    });
 +};
+diff --git a/resources/scripts/components/App.tsx b/resources/scripts/components/App.tsx
+index 935400030..40440ed82 100644
+--- a/resources/scripts/components/App.tsx
++++ b/resources/scripts/components/App.tsx
+@@ -14,6 +14,7 @@ import AuthenticatedRoute from '@/components/elements/AuthenticatedRoute';
+ import { ServerContext } from '@/state/server';
+ import '@/assets/tailwind.css';
+ import Spinner from '@/components/elements/Spinner';
++import { normalizeLocale } from '@/lib/locale';
+ 
+ const DashboardRouter = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/routers/DashboardRouter'));
+ const ServerRouter = lazy(() => import(/* webpackChunkName: "server" */ '@/routers/ServerRouter'));
+@@ -44,7 +45,7 @@ const App = () => {
+             uuid: PterodactylUser.uuid,
+             username: PterodactylUser.username,
+             email: PterodactylUser.email,
+-            language: PterodactylUser.language,
++            language: normalizeLocale(PterodactylUser.language),
+             rootAdmin: PterodactylUser.root_admin,
+             useTotp: PterodactylUser.use_totp,
+             createdAt: new Date(PterodactylUser.created_at),
+diff --git a/resources/scripts/components/NavigationBar.tsx b/resources/scripts/components/NavigationBar.tsx
+index 6142f6268..bd99165a3 100644
+--- a/resources/scripts/components/NavigationBar.tsx
++++ b/resources/scripts/components/NavigationBar.tsx
+@@ -12,6 +12,7 @@ import http from '@/api/http';
+ import SpinnerOverlay from '@/components/elements/SpinnerOverlay';
+ import Tooltip from '@/components/elements/tooltip/Tooltip';
+ import Avatar from '@/components/Avatar';
++import { useTranslation } from 'react-i18next';
+ 
+ const RightNavigation = styled.div`
+     & > a,
+@@ -33,6 +34,7 @@ const RightNavigation = styled.div`
+ `;
+ 
+ export default () => {
++    const { t } = useTranslation('strings');
+     const name = useStoreState((state: ApplicationStore) => state.settings.data!.name);
+     const rootAdmin = useStoreState((state: ApplicationStore) => state.user.data!.rootAdmin);
+     const [isLoggingOut, setIsLoggingOut] = useState(false);
+@@ -61,26 +63,26 @@ export default () => {
+                 </div>
+                 <RightNavigation className={'flex h-full items-center justify-center'}>
+                     <SearchContainer />
+-                    <Tooltip placement={'bottom'} content={'Dashboard'}>
++                    <Tooltip placement={'bottom'} content={t('dashboard')}>
+                         <NavLink to={'/'} exact>
+                             <FontAwesomeIcon icon={faLayerGroup} />
+                         </NavLink>
+                     </Tooltip>
+                     {rootAdmin && (
+-                        <Tooltip placement={'bottom'} content={'Admin'}>
++                        <Tooltip placement={'bottom'} content={t('admin')}>
+                             <a href={'/admin'} rel={'noreferrer'}>
+                                 <FontAwesomeIcon icon={faCogs} />
+                             </a>
+                         </Tooltip>
+                     )}
+-                    <Tooltip placement={'bottom'} content={'Account Settings'}>
++                    <Tooltip placement={'bottom'} content={t('account_settings')}>
+                         <NavLink to={'/account'}>
+                             <span className={'flex items-center w-5 h-5'}>
+                                 <Avatar.User />
+                             </span>
+                         </NavLink>
+                     </Tooltip>
+-                    <Tooltip placement={'bottom'} content={'Sign Out'}>
++                    <Tooltip placement={'bottom'} content={t('sign_out')}>
+                         <button onClick={onTriggerLogout}>
+                             <FontAwesomeIcon icon={faSignOutAlt} />
+                         </button>
 diff --git a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
-index 4f64aec48..6f9a65a13 100644
+index 4f64aec48..3b404b89f 100644
 --- a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
 +++ b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
-@@ -3,28 +3,13 @@ import ContentBox from '@/components/elements/ContentBox';
+@@ -3,50 +3,40 @@ import ContentBox from '@/components/elements/ContentBox';
  import UpdatePasswordForm from '@/components/dashboard/forms/UpdatePasswordForm';
  import UpdateEmailAddressForm from '@/components/dashboard/forms/UpdateEmailAddressForm';
  import ConfigureTwoFactorForm from '@/components/dashboard/forms/ConfigureTwoFactorForm';
@@ -940,6 +1276,7 @@ index 4f64aec48..6f9a65a13 100644
 -import styled from 'styled-components/macro';
  import MessageBox from '@/components/MessageBox';
  import { useLocation } from 'react-router-dom';
++import { useTranslation } from 'react-i18next';
  
 -const Container = styled.div`
 -    ${tw`flex flex-wrap`};
@@ -959,25 +1296,35 @@ index 4f64aec48..6f9a65a13 100644
 +const Container = tw.div`grid gap-8 mt-10 mb-10 sm:grid-cols-2 xl:grid-cols-4`;
  
  export default () => {
++    const { t } = useTranslation('strings');
      const { state } = useLocation<undefined | { twoFactorRedirect?: boolean }>();
-@@ -37,16 +22,19 @@ export default () => {
+ 
+     return (
+-        <PageContentBlock title={'Account Overview'}>
++        <PageContentBlock title={t('account_overview')}>
+             {state?.twoFactorRedirect && (
+-                <MessageBox title={'2-Factor Required'} type={'error'}>
+-                    Your account must have two-factor authentication enabled in order to continue.
++                <MessageBox title={t('2fa_required')} type={'error'}>
++                    {t('2fa_required_account')}
                  </MessageBox>
              )}
  
 -            <Container css={[tw`lg:grid lg:grid-cols-3 mb-10`, state?.twoFactorRedirect ? tw`mt-4` : tw`mt-10`]}>
+-                <ContentBox title={'Update Password'} showFlashes={'account:password'}>
 +            <Container css={state?.twoFactorRedirect ? tw`mt-4` : undefined}>
-                 <ContentBox title={'Update Password'} showFlashes={'account:password'}>
++                <ContentBox title={t('update_password')} showFlashes={'account:password'}>
                      <UpdatePasswordForm />
                  </ContentBox>
 -                <ContentBox css={tw`mt-8 sm:mt-0 sm:ml-8`} title={'Update Email Address'} showFlashes={'account:email'}>
-+                <ContentBox title={'Update Email Address'} showFlashes={'account:email'}>
++                <ContentBox title={t('update_email_address')} showFlashes={'account:email'}>
                      <UpdateEmailAddressForm />
                  </ContentBox>
 -                <ContentBox css={tw`md:ml-8 mt-8 md:mt-0`} title={'Two-Step Verification'}>
-+                <ContentBox title={'Two-Step Verification'}>
++                <ContentBox title={t('two_step_verification')}>
                      <ConfigureTwoFactorForm />
                  </ContentBox>
-+                <ContentBox title={'Language Preferences'} showFlashes={'account:language'}>
++                <ContentBox title={t('language_preferences')} showFlashes={'account:language'}>
 +                    <UpdateLanguageForm />
 +                </ContentBox>
              </Container>
@@ -985,10 +1332,10 @@ index 4f64aec48..6f9a65a13 100644
      );
 diff --git a/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
 new file mode 100644
-index 000000000..7a07a81e3
+index 000000000..a985da9ce
 --- /dev/null
 +++ b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
-@@ -0,0 +1,96 @@
+@@ -0,0 +1,95 @@
 +import React from 'react';
 +import { Actions, State, useStoreActions, useStoreState } from 'easy-peasy';
 +import { Field as FormikField, Form, Formik, FormikHelpers } from 'formik';
@@ -1002,24 +1349,15 @@ index 000000000..7a07a81e3
 +import Select from '@/components/elements/Select';
 +import FormikFieldWrapper from '@/components/elements/FormikFieldWrapper';
 +import i18n from '@/i18n';
++import { normalizeLocale } from '@/lib/locale';
++import { useTranslation } from 'react-i18next';
 +
 +interface Values {
 +    language: string;
 +}
 +
-+const normalizeLocale = (value: string): string => {
-+    const lowered = value.toLowerCase();
-+    if (['zhtw', 'zh_tw', 'zh-tw'].includes(lowered)) {
-+        return 'zh_TW';
-+    }
-+
-+    const normalized = value.replace('-', '_');
-+    const [language, region] = normalized.split('_');
-+
-+    return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
-+};
-+
 +export default () => {
++    const { t } = useTranslation('strings');
 +    const user = useStoreState((state: State<ApplicationStore>) => state.user.data);
 +    const settings = useStoreState((state: State<ApplicationStore>) => state.settings.data);
 +    const updateLanguage = useStoreActions((state: Actions<ApplicationStore>) => state.user.updateUserLanguage);
@@ -1031,19 +1369,22 @@ index 000000000..7a07a81e3
 +
 +    const availableLanguages = settings?.languages || { en: 'English' };
 +    const schema = Yup.object().shape({
-+        language: Yup.string().oneOf(Object.keys(availableLanguages)).required('You must choose a language.'),
++        language: Yup.string()
++            .oneOf(Object.keys(availableLanguages))
++            .required(t('language_update_required')),
 +    });
 +
 +    const submit = (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
 +        clearFlashes('account:language');
++        const language = normalizeLocale(values.language);
 +
-+        updateLanguage({ language: values.language })
++        updateLanguage({ language })
 +            .then(async () => {
-+                await i18n.changeLanguage(normalizeLocale(values.language));
++                await i18n.changeLanguage(language);
 +                addFlash({
 +                    type: 'success',
 +                    key: 'account:language',
-+                    message: 'Your language preference has been updated.',
++                    message: t('language_update_success'),
 +                });
 +            })
 +            .catch((error) =>
@@ -1058,15 +1399,20 @@ index 000000000..7a07a81e3
 +    };
 +
 +    return (
-+        <Formik onSubmit={submit} validationSchema={schema} initialValues={{ language: user.language }} enableReinitialize>
++        <Formik
++            onSubmit={submit}
++            validationSchema={schema}
++            initialValues={{ language: normalizeLocale(user.language) }}
++            enableReinitialize
++        >
 +            {({ isSubmitting, isValid }) => (
 +                <React.Fragment>
 +                    <SpinnerOverlay size={'large'} visible={isSubmitting} />
 +                    <Form css={tw`m-0`}>
-+                        <Label htmlFor={'language'}>Language</Label>
++                        <Label htmlFor={'language'}>{t('language')}</Label>
 +                        <FormikFieldWrapper
 +                            name={'language'}
-+                            description={'Choose your preferred language for this account.'}
++                            description={t('choose_account_language')}
 +                        >
 +                            <FormikField id={'language'} as={Select} name={'language'}>
 +                                {Object.entries(availableLanguages).map(([code, name]) => (
@@ -1077,7 +1423,7 @@ index 000000000..7a07a81e3
 +                            </FormikField>
 +                        </FormikFieldWrapper>
 +                        <div css={tw`mt-6`}>
-+                            <Button disabled={isSubmitting || !isValid}>Update Language</Button>
++                            <Button disabled={isSubmitting || !isValid}>{t('update_language')}</Button>
 +                        </div>
 +                    </Form>
 +                </React.Fragment>
@@ -1086,44 +1432,32 @@ index 000000000..7a07a81e3
 +    );
 +};
 diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
-index ee56cd8b3..d8f2b0144 100644
+index ee56cd8b3..8641d0d24 100644
 --- a/resources/scripts/i18n.ts
 +++ b/resources/scripts/i18n.ts
-@@ -3,17 +3,45 @@ import { initReactI18next } from 'react-i18next';
+@@ -2,23 +2,42 @@ import i18n from 'i18next';
+ import { initReactI18next } from 'react-i18next';
  import I18NextHttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
  import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
- 
++import { encodeLocaleList, encodeNamespaceList, normalizeLocale } from '@/lib/locale';
++
 +interface ExtendedWindow extends Window {
 +    SiteConfiguration?: {
 +        locale?: string;
++        languages?: Record<string, string>;
 +    };
 +    PterodactylUser?: {
 +        language?: string;
 +    };
 +}
-+
-+const normalizeLocale = (value: string | undefined): string => {
-+    if (!value) {
-+        return 'en';
-+    }
-+
-+    const lowered = value.toLowerCase();
-+    if (['zhtw', 'zh_tw', 'zh-tw'].includes(lowered)) {
-+        return 'zh_TW';
-+    }
-+
-+    const normalized = value.replace('-', '_');
-+    const [language, region] = normalized.split('_');
-+
-+    return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
-+};
-+
+ 
  // If we're using HMR use a unique hash per page reload so that we're always
  // doing cache busting. Otherwise just use the builder provided hash value in
  // the URL to allow cache busting to occur whenever the front-end is rebuilt.
  const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
 +const { PterodactylUser, SiteConfiguration } = window as ExtendedWindow;
 +const locale = normalizeLocale(PterodactylUser?.language || SiteConfiguration?.locale || 'en');
++const supportedLanguages = Object.keys(SiteConfiguration?.languages || { en: 'English' }).map(normalizeLocale);
  
  i18n.use(I18NextMultiloadBackendAdapter)
      .use(initReactI18next)
@@ -1132,10 +1466,48 @@ index ee56cd8b3..d8f2b0144 100644
 -        lng: 'en',
 +        lng: locale,
          fallbackLng: 'en',
++        supportedLngs: supportedLanguages,
 +        load: 'currentOnly',
          keySeparator: '.',
          backend: {
              backend: I18NextHttpBackend,
+             backendOption: {
+-                loadPath: '/locales/locale.json?locale={{lng}}&namespace={{ns}}',
++                loadPath: (languages: string[], namespaces: string[]) =>
++                    `/locales/locale.json?locale=${encodeLocaleList(languages)}&namespace=${encodeNamespaceList(
++                        namespaces
++                    )}`,
+                 queryStringParams: { hash },
+                 allowMultiLoading: true,
+             } as HttpBackendOptions,
+diff --git a/resources/scripts/lib/locale.ts b/resources/scripts/lib/locale.ts
+new file mode 100644
+index 000000000..781e82a27
+--- /dev/null
++++ b/resources/scripts/lib/locale.ts
+@@ -0,0 +1,22 @@
++export const normalizeLocale = (value?: string): string => {
++    if (!value) {
++        return 'en';
++    }
++
++    const normalized = value.trim().replace('-', '_');
++    const lowered = normalized.toLowerCase();
++
++    if (['zhtw', 'zh_tw'].includes(lowered)) {
++        return 'zh_TW';
++    }
++
++    const [language, region] = normalized.split('_');
++
++    return region ? `${language.toLowerCase()}_${region.toUpperCase()}` : language.toLowerCase();
++};
++
++export const encodeLocaleList = (values: readonly string[]): string =>
++    values.map((value) => encodeURIComponent(normalizeLocale(value))).join('%2B');
++
++export const encodeNamespaceList = (values: readonly string[]): string =>
++    values.map((value) => encodeURIComponent(value)).join('%2B');
 diff --git a/resources/scripts/state/settings.ts b/resources/scripts/state/settings.ts
 index 20dbbdc6e..9025ee6db 100644
 --- a/resources/scripts/state/settings.ts
@@ -1149,17 +1521,18 @@ index 20dbbdc6e..9025ee6db 100644
          enabled: boolean;
          siteKey: string;
 diff --git a/resources/scripts/state/user.ts b/resources/scripts/state/user.ts
-index 0ec785137..717e0b72d 100644
+index 0ec785137..07c99ef90 100644
 --- a/resources/scripts/state/user.ts
 +++ b/resources/scripts/state/user.ts
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,7 @@
  import { Action, action, Thunk, thunk } from 'easy-peasy';
  import updateAccountEmail from '@/api/account/updateAccountEmail';
 +import updateAccountLanguage from '@/api/account/updateAccountLanguage';
++import { normalizeLocale } from '@/lib/locale';
  
  export interface UserData {
      uuid: string;
-@@ -17,6 +18,7 @@ export interface UserStore {
+@@ -17,6 +19,7 @@ export interface UserStore {
      setUserData: Action<UserStore, UserData>;
      updateUserData: Action<UserStore, Partial<UserData>>;
      updateUserEmail: Thunk<UserStore, { email: string; password: string }, any, UserStore, Promise<void>>;
@@ -1167,19 +1540,34 @@ index 0ec785137..717e0b72d 100644
  }
  
  const user: UserStore = {
-@@ -35,6 +37,12 @@ const user: UserStore = {
+@@ -35,6 +38,14 @@ const user: UserStore = {
  
          actions.updateUserData({ email: payload.email });
      }),
 +
 +    updateUserLanguage: thunk(async (actions, payload) => {
-+        await updateAccountLanguage(payload.language);
++        const language = normalizeLocale(payload.language);
 +
-+        actions.updateUserData({ language: payload.language });
++        await updateAccountLanguage(language);
++
++        actions.updateUserData({ language });
 +    }),
  };
  
  export default user;
+diff --git a/resources/views/admin/settings/index.blade.php b/resources/views/admin/settings/index.blade.php
+index 489646dc9..bcf59fee8 100644
+--- a/resources/views/admin/settings/index.blade.php
++++ b/resources/views/admin/settings/index.blade.php
+@@ -56,7 +56,7 @@
+                                 <div>
+                                     <select name="app:locale" class="form-control">
+                                         @foreach($languages as $key => $value)
+-                                            <option value="{{ $key }}" @if(config('app.locale') === $key) selected @endif>{{ $value }}</option>
++                                            <option value="{{ $key }}" @if(old('app:locale', $currentLocale) === $key) selected @endif>{{ $value }}</option>
+                                         @endforeach
+                                     </select>
+                                     <p class="text-muted"><small>The default language to use when rendering UI components.</small></p>
 diff --git a/routes/api-client.php b/routes/api-client.php
 index b5595ec01..de67bd4c8 100644
 --- a/routes/api-client.php
