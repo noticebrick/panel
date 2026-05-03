@@ -1,5 +1,5 @@
 diff --git a/app/Http/Controllers/Admin/Settings/IndexController.php b/app/Http/Controllers/Admin/Settings/IndexController.php
-index e89d120f4..008808f86 100644
+index e89d120f4..2848c86e8 100644
 --- a/app/Http/Controllers/Admin/Settings/IndexController.php
 +++ b/app/Http/Controllers/Admin/Settings/IndexController.php
 @@ -6,6 +6,7 @@ use Illuminate\View\View;
@@ -10,11 +10,17 @@ index e89d120f4..008808f86 100644
  use Pterodactyl\Http\Controllers\Controller;
  use Pterodactyl\Traits\Helpers\AvailableLanguages;
  use Pterodactyl\Services\Helpers\SoftwareVersionService;
-@@ -46,10 +47,19 @@ class IndexController extends Controller
+@@ -46,10 +47,25 @@ class IndexController extends Controller
       */
      public function update(BaseSettingsFormRequest $request): RedirectResponse
      {
 -        foreach ($request->normalize() as $key => $value) {
++        if (config('pterodactyl.load_environment_only', false)) {
++            $this->alert->danger('This panel is configured to use environment-only settings. Set APP_ENVIRONMENT_ONLY=false before changing default panel settings from the UI.')->flash();
++
++            return redirect()->route('admin.settings');
++        }
++
 +        $values = $request->normalize();
 +        $currentLocale = config('app.locale', 'en');
 +
@@ -31,21 +37,122 @@ index e89d120f4..008808f86 100644
          $this->kernel->call('queue:restart');
          $this->alert->success('Panel settings have been updated successfully and the queue worker was restarted to apply these changes.')->flash();
  
+diff --git a/app/Http/Controllers/Api/Client/AccountController.php b/app/Http/Controllers/Api/Client/AccountController.php
+index 8f733cd22..460bff014 100644
+--- a/app/Http/Controllers/Api/Client/AccountController.php
++++ b/app/Http/Controllers/Api/Client/AccountController.php
+@@ -7,15 +7,19 @@ use Illuminate\Http\Response;
+ use Illuminate\Auth\AuthManager;
+ use Illuminate\Http\JsonResponse;
+ use Pterodactyl\Facades\Activity;
++use Pterodactyl\Traits\Helpers\AvailableLanguages;
+ use Illuminate\Support\Facades\RateLimiter;
+ use Pterodactyl\Services\Users\UserUpdateService;
+ use Pterodactyl\Transformers\Api\Client\AccountTransformer;
+ use Pterodactyl\Http\Requests\Api\Client\Account\UpdateEmailRequest;
++use Pterodactyl\Http\Requests\Api\Client\Account\UpdateLanguageRequest;
+ use Pterodactyl\Http\Requests\Api\Client\Account\UpdatePasswordRequest;
+ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+ 
+ class AccountController extends ClientApiController
+ {
++    use AvailableLanguages;
++
+     /**
+      * The number of seconds that must elapse before the email change throttle resets.
+      */
+@@ -36,6 +40,19 @@ class AccountController extends ClientApiController
+             ->toArray();
+     }
+ 
++    /**
++     * Return available UI languages for account preferences.
++     */
++    public function languages(): JsonResponse
++    {
++        $data = collect($this->getAvailableLanguages(true))
++            ->map(fn (string $name, string $code) => ['code' => $code, 'name' => $name])
++            ->values()
++            ->all();
++
++        return new JsonResponse(['data' => $data]);
++    }
++
+     /**
+      * Update the authenticated user's email address.
+      */
+@@ -89,4 +106,18 @@ class AccountController extends ClientApiController
+ 
+         return new JsonResponse([], Response::HTTP_NO_CONTENT);
+     }
++
++    /**
++     * Update the authenticated user's preferred language.
++     *
++     * @throws \Throwable
++     */
++    public function updateLanguage(UpdateLanguageRequest $request): JsonResponse
++    {
++        Activity::event('user:account.language-changed')->transaction(function () use ($request) {
++            $this->updateService->handle($request->user(), $request->validated());
++        });
++
++        return new JsonResponse([], Response::HTTP_NO_CONTENT);
++    }
+ }
 diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
-index 0a2cc03d7..66000d100 100644
+index 0a2cc03d7..e067dbf5f 100644
 --- a/app/Http/Requests/Base/LocaleRequest.php
 +++ b/app/Http/Requests/Base/LocaleRequest.php
-@@ -10,7 +10,9 @@ class LocaleRequest extends FormRequest
+@@ -9,8 +9,11 @@ class LocaleRequest extends FormRequest
+     public function rules(): array
      {
          return [
-             'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
+-            'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
 -            'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
++            // Support both base locales ("en") and regional locales ("zh_TW").
++            'locale' => ['required', 'string', 'regex:/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/'],
 +            // Support nested translation groups such as "dashboard/account" and
 +            // groups with underscores like "server/console_ui".
 +            'namespace' => ['required', 'string', 'max:191', 'regex:/^[a-z0-9_\/-]+$/'],
          ];
      }
  }
+diff --git a/app/Traits/Helpers/AvailableLanguages.php b/app/Traits/Helpers/AvailableLanguages.php
+index d487e8ecc..b274278ad 100644
+--- a/app/Traits/Helpers/AvailableLanguages.php
++++ b/app/Traits/Helpers/AvailableLanguages.php
+@@ -18,11 +18,28 @@ trait AvailableLanguages
+     public function getAvailableLanguages(bool $localize = false): array
+     {
+         return collect($this->getFilesystemInstance()->directories(resource_path('lang')))->mapWithKeys(function ($path) use ($localize) {
++            // Skip empty locale directories to avoid exposing broken options.
++            if (count($this->getFilesystemInstance()->allFiles($path)) === 0) {
++                return [];
++            }
++
+             $code = basename($path);
+-            $value = $localize ? $this->getIsoInstance()->nativeByCode1($code) : $this->getIsoInstance()->languageByCode1($code);
++            preg_match('/^[a-z]{2}/i', $code, $matches);
++            $baseCode = strtolower($matches[0] ?? $code);
++
++            $value = $localize ? $this->getIsoInstance()->nativeByCode1($baseCode) : $this->getIsoInstance()->languageByCode1($baseCode);
++            if (!is_string($value) || $value === '') {
++                $value = $code;
++            }
++
++            // If a regional locale exists (e.g. zh_TW), keep the region visible
++            // so admins can distinguish it from its base language option.
++            if ($baseCode !== strtolower($code)) {
++                $value = sprintf('%s (%s)', $value, str_replace('_', '-', $code));
++            }
+ 
+             return [$code => title_case($value)];
+-        })->toArray();
++        })->sortKeys()->toArray();
+     }
+ 
+     /**
 diff --git a/resources/lang/en/auth.php b/resources/lang/en/auth.php
 index 2a3a45268..e5d4cf63c 100644
 --- a/resources/lang/en/auth.php
@@ -92,10 +199,10 @@ index 2a3a45268..e5d4cf63c 100644
 +    ],
  ];
 diff --git a/resources/lang/en/dashboard/account.php b/resources/lang/en/dashboard/account.php
-index 85411ef65..56bb13f84 100644
+index 85411ef65..156d6aeff 100644
 --- a/resources/lang/en/dashboard/account.php
 +++ b/resources/lang/en/dashboard/account.php
-@@ -1,9 +1,68 @@
+@@ -1,9 +1,77 @@
  <?php
  
  return [
@@ -151,10 +258,19 @@ index 85411ef65..56bb13f84 100644
 +        'update_password' => 'Update Password',
 +        'update_email' => 'Update Email Address',
 +        'two_step_verification' => 'Two-Step Verification',
++        'language_preferences' => 'Language Preferences',
 +    ],
 +    'activity' => [
 +        'page_title' => 'Account Activity Log',
 +        'clear_filters' => 'Clear Filters',
++    ],
++    'language' => [
++        'label' => 'Language',
++        'help' => 'Choose the language used when displaying the Panel for your account.',
++        'loading' => 'Loading available languages...',
++        'none_available' => 'No languages are currently available.',
++        'update_button' => 'Update Language',
++        'updated' => 'Your language preference has been updated.',
 +    ],
      'email' => [
          'title' => 'Update your email',
@@ -164,7 +280,7 @@ index 85411ef65..56bb13f84 100644
      ],
      'password' => [
          'title' => 'Change your password',
-@@ -11,6 +70,21 @@ return [
+@@ -11,6 +79,21 @@ return [
          'updated' => 'Your password has been updated.',
      ],
      'two_factor' => [
@@ -627,10 +743,18 @@ index 282f19092..b18c563ff 100644
                                  </div>
                                  <p css={tw`text-sm ml-4 hidden md:block`}>
 diff --git a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
-index 4f64aec48..409af948f 100644
+index 4f64aec48..88334c09f 100644
 --- a/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
 +++ b/resources/scripts/components/dashboard/AccountOverviewContainer.tsx
-@@ -9,6 +9,7 @@ import { breakpoint } from '@/theme';
+@@ -2,6 +2,7 @@ import * as React from 'react';
+ import ContentBox from '@/components/elements/ContentBox';
+ import UpdatePasswordForm from '@/components/dashboard/forms/UpdatePasswordForm';
+ import UpdateEmailAddressForm from '@/components/dashboard/forms/UpdateEmailAddressForm';
++import UpdateLanguageForm from '@/components/dashboard/forms/UpdateLanguageForm';
+ import ConfigureTwoFactorForm from '@/components/dashboard/forms/ConfigureTwoFactorForm';
+ import PageContentBlock from '@/components/elements/PageContentBlock';
+ import tw from 'twin.macro';
+@@ -9,6 +10,7 @@ import { breakpoint } from '@/theme';
  import styled from 'styled-components/macro';
  import MessageBox from '@/components/MessageBox';
  import { useLocation } from 'react-router-dom';
@@ -638,7 +762,7 @@ index 4f64aec48..409af948f 100644
  
  const Container = styled.div`
      ${tw`flex flex-wrap`};
-@@ -27,24 +28,29 @@ const Container = styled.div`
+@@ -27,26 +29,34 @@ const Container = styled.div`
  `;
  
  export default () => {
@@ -656,8 +780,9 @@ index 4f64aec48..409af948f 100644
                  </MessageBox>
              )}
  
-             <Container css={[tw`lg:grid lg:grid-cols-3 mb-10`, state?.twoFactorRedirect ? tw`mt-4` : tw`mt-10`]}>
+-            <Container css={[tw`lg:grid lg:grid-cols-3 mb-10`, state?.twoFactorRedirect ? tw`mt-4` : tw`mt-10`]}>
 -                <ContentBox title={'Update Password'} showFlashes={'account:password'}>
++            <Container css={[tw`lg:grid lg:grid-cols-4 mb-10`, state?.twoFactorRedirect ? tw`mt-4` : tw`mt-10`]}>
 +                <ContentBox title={t('overview.update_password')} showFlashes={'account:password'}>
                      <UpdatePasswordForm />
                  </ContentBox>
@@ -673,7 +798,12 @@ index 4f64aec48..409af948f 100644
 +                <ContentBox css={tw`md:ml-8 mt-8 md:mt-0`} title={t('overview.two_step_verification')}>
                      <ConfigureTwoFactorForm />
                  </ContentBox>
++                <ContentBox css={tw`md:ml-8 mt-8 md:mt-0`} title={t('overview.language_preferences')} showFlashes={'account:language'}>
++                    <UpdateLanguageForm />
++                </ContentBox>
              </Container>
+         </PageContentBlock>
+     );
 diff --git a/resources/scripts/components/dashboard/ApiKeyModal.tsx b/resources/scripts/components/dashboard/ApiKeyModal.tsx
 index 6d01029e2..0b239a54e 100644
 --- a/resources/scripts/components/dashboard/ApiKeyModal.tsx
@@ -4681,10 +4811,10 @@ index a5d505fe1..c99e6f13f 100644
                  subusers.map((subuser) => <UserRow key={subuser.uuid} subuser={subuser} />)
              )}
 diff --git a/resources/scripts/i18n.ts b/resources/scripts/i18n.ts
-index ee56cd8b3..a70f4c5d7 100644
+index ee56cd8b3..4147a9558 100644
 --- a/resources/scripts/i18n.ts
 +++ b/resources/scripts/i18n.ts
-@@ -3,16 +3,24 @@ import { initReactI18next } from 'react-i18next';
+@@ -3,17 +3,46 @@ import { initReactI18next } from 'react-i18next';
  import I18NextHttpBackend, { HttpBackendOptions } from 'i18next-http-backend';
  import I18NextMultiloadBackendAdapter from 'i18next-multiload-backend-adapter';
  
@@ -4693,23 +4823,91 @@ index ee56cd8b3..a70f4c5d7 100644
 +    SiteConfiguration?: { locale?: string };
 +}
 +
++const normalizeLocale = (locale?: string): string => {
++    if (!locale) {
++        return 'en';
++    }
++
++    const normalized = locale.trim().replace('-', '_');
++    const [rawLanguage, rawRegion] = normalized.split('_');
++    const language = (rawLanguage || 'en').toLowerCase();
++
++    if (!rawRegion) {
++        return language;
++    }
++
++    return `${language}_${rawRegion.toUpperCase()}`;
++};
++
  // If we're using HMR use a unique hash per page reload so that we're always
  // doing cache busting. Otherwise just use the builder provided hash value in
  // the URL to allow cache busting to occur whenever the front-end is rebuilt.
  const hash = module.hot ? Date.now().toString(16) : process.env.WEBPACK_BUILD_HASH;
 +const windowWithLocale = window as WindowWithLocale;
 +const configuredLocale = windowWithLocale.PterodactylUser?.language || windowWithLocale.SiteConfiguration?.locale || 'en';
-+const normalizedLocale = configuredLocale.toLowerCase().replace('-', '_').split('_')[0] || 'en';
++const normalizedLocale = normalizeLocale(configuredLocale);
  
  i18n.use(I18NextMultiloadBackendAdapter)
      .use(initReactI18next)
      .init({
          debug: process.env.DEBUG === 'true',
 -        lng: 'en',
+-        fallbackLng: 'en',
 +        lng: normalizedLocale,
-         fallbackLng: 'en',
++        fallbackLng: (currentLocale?: string) => {
++            const locale = normalizeLocale(currentLocale || normalizedLocale);
++            const base = locale.split('_')[0];
++
++            return base === 'en' ? ['en'] : [base, 'en'];
++        },
          keySeparator: '.',
          backend: {
+             backend: I18NextHttpBackend,
+diff --git a/resources/scripts/state/user.ts b/resources/scripts/state/user.ts
+index 0ec785137..38b4c6050 100644
+--- a/resources/scripts/state/user.ts
++++ b/resources/scripts/state/user.ts
+@@ -1,5 +1,6 @@
+ import { Action, action, Thunk, thunk } from 'easy-peasy';
+ import updateAccountEmail from '@/api/account/updateAccountEmail';
++import updateAccountLanguage from '@/api/account/updateAccountLanguage';
+ 
+ export interface UserData {
+     uuid: string;
+@@ -17,6 +18,7 @@ export interface UserStore {
+     setUserData: Action<UserStore, UserData>;
+     updateUserData: Action<UserStore, Partial<UserData>>;
+     updateUserEmail: Thunk<UserStore, { email: string; password: string }, any, UserStore, Promise<void>>;
++    updateUserLanguage: Thunk<UserStore, string, any, UserStore, Promise<void>>;
+ }
+ 
+ const user: UserStore = {
+@@ -35,6 +37,12 @@ const user: UserStore = {
+ 
+         actions.updateUserData({ email: payload.email });
+     }),
++
++    updateUserLanguage: thunk(async (actions, payload) => {
++        await updateAccountLanguage(payload);
++
++        actions.updateUserData({ language: payload });
++    }),
+ };
+ 
+ export default user;
+diff --git a/routes/api-client.php b/routes/api-client.php
+index b5595ec01..c9028c3c7 100644
+--- a/routes/api-client.php
++++ b/routes/api-client.php
+@@ -32,6 +32,8 @@ Route::prefix('/account')->middleware(AccountSubject::class)->group(function ()
+         ->middleware('throttle')
+         ->name('api:client.account.update-email');
+     Route::put('/password', [Client\AccountController::class, 'updatePassword'])->name('api:client.account.update-password');
++    Route::put('/language', [Client\AccountController::class, 'updateLanguage'])->name('api:client.account.update-language');
++    Route::get('/languages', [Client\AccountController::class, 'languages'])->name('api:client.account.languages');
+ 
+     Route::get('/activity', Client\ActivityLogController::class)->name('api:client.account.activity');
+ 
 diff --git a/tsconfig.json b/tsconfig.json
 index a425fd922..b12d6e25d 100644
 --- a/tsconfig.json
@@ -4731,6 +4929,31 @@ index a425fd922..b12d6e25d 100644
      "verbatimModuleSyntax": false,
      "paths": {
        "@/*": [
+diff --git a/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
+new file mode 100644
+index 000000000..b596d3053
+--- /dev/null
++++ b/app/Http/Requests/Api/Client/Account/UpdateLanguageRequest.php
+@@ -0,0 +1,19 @@
++<?php
++
++namespace Pterodactyl\Http\Requests\Api\Client\Account;
++
++use Illuminate\Validation\Rule;
++use Pterodactyl\Traits\Helpers\AvailableLanguages;
++use Pterodactyl\Http\Requests\Api\Client\ClientApiRequest;
++
++class UpdateLanguageRequest extends ClientApiRequest
++{
++    use AvailableLanguages;
++
++    public function rules(): array
++    {
++        return [
++            'language' => ['required', 'string', Rule::in(array_keys($this->getAvailableLanguages()))],
++        ];
++    }
++}
 diff --git a/resources/lang/en/server/backups.php b/resources/lang/en/server/backups.php
 new file mode 100644
 index 000000000..fc15c8a48
@@ -5507,10 +5730,10 @@ index 000000000..266a647a4
 +];
 diff --git a/resources/lang/zh/dashboard/account.php b/resources/lang/zh/dashboard/account.php
 new file mode 100644
-index 000000000..db180e483
+index 000000000..749dfdc30
 --- /dev/null
 +++ b/resources/lang/zh/dashboard/account.php
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,111 @@
 +<?php
 +
 +return [
@@ -5566,10 +5789,19 @@ index 000000000..db180e483
 +        'update_password' => '更新密碼',
 +        'update_email' => '更新電子郵件地址',
 +        'two_step_verification' => '兩步驟驗證',
++        'language_preferences' => '語言偏好',
 +    ],
 +    'activity' => [
 +        'page_title' => '帳號活動紀錄',
 +        'clear_filters' => '清除篩選條件',
++    ],
++    'language' => [
++        'label' => '語言',
++        'help' => '選擇此帳號在面板中使用的顯示語言。',
++        'loading' => '正在載入可用語言...',
++        'none_available' => '目前沒有可用語言。',
++        'update_button' => '更新語言',
++        'updated' => '你的語言偏好已更新。',
 +    ],
 +    'email' => [
 +        'title' => '更新你的電子郵件',
@@ -6377,3 +6609,160 @@ index 000000000..6a14fb5e2
 +        'invalid_password' => '提供的密碼不符合此帳號。',
 +    ],
 +];
+diff --git a/resources/scripts/api/account/getAvailableLanguages.ts b/resources/scripts/api/account/getAvailableLanguages.ts
+new file mode 100644
+index 000000000..5aa8c4ecf
+--- /dev/null
++++ b/resources/scripts/api/account/getAvailableLanguages.ts
+@@ -0,0 +1,14 @@
++import http from '@/api/http';
++
++export interface AccountLanguage {
++    code: string;
++    name: string;
++}
++
++export default (): Promise<AccountLanguage[]> => {
++    return new Promise((resolve, reject) => {
++        http.get('/api/client/account/languages')
++            .then(({ data }) => resolve(data.data || []))
++            .catch(reject);
++    });
++};
+diff --git a/resources/scripts/api/account/updateAccountLanguage.ts b/resources/scripts/api/account/updateAccountLanguage.ts
+new file mode 100644
+index 000000000..e3ecb3f61
+--- /dev/null
++++ b/resources/scripts/api/account/updateAccountLanguage.ts
+@@ -0,0 +1,9 @@
++import http from '@/api/http';
++
++export default (language: string): Promise<void> => {
++    return new Promise((resolve, reject) => {
++        http.put('/api/client/account/language', { language })
++            .then(() => resolve())
++            .catch(reject);
++    });
++};
+diff --git a/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
+new file mode 100644
+index 000000000..1e7bd68e3
+--- /dev/null
++++ b/resources/scripts/components/dashboard/forms/UpdateLanguageForm.tsx
+@@ -0,0 +1,116 @@
++import React, { useEffect, useState } from 'react';
++import SpinnerOverlay from '@/components/elements/SpinnerOverlay';
++import Label from '@/components/elements/Label';
++import Select from '@/components/elements/Select';
++import tw from 'twin.macro';
++import { Button } from '@/components/elements/button/index';
++import { useTranslation } from 'react-i18next';
++import { Actions, State, useStoreActions, useStoreState } from 'easy-peasy';
++import { ApplicationStore } from '@/state';
++import getAvailableLanguages, { AccountLanguage } from '@/api/account/getAvailableLanguages';
++import { httpErrorToHuman } from '@/api/http';
++import i18n from '@/i18n';
++
++export default () => {
++    const { t } = useTranslation('dashboard/account');
++    const user = useStoreState((state: State<ApplicationStore>) => state.user.data);
++    const updateLanguage = useStoreActions((state: Actions<ApplicationStore>) => state.user.updateUserLanguage);
++    const { clearFlashes, addFlash } = useStoreActions((actions: Actions<ApplicationStore>) => actions.flashes);
++
++    const [languages, setLanguages] = useState<AccountLanguage[]>([]);
++    const [language, setLanguage] = useState(user?.language || 'en');
++    const [submitting, setSubmitting] = useState(false);
++    const [loadingLanguages, setLoadingLanguages] = useState(true);
++
++    useEffect(() => {
++        if (user?.language) {
++            setLanguage(user.language);
++        }
++    }, [user?.language]);
++
++    useEffect(() => {
++        getAvailableLanguages()
++            .then((data) => setLanguages(data))
++            .catch((error) =>
++                addFlash({
++                    key: 'account:language',
++                    type: 'error',
++                    title: t('error_title'),
++                    message: httpErrorToHuman(error),
++                })
++            )
++            .then(() => setLoadingLanguages(false));
++    }, []);
++
++    if (!user) {
++        return null;
++    }
++
++    const submit = () => {
++        clearFlashes('account:language');
++        setSubmitting(true);
++
++        updateLanguage(language)
++            .then(() => {
++                (window as Window & { PterodactylUser?: { language?: string } }).PterodactylUser &&
++                    ((window as Window & { PterodactylUser?: { language?: string } }).PterodactylUser!.language =
++                        language);
++                i18n.changeLanguage(language);
++
++                addFlash({
++                    type: 'success',
++                    key: 'account:language',
++                    message: t('language.updated'),
++                });
++            })
++            .catch((error) =>
++                addFlash({
++                    key: 'account:language',
++                    type: 'error',
++                    title: t('error_title'),
++                    message: httpErrorToHuman(error),
++                })
++            )
++            .then(() => setSubmitting(false));
++    };
++
++    return (
++        <div css={tw`relative`}>
++            <SpinnerOverlay size={'large'} visible={submitting} />
++            <Label htmlFor={'account_language'}>{t('language.label')}</Label>
++            <Select
++                id={'account_language'}
++                value={language}
++                disabled={loadingLanguages || !languages.length}
++                onChange={(e) => setLanguage(e.currentTarget.value)}
++            >
++                {languages.map((item) => (
++                    <option key={item.code} value={item.code}>
++                        {item.name}
++                    </option>
++                ))}
++            </Select>
++            <p className={'input-help'}>
++                {loadingLanguages
++                    ? t('language.loading')
++                    : languages.length
++                    ? t('language.help')
++                    : t('language.none_available')}
++            </p>
++            <div css={tw`mt-6`}>
++                <Button
++                    type={'button'}
++                    disabled={
++                        submitting ||
++                        loadingLanguages ||
++                        !languages.length ||
++                        language === user.language
++                    }
++                    onClick={submit}
++                >
++                    {t('language.update_button')}
++                </Button>
++            </div>
++        </div>
++    );
++};
