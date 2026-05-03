@@ -1,3 +1,51 @@
+diff --git a/app/Http/Controllers/Admin/Settings/IndexController.php b/app/Http/Controllers/Admin/Settings/IndexController.php
+index e89d120f4..008808f86 100644
+--- a/app/Http/Controllers/Admin/Settings/IndexController.php
++++ b/app/Http/Controllers/Admin/Settings/IndexController.php
+@@ -6,6 +6,7 @@ use Illuminate\View\View;
+ use Illuminate\Http\RedirectResponse;
+ use Prologue\Alerts\AlertsMessageBag;
+ use Illuminate\Contracts\Console\Kernel;
++use Pterodactyl\Models\User;
+ use Pterodactyl\Http\Controllers\Controller;
+ use Pterodactyl\Traits\Helpers\AvailableLanguages;
+ use Pterodactyl\Services\Helpers\SoftwareVersionService;
+@@ -46,10 +47,19 @@ class IndexController extends Controller
+      */
+     public function update(BaseSettingsFormRequest $request): RedirectResponse
+     {
+-        foreach ($request->normalize() as $key => $value) {
++        $values = $request->normalize();
++        $currentLocale = config('app.locale', 'en');
++
++        foreach ($values as $key => $value) {
+             $this->settings->set('settings::' . $key, $value);
+         }
+ 
++        // If the default panel locale changes, also migrate accounts still using
++        // the previous default so the change is immediately visible.
++        if (isset($values['app:locale']) && $values['app:locale'] !== $currentLocale) {
++            User::query()->where('language', $currentLocale)->update(['language' => $values['app:locale']]);
++        }
++
+         $this->kernel->call('queue:restart');
+         $this->alert->success('Panel settings have been updated successfully and the queue worker was restarted to apply these changes.')->flash();
+ 
+diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
+index 0a2cc03d7..66000d100 100644
+--- a/app/Http/Requests/Base/LocaleRequest.php
++++ b/app/Http/Requests/Base/LocaleRequest.php
+@@ -10,7 +10,9 @@ class LocaleRequest extends FormRequest
+     {
+         return [
+             'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
+-            'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
++            // Support nested translation groups such as "dashboard/account" and
++            // groups with underscores like "server/console_ui".
++            'namespace' => ['required', 'string', 'max:191', 'regex:/^[a-z0-9_\/-]+$/'],
+         ];
+     }
+ }
 diff --git a/resources/lang/en/auth.php b/resources/lang/en/auth.php
 index 2a3a45268..e5d4cf63c 100644
 --- a/resources/lang/en/auth.php
