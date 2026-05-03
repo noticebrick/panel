@@ -5521,6 +5521,13 @@ index 000000000..d0cd84f57
 +  'Inbound' => 'Inbound',
 +  'Invite User' => 'Invite User',
 +  'It looks like there are no backups currently stored for this server.' => 'It looks like there are no backups currently stored for this server.',
++  'Backups cannot be created for this server because the backup limit is set to 0.' => 'Backups cannot be created for this server because the backup limit is set to 0.',
++  ':current of :limit backups have been created for this server.' => ':current of :limit backups have been created for this server.',
++  'Your server will be stopped and some files may be deleted or modified during this process, are you sure you wish to continue?' => 'Your server will be stopped and some files may be deleted or modified during this process, are you sure you wish to continue?',
++  'Reinstalling your server will stop it, and then re-run the installation script that initially set it up.' => 'Reinstalling your server will stop it, and then re-run the installation script that initially set it up.',
++  'Some files may be deleted or modified during this process, please back up your data before continuing.' => 'Some files may be deleted or modified during this process, please back up your data before continuing.',
++  'A backup task cannot be created when the server\'s backup limit is set to 0.' => 'A backup task cannot be created when the server\'s backup limit is set to 0.',
++  'API Credentials' => 'API Credentials',
 +  'It looks like you have no databases.' => 'It looks like you have no databases.',
 +  'Leave blank to allow any IP address to use this API key, otherwise provide each IP address on a new line.' => 'Leave blank to allow any IP address to use this API key, otherwise provide each IP address on a new line.',
 +  'Looks like we\'ve run out of backups to show you, try going back a page.' => 'Looks like we\'ve run out of backups to show you, try going back a page.',
@@ -6947,6 +6954,13 @@ index 000000000..9b17c6602
 +  'Inbound' => '流入',
 +  'Invite User' => '邀請使用者',
 +  'It looks like there are no backups currently stored for this server.' => '此伺服器目前沒有任何已儲存的備份。',
++  'Backups cannot be created for this server because the backup limit is set to 0.' => '此伺服器無法建立備份，因為備份上限設定為 0。',
++  ':current of :limit backups have been created for this server.' => '此伺服器已建立 :current / :limit 份備份。',
++  'Your server will be stopped and some files may be deleted or modified during this process, are you sure you wish to continue?' => '你的伺服器將會停止，且在此過程中部分檔案可能被刪除或修改，你確定要繼續嗎？',
++  'Reinstalling your server will stop it, and then re-run the installation script that initially set it up.' => '重新安裝伺服器會先將其停止，然後重新執行最初的安裝腳本。',
++  'Some files may be deleted or modified during this process, please back up your data before continuing.' => '在此過程中部分檔案可能被刪除或修改，請在繼續前先備份資料。',
++  'A backup task cannot be created when the server\'s backup limit is set to 0.' => '當伺服器備份上限為 0 時，無法建立備份任務。',
++  'API Credentials' => 'API 憑證',
 +  'It looks like you have no databases.' => '看起來你目前沒有任何資料庫。',
 +  'Leave blank to allow any IP address to use this API key, otherwise provide each IP address on a new line.' => '留空可允許任何 IP 位址使用此 API 金鑰；否則請每行填入一個 IP 位址。',
 +  'Looks like we\'ve run out of backups to show you, try going back a page.' => '看起來可顯示的備份已經到底了，請嘗試回到上一頁。',
@@ -7272,3 +7286,211 @@ index 000000000..3335f94b7
 +
 +export const translateLiteralValue = <TValue>(value: TValue, t: TFunction): TValue =>
 +    typeof value === 'string' ? (translateLiteral(value, t) as TValue) : value;
+diff --git a/resources/scripts/components/server/backups/BackupContainer.tsx b/resources/scripts/components/server/backups/BackupContainer.tsx
+index 0134142bd..0ee392d4c 100644
+--- a/resources/scripts/components/server/backups/BackupContainer.tsx
++++ b/resources/scripts/components/server/backups/BackupContainer.tsx
+@@ -10,8 +10,11 @@ import getServerBackups, { Context as ServerBackupContext } from '@/api/swr/getS
+ import { ServerContext } from '@/state/server';
+ import ServerContentBlock from '@/components/elements/ServerContentBlock';
+ import Pagination from '@/components/elements/Pagination';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ const BackupContainer = () => {
++    const { t } = useTranslation('literals');
+     const { page, setPage } = useContext(ServerBackupContext);
+     const { clearFlashes, clearAndAddHttpError } = useFlash();
+     const { data: backups, error, isValidating } = getServerBackups();
+@@ -43,8 +46,8 @@ const BackupContainer = () => {
+                         !backupLimit ? null : (
+                             <p css={tw`text-center text-sm text-neutral-300`}>
+                                 {page > 1
+-                                    ? "Looks like we've run out of backups to show you, try going back a page."
+-                                    : 'It looks like there are no backups currently stored for this server.'}
++                                    ? translateLiteral("Looks like we've run out of backups to show you, try going back a page.", t)
++                                    : translateLiteral('It looks like there are no backups currently stored for this server.', t)}
+                             </p>
+                         )
+                     ) : (
+@@ -56,14 +59,20 @@ const BackupContainer = () => {
+             </Pagination>
+             {backupLimit === 0 && (
+                 <p css={tw`text-center text-sm text-neutral-300`}>
+-                    Backups cannot be created for this server because the backup limit is set to 0.
++                    {translateLiteral(
++                        'Backups cannot be created for this server because the backup limit is set to 0.',
++                        t
++                    )}
+                 </p>
+             )}
+             <Can action={'backup.create'}>
+                 <div css={tw`mt-6 sm:flex items-center justify-end`}>
+                     {backupLimit > 0 && backups.backupCount > 0 && (
+                         <p css={tw`text-sm text-neutral-300 mb-4 sm:mr-6 sm:mb-0`}>
+-                            {backups.backupCount} of {backupLimit} backups have been created for this server.
++                            {translateLiteral(':current of :limit backups have been created for this server.', t, {
++                                current: backups.backupCount,
++                                limit: backupLimit,
++                            })}
+                         </p>
+                     )}
+                     {backupLimit > 0 && backupLimit > backups.backupCount && (
+diff --git a/resources/scripts/components/server/schedules/TaskDetailsModal.tsx b/resources/scripts/components/server/schedules/TaskDetailsModal.tsx
+index f54c0a258..444764c02 100644
+--- a/resources/scripts/components/server/schedules/TaskDetailsModal.tsx
++++ b/resources/scripts/components/server/schedules/TaskDetailsModal.tsx
+@@ -17,6 +17,8 @@ import Select from '@/components/elements/Select';
+ import ModalContext from '@/context/ModalContext';
+ import asModal from '@/hoc/asModal';
+ import FormikSwitch from '@/components/elements/FormikSwitch';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ interface Props {
+     schedule: Schedule;
+@@ -65,6 +67,7 @@ const ActionListener = () => {
+ };
+ 
+ const TaskDetailsModal = ({ schedule, task }: Props) => {
++    const { t } = useTranslation('literals');
+     const { dismiss } = useContext(ModalContext);
+     const { clearFlashes, addError } = useFlash();
+ 
+@@ -83,7 +86,7 @@ const TaskDetailsModal = ({ schedule, task }: Props) => {
+         if (backupLimit === 0 && values.action === 'backup') {
+             setSubmitting(false);
+             addError({
+-                message: "A backup task cannot be created when the server's backup limit is set to 0.",
++                message: translateLiteral("A backup task cannot be created when the server's backup limit is set to 0.", t),
+                 key: 'schedule:task',
+             });
+         } else {
+diff --git a/resources/scripts/components/server/settings/ReinstallServerBox.tsx b/resources/scripts/components/server/settings/ReinstallServerBox.tsx
+index 3a5a8dad5..9fc1b559b 100644
+--- a/resources/scripts/components/server/settings/ReinstallServerBox.tsx
++++ b/resources/scripts/components/server/settings/ReinstallServerBox.tsx
+@@ -8,8 +8,11 @@ import { httpErrorToHuman } from '@/api/http';
+ import tw from 'twin.macro';
+ import { Button } from '@/components/elements/button/index';
+ import { Dialog } from '@/components/elements/dialog';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ export default () => {
++    const { t } = useTranslation('literals');
+     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+     const [modalVisible, setModalVisible] = useState(false);
+     const { addFlash, clearFlashes } = useStoreActions((actions: Actions<ApplicationStore>) => actions.flashes);
+@@ -21,7 +24,7 @@ export default () => {
+                 addFlash({
+                     key: 'settings',
+                     type: 'success',
+-                    message: 'Your server has begun the reinstallation process.',
++                    message: translateLiteral('Your server has begun the reinstallation process.', t),
+                 });
+             })
+             .catch((error) => {
+@@ -40,25 +43,32 @@ export default () => {
+         <TitledGreyBox title={'Reinstall Server'} css={tw`relative`}>
+             <Dialog.Confirm
+                 open={modalVisible}
+-                title={'Confirm server reinstallation'}
+-                confirm={'Yes, reinstall server'}
++                title={translateLiteral('Confirm server reinstallation', t)}
++                confirm={translateLiteral('Yes, reinstall server', t)}
+                 onClose={() => setModalVisible(false)}
+                 onConfirmed={reinstall}
+             >
+-                Your server will be stopped and some files may be deleted or modified during this process, are you sure
+-                you wish to continue?
++                {translateLiteral(
++                    'Your server will be stopped and some files may be deleted or modified during this process, are you sure you wish to continue?',
++                    t
++                )}
+             </Dialog.Confirm>
+             <p css={tw`text-sm`}>
+-                Reinstalling your server will stop it, and then re-run the installation script that initially set it
+-                up.&nbsp;
++                {translateLiteral(
++                    'Reinstalling your server will stop it, and then re-run the installation script that initially set it up.',
++                    t
++                )}
++                &nbsp;
+                 <strong css={tw`font-medium`}>
+-                    Some files may be deleted or modified during this process, please back up your data before
+-                    continuing.
++                    {translateLiteral(
++                        'Some files may be deleted or modified during this process, please back up your data before continuing.',
++                        t
++                    )}
+                 </strong>
+             </p>
+             <div css={tw`mt-6 text-right`}>
+                 <Button.Danger variant={Button.Variants.Secondary} onClick={() => setModalVisible(true)}>
+-                    Reinstall Server
++                    {translateLiteral('Reinstall Server', t)}
+                 </Button.Danger>
+             </div>
+         </TitledGreyBox>
+diff --git a/resources/scripts/routers/DashboardRouter.tsx b/resources/scripts/routers/DashboardRouter.tsx
+index 4ad69c652..4e6d1f399 100644
+--- a/resources/scripts/routers/DashboardRouter.tsx
++++ b/resources/scripts/routers/DashboardRouter.tsx
+@@ -8,9 +8,12 @@ import SubNavigation from '@/components/elements/SubNavigation';
+ import { useLocation } from 'react-router';
+ import Spinner from '@/components/elements/Spinner';
+ import routes from '@/routers/routes';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ export default () => {
+     const location = useLocation();
++    const { t } = useTranslation('literals');
+ 
+     return (
+         <>
+@@ -22,7 +25,7 @@ export default () => {
+                             .filter((route) => !!route.name)
+                             .map(({ path, name, exact = false }) => (
+                                 <NavLink key={path} to={`/account/${path}`.replace('//', '/')} exact={exact}>
+-                                    {name}
++                                    {name ? translateLiteral(name, t) : name}
+                                 </NavLink>
+                             ))}
+                     </div>
+diff --git a/resources/scripts/routers/ServerRouter.tsx b/resources/scripts/routers/ServerRouter.tsx
+index 2976cf789..51b5f5d94 100644
+--- a/resources/scripts/routers/ServerRouter.tsx
++++ b/resources/scripts/routers/ServerRouter.tsx
+@@ -20,6 +20,8 @@ import { useLocation } from 'react-router';
+ import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
+ import PermissionRoute from '@/components/elements/PermissionRoute';
+ import routes from '@/routers/routes';
++import { useTranslation } from 'react-i18next';
++import { translateLiteral } from '@/lib/literals';
+ 
+ export default () => {
+     const match = useRouteMatch<{ id: string }>();
+@@ -27,6 +29,7 @@ export default () => {
+ 
+     const rootAdmin = useStoreState((state) => state.user.data!.rootAdmin);
+     const [error, setError] = useState('');
++    const { t } = useTranslation('literals');
+ 
+     const id = ServerContext.useStoreState((state) => state.server.data?.id);
+     const uuid = ServerContext.useStoreState((state) => state.server.data?.uuid);
+@@ -82,12 +85,12 @@ export default () => {
+                                         route.permission ? (
+                                             <Can key={route.path} action={route.permission} matchAny>
+                                                 <NavLink to={to(route.path, true)} exact={route.exact}>
+-                                                    {route.name}
++                                                    {route.name ? translateLiteral(route.name, t) : route.name}
+                                                 </NavLink>
+                                             </Can>
+                                         ) : (
+                                             <NavLink key={route.path} to={to(route.path, true)} exact={route.exact}>
+-                                                {route.name}
++                                                {route.name ? translateLiteral(route.name, t) : route.name}
+                                             </NavLink>
+                                         )
