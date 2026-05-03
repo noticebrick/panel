@@ -52,7 +52,8 @@ Commands:
       Run git apply --check for one patch or all patches.
 
   gen [name]
-      Generate a patch from current source working tree changes (git diff HEAD).
+      Generate a patch from current source working tree changes, including
+      untracked/new files.
       Output defaults to patches/NNNN-local-changes.patch
 
   gen-from-base [name] [base-ref]
@@ -337,12 +338,28 @@ cmd_gen() {
         out_path="$(next_patch_path "local-changes")"
     fi
 
-    if git -C "$SOURCE_DIR" diff --quiet HEAD --; then
+    # Use a temporary index so we include untracked files without mutating
+    # the repository's real staging area.
+    local tmp_index real_index
+    tmp_index="$(mktemp)"
+    real_index="$(git -C "$SOURCE_DIR" rev-parse --git-path index)"
+
+    if [[ -f "$real_index" ]]; then
+        cp "$real_index" "$tmp_index"
+    else
+        : > "$tmp_index"
+    fi
+
+    GIT_INDEX_FILE="$tmp_index" git -C "$SOURCE_DIR" add -A
+
+    if GIT_INDEX_FILE="$tmp_index" git -C "$SOURCE_DIR" diff --cached --quiet HEAD --; then
+        rm -f "$tmp_index"
         die "no changes in source (vs HEAD) to generate a patch"
     fi
 
-    log "generating patch from source working tree -> $out_path"
-    git -C "$SOURCE_DIR" diff --binary HEAD -- > "$out_path"
+    log "generating patch from source working tree (including untracked files) -> $out_path"
+    GIT_INDEX_FILE="$tmp_index" git -C "$SOURCE_DIR" diff --cached --binary HEAD -- > "$out_path"
+    rm -f "$tmp_index"
 }
 
 cmd_gen_from_base() {
