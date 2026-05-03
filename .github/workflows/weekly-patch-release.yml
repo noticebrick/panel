@@ -1,6 +1,9 @@
 name: Weekly Patch Release
 
 on:
+  push:
+    branches:
+      - "**"
   schedule:
     - cron: "0 3 * * 1"
   workflow_dispatch:
