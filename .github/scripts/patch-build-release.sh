@@ -51,6 +51,12 @@ if [[ -d "$PATCH_DIR" ]]; then
   shopt -s nullglob
   patch_files=("$PATCH_DIR"/*.patch)
   shopt -u nullglob
+  IFS=$'\n' patch_files=($(printf '%s\n' "${patch_files[@]}" | sort))
+  unset IFS
+
+  # Guardrail: this patch should stay large; sudden shrink usually means
+  # partial regeneration from the wrong diff scope.
+  MIN_0002_LINES="${MIN_0002_LINES:-7000}"
 
   if (( ${#patch_files[@]} == 0 )); then
     echo "No patch files found in $PATCH_DIR; continuing without patch application."
@@ -62,12 +68,28 @@ if [[ -d "$PATCH_DIR" ]]; then
       continue
     fi
 
-    echo "Applying patch: $(basename "$patch")"
+    patch_name="$(basename "$patch")"
+    if [[ "$patch_name" == "0002-zhtw-localization.patch" ]]; then
+      patch_lines="$(wc -l < "$patch")"
+      if (( patch_lines < MIN_0002_LINES )); then
+        echo "Patch $patch_name is unexpectedly small (${patch_lines} lines < ${MIN_0002_LINES})." >&2
+        exit 1
+      fi
+    fi
+
+    echo "Validating patch: $patch_name"
+    git apply --check --whitespace=nowarn "$patch"
+
+    echo "Applying patch: $patch_name"
     git apply --whitespace=nowarn "$patch"
   done
 else
   echo "Patch directory $PATCH_DIR does not exist; continuing without patch application."
 fi
+
+echo "Linting critical translation files"
+php -l resources/lang/en/literals.php
+php -l resources/lang/zh_TW/literals.php
 
 echo "Installing JS dependencies"
 corepack enable
