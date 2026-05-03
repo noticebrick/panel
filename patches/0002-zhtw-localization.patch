@@ -7494,3 +7494,4 @@ index 2976cf789..51b5f5d94 100644
 +                                                {route.name ? translateLiteral(route.name, t) : route.name}
                                              </NavLink>
                                          )
+                                     )}
