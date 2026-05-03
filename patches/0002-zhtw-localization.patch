@@ -100,8 +100,30 @@ index 8f733cd22..460bff014 100644
 +        return new JsonResponse([], Response::HTTP_NO_CONTENT);
 +    }
  }
+diff --git a/app/Http/Controllers/Base/LocaleController.php b/app/Http/Controllers/Base/LocaleController.php
+index 16a310092..c8d73673e 100644
+--- a/app/Http/Controllers/Base/LocaleController.php
++++ b/app/Http/Controllers/Base/LocaleController.php
+@@ -24,7 +24,16 @@ class LocaleController extends Controller
+     {
+         $locale = $request->input('locale');
+         $namespace = $request->input('namespace');
+-        $response[$locale][$namespace] = $this->i18n($this->loader->load($locale, $namespace));
++        $response = [$locale => []];
++
++        // i18next multiload can batch namespaces into a single query. Accept
++        // separators used by adapters (comma, plus, whitespace) and load each.
++        $namespaces = preg_split('/[,+\s]+/', (string) $namespace) ?: [];
++        $namespaces = array_values(array_filter(array_unique($namespaces)));
++
++        foreach ($namespaces as $group) {
++            $response[$locale][$group] = $this->i18n($this->loader->load($locale, $group));
++        }
+ 
+         return new JsonResponse($response, 200, [
+             // Cache this in the browser for an hour, and allow the browser to use a stale
 diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
-index 0a2cc03d7..e067dbf5f 100644
+index 0a2cc03d7..7ac1209de 100644
 --- a/app/Http/Requests/Base/LocaleRequest.php
 +++ b/app/Http/Requests/Base/LocaleRequest.php
 @@ -9,8 +9,11 @@ class LocaleRequest extends FormRequest
@@ -112,27 +134,40 @@ index 0a2cc03d7..e067dbf5f 100644
 -            'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
 +            // Support both base locales ("en") and regional locales ("zh_TW").
 +            'locale' => ['required', 'string', 'regex:/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/'],
-+            // Support nested translation groups such as "dashboard/account" and
-+            // groups with underscores like "server/console_ui".
-+            'namespace' => ['required', 'string', 'max:191', 'regex:/^[a-z0-9_\/-]+$/'],
++            // Support nested namespaces and batched namespace requests from
++            // i18next-multiload-backend-adapter (joined by "+" or commas).
++            'namespace' => ['required', 'string', 'max:512', 'regex:/^[a-z0-9_\/,\-+\s]+$/'],
          ];
      }
  }
 diff --git a/app/Traits/Helpers/AvailableLanguages.php b/app/Traits/Helpers/AvailableLanguages.php
-index d487e8ecc..b274278ad 100644
+index d487e8ecc..25b4e9c5d 100644
 --- a/app/Traits/Helpers/AvailableLanguages.php
 +++ b/app/Traits/Helpers/AvailableLanguages.php
-@@ -18,11 +18,28 @@ trait AvailableLanguages
+@@ -17,12 +17,39 @@ trait AvailableLanguages
+      */
      public function getAvailableLanguages(bool $localize = false): array
      {
-         return collect($this->getFilesystemInstance()->directories(resource_path('lang')))->mapWithKeys(function ($path) use ($localize) {
+-        return collect($this->getFilesystemInstance()->directories(resource_path('lang')))->mapWithKeys(function ($path) use ($localize) {
+-            $code = basename($path);
+-            $value = $localize ? $this->getIsoInstance()->nativeByCode1($code) : $this->getIsoInstance()->languageByCode1($code);
++        $availableCodes = collect($this->getFilesystemInstance()->directories(resource_path('lang')))
++            ->map(fn (string $path) => basename($path))
++            ->values();
++
++        return $availableCodes->mapWithKeys(function ($code) use ($localize, $availableCodes) {
++            // If the base language exists, hide regional variants (e.g. zh_TW)
++            // so users only see one language choice ("zh").
++            if (preg_match('/^([a-z]{2})[_-][A-Za-z]{2}$/', $code, $matches) && $availableCodes->contains(strtolower($matches[1]))) {
++                return [];
++            }
++
++            $path = resource_path('lang/' . $code);
 +            // Skip empty locale directories to avoid exposing broken options.
 +            if (count($this->getFilesystemInstance()->allFiles($path)) === 0) {
 +                return [];
 +            }
 +
-             $code = basename($path);
--            $value = $localize ? $this->getIsoInstance()->nativeByCode1($code) : $this->getIsoInstance()->languageByCode1($code);
 +            preg_match('/^[a-z]{2}/i', $code, $matches);
 +            $baseCode = strtolower($matches[0] ?? $code);
 +
