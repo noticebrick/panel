@@ -101,42 +101,71 @@ index 8f733cd22..460bff014 100644
 +    }
  }
 diff --git a/app/Http/Controllers/Base/LocaleController.php b/app/Http/Controllers/Base/LocaleController.php
-index 16a310092..c8d73673e 100644
+index 16a310092..d9cf0aa8a 100644
 --- a/app/Http/Controllers/Base/LocaleController.php
 +++ b/app/Http/Controllers/Base/LocaleController.php
-@@ -24,7 +24,16 @@ class LocaleController extends Controller
+@@ -22,9 +22,16 @@ class LocaleController extends Controller
+      */
+     public function __invoke(LocaleRequest $request): JsonResponse
      {
-         $locale = $request->input('locale');
-         $namespace = $request->input('namespace');
+-        $locale = $request->input('locale');
+-        $namespace = $request->input('namespace');
 -        $response[$locale][$namespace] = $this->i18n($this->loader->load($locale, $namespace));
-+        $response = [$locale => []];
++        $locales = $this->parseRequestList((string) $request->input('locale'), '/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/');
++        $namespaces = $this->parseRequestList((string) $request->input('namespace'), '/^[a-z0-9_\/-]+$/');
 +
-+        // i18next multiload can batch namespaces into a single query. Accept
-+        // separators used by adapters (comma, plus, whitespace) and load each.
-+        $namespaces = preg_split('/[,+\s]+/', (string) $namespace) ?: [];
-+        $namespaces = array_values(array_filter(array_unique($namespaces)));
-+
-+        foreach ($namespaces as $group) {
-+            $response[$locale][$group] = $this->i18n($this->loader->load($locale, $group));
++        $response = [];
++        foreach ($locales as $locale) {
++            $response[$locale] = [];
++            foreach ($namespaces as $group) {
++                $response[$locale][$group] = $this->i18n($this->loader->load($locale, $group));
++            }
 +        }
  
          return new JsonResponse($response, 200, [
              // Cache this in the browser for an hour, and allow the browser to use a stale
+@@ -61,4 +68,16 @@ class LocaleController extends Controller
+ 
+         return $data;
+     }
++
++    /**
++     * Parse query string values that can be single or multi-loaded.
++     *
++     * i18next multi-load requests commonly batch values using "+" delimiters.
++     */
++    protected function parseRequestList(string $value, string $pattern): array
++    {
++        $parts = preg_split('/[,+\s]+/', $value) ?: [];
++
++        return array_values(array_unique(array_filter($parts, fn ($item) => preg_match($pattern, $item) === 1)));
++    }
+ }
 diff --git a/app/Http/Requests/Base/LocaleRequest.php b/app/Http/Requests/Base/LocaleRequest.php
-index 0a2cc03d7..7ac1209de 100644
+index 0a2cc03d7..068b51c03 100644
 --- a/app/Http/Requests/Base/LocaleRequest.php
 +++ b/app/Http/Requests/Base/LocaleRequest.php
-@@ -9,8 +9,11 @@ class LocaleRequest extends FormRequest
+@@ -9,8 +9,21 @@ class LocaleRequest extends FormRequest
      public function rules(): array
      {
          return [
 -            'locale' => ['required', 'string', 'regex:/^[a-z][a-z]$/'],
 -            'namespace' => ['required', 'string', 'regex:/^[a-z]{1,191}$/'],
-+            // Support both base locales ("en") and regional locales ("zh_TW").
-+            'locale' => ['required', 'string', 'regex:/^[a-z]{2}(?:[_-][A-Za-z]{2})?$/'],
-+            // Support nested namespaces and batched namespace requests from
-+            // i18next-multiload-backend-adapter (joined by "+" or commas).
-+            'namespace' => ['required', 'string', 'max:512', 'regex:/^[a-z0-9_\/,\-+\s]+$/'],
++            // Accept single or batched locales, e.g. "zh" or "zh+en".
++            'locale' => [
++                'required',
++                'string',
++                'max:512',
++                'regex:/^[a-z]{2}(?:[_-][A-Za-z]{2})?(?:[,+\s][a-z]{2}(?:[_-][A-Za-z]{2})?)*$/',
++            ],
++            // Accept single or batched namespaces, e.g. "dashboard/index" or
++            // "dashboard/index+strings+server/console_ui".
++            'namespace' => [
++                'required',
++                'string',
++                'max:1024',
++                'regex:/^[a-z0-9_\/-]+(?:[,+\s][a-z0-9_\/-]+)*$/',
++            ],
          ];
      }
  }
